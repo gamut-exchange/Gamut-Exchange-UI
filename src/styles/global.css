@@ -1,0 +1,63 @@
+/* ./src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "TTNorms-Regular";
+  font-style: normal;
+  font-weight: normal;
+  src: local("TTNorms-Regular"),
+    url("/public/FontFamily/TTNorms-Regular.otf") format("otf");
+}
+/* @font-face {
+  font-family: "Segoe UI Bold";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Segoe UI Bold"),
+    url("/FontFamily/Segoe UI Bold.woff") format("woff");
+} */
+
+.main-container {
+  @apply max-w-container px-5 m-auto w-full;
+}
+.btn-primary {
+  @apply bg-light-primary text-lg text-white capitalize flex justify-center items-center dark:bg-grey-dark;
+}
+.header-title {
+  @apply text-light-primary text-center font-bold md:text-70 text-50 dark:text-grey-dark;
+}
+.title-secondary {
+  @apply text-light-primary md:text-left text-center dark:text-grey-dark text-38 font-bold;
+}
+.desc {
+  @apply text-2xl md:text-left text-center text-light-primary dark:text-grey-dark;
+}
+.model-title {
+  @apply text-light-primary dark:text-grey-dark text-2xl font-bold;
+}
+.input-title {
+  @apply text-xs text-light-primary;
+}
+.desc-small {
+  @apply text-lg text-grey-dark;
+}
+
+.input-value {
+  @apply text-light-primary font-normal text-[22px] sm:text-30 dark:text-grey-dark;
+}
+.input-lable {
+  @apply text-light-primary dark:text-grey-dark text-lg font-bold;
+}
+.list-title-small {
+  @apply text-light-primary dark:text-grey-dark text-xs;
+}
+.list-value {
+  @apply text-xl text-light-primary dark:text-grey-dark;
+}
+.collapse {
+  @apply max-h-0  transition-all duration-700 ease-in-out overflow-hidden;
+}
+.open {
+  @apply max-h-700 transition-all duration-1000 ease-in-out overflow-hidden;
+}
