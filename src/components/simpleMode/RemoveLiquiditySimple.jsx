@@ -6,6 +6,7 @@ import eth from "../../images/crypto/eth.svg";
 import btc from "../../images/crypto/btc.svg";
 import Slider from "@mui/material/Slider";
 import Modal from "@mui/material/Modal";
+import Button from '@mui/material/Button';
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
@@ -96,39 +97,9 @@ const RemoveLiquiditySimple = () => {
         <div>
           <div className="flex justify-between sm:flex-row flex-col gap-y-8 items-center p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
             <div className="flex-1 w-full">
-              <FormControl sx={{ maxWidth: 257, width: "100%" }}>
-                <Select
-                  sx={{ minHeight: "49px" }}
-                  value={crypto}
-                  onChange={handleChange}
-                  displayEmpty
-                  className="bg-white-bg dark:bg-dark-primary "
-                >
-                  <MenuItem value="">
-                    <em>
-                      <div className="flex gap-x-4 items-center">
-                        <img src={eth} alt="" />
-                        <p className="text-light-primary uppercase dark:text-grey-dark">
-                          btc
-                        </p>
-                      </div>
-                    </em>
-                  </MenuItem>
-                  {ethlist.map((list) => {
-                    const { id, icon, value } = list;
-                    return (
-                      <MenuItem key={id} value={value}>
-                        <div className="flex gap-x-4 items-center ">
-                          <img src={icon} alt="" />
-                          <p className="text-light-primary uppercase dark:text-grey-dark">
-                            {value}
-                          </p>
-                        </div>
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
+              <Button variant="outlined" startIcon={<img src={eth} alt="" />} style={{background:'white', padding:'10px 15px'}} onClick={handleOpen}>
+                ETH
+              </Button>
             </div>
             <div className="sm:text-right text-left flex-1 w-full">
               {" "}

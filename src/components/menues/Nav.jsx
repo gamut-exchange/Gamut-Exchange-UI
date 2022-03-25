@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import Drawer from "react-modern-drawer";
+import MenuList from '@mui/material/MenuList';
+import MenuItem from '@mui/material/MenuItem';
 import "react-modern-drawer/dist/index.css";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { BsToggleOff, BsToggleOn } from "react-icons/bs";
@@ -25,19 +27,46 @@ const Nav = ({ handleDark, dark }) => {
             </Link>
             <div className="hidden md:flex items-center gap-x-8">
               <ul className="flex gap-x-7">
-                {links.map((link) => {
-                  const { id, text, url } = link;
-                  return (
-                    <li key={id}>
-                      <Link
-                        className="text-light-primary dark:text-grey-dark transition-all duration-300"
-                        to={url}
-                      >
-                        {text}
-                      </Link>
-                    </li>
-                  );
-                })}
+                <li>
+                  <Link
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/swap'
+                  >
+                    Swap
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/liquidity'
+                  >
+                    Liquidity
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/mine'
+                  >
+                    Liquidity Mining
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/lock'
+                  >
+                    Gnt Lock
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/lp_tokens'
+                  >
+                    LP Tokens
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
@@ -53,12 +82,6 @@ const Nav = ({ handleDark, dark }) => {
                 </div>
               )}{" "}
             </button>
-            <Link
-              className="text-light-primary dark:text-grey-dark text-lg capitalize"
-              to={`/`}
-            >
-              Launch App
-            </Link>
             <Link
               style={{ width: 166, height: 49 }}
               className="btn-primary font-sans "

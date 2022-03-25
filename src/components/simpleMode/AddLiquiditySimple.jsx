@@ -3,6 +3,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import { BsPlus } from "react-icons/bs";
 import Select from "@mui/material/Select";
+import Button from '@mui/material/Button';
 import btc from "../../images/crypto/btc.svg";
 import eth from "../../images/crypto/eth.svg";
 import Slider from "@mui/material/Slider";
@@ -15,6 +16,7 @@ const AddLiquiditySimple = () => {
   const [crypto, setCrypto] = useState("");
   const [ratio, setRatio] = useState(false);
   const [open, setOpen] = React.useState(false);
+  const [selected, setSelected] = React.useState(0);
   const [value, setValue] = useState(0);
   const [valueEth, setValueEth] = useState(0);
   const [sliderValue, setSliderValue] = React.useState(50);
@@ -22,7 +24,10 @@ const AddLiquiditySimple = () => {
   const handleSlider = (event, newValue) => {
     setSliderValue(newValue);
   };
-  const handleOpen = () => setOpen(true);
+  const handleOpen = (val) => {
+    setSelected(val);
+    setOpen(true);
+  };
   const handleClose = () => setOpen(false);
 
   const handleChange = (event) => {
@@ -104,38 +109,9 @@ const AddLiquiditySimple = () => {
           <h3 className="input-lable mb-4">Input</h3>
           <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
             <div className="flex-1">
-              <FormControl sx={{ minWidth: 135 }}>
-                <Select
-                  value={crypto}
-                  onChange={handleChange}
-                  displayEmpty
-                  className="bg-white-bg dark:bg-dark-primary"
-                >
-                  <MenuItem value="">
-                    <em>
-                      <div className="flex gap-x-4 items-center">
-                        <img src={btc} alt="" />
-                        <p className="text-light-primary uppercase dark:text-grey-dark">
-                          btc
-                        </p>
-                      </div>
-                    </em>
-                  </MenuItem>
-                  {cryptolist.map((list) => {
-                    const { id, icon, value } = list;
-                    return (
-                      <MenuItem key={id} value={value}>
-                        <div className="flex gap-x-4 items-center ">
-                          <img src={icon} alt="" />
-                          <p className="text-light-primary uppercase dark:text-grey-dark">
-                            {value}
-                          </p>
-                        </div>
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
+              <Button variant="outlined" startIcon={<img src={btc} alt="" />} style={{background:'white', padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                BTC
+              </Button>
             </div>
             <div className="text-right flex-1">
               <form>
@@ -159,38 +135,9 @@ const AddLiquiditySimple = () => {
           <h3 className="input-lable mb-4">Input</h3>
           <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center  rounded-sm p-2 sm:p-4 bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
             <div>
-              <FormControl sx={{ minWidth: 135 }}>
-                <Select
-                  value={crypto}
-                  onChange={handleChange}
-                  displayEmpty
-                  className="bg-white-bg dark:bg-dark-primary"
-                >
-                  <MenuItem value="">
-                    <em>
-                      <div className="flex gap-x-4 items-center">
-                        <img src={eth} alt="" />
-                        <p className="text-light-primary uppercase dark:text-grey-dark">
-                          btc
-                        </p>
-                      </div>
-                    </em>
-                  </MenuItem>
-                  {ethlist.map((list) => {
-                    const { id, icon, value } = list;
-                    return (
-                      <MenuItem key={id} value={value}>
-                        <div className="flex gap-x-4 items-center">
-                          <img src={icon} alt="" />
-                          <p className="text-light-primary uppercase dark:text-grey-dark">
-                            {value}
-                          </p>
-                        </div>
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
+              <Button variant="outlined" startIcon={<img src={eth} alt="" />} style={{background:'white', padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
+                ETH
+              </Button>
             </div>
             <div className="text-right">
               <form>
@@ -242,19 +189,36 @@ const AddLiquiditySimple = () => {
             )}
           />
           <hr className="my-6" />
-          <ul className="flex flex-col gap-y-6">
-            {ethlist.map((item) => {
-              const { id, icon, value } = item;
-              return (
-                <li key={id} className="flex gap-x-1">
-                  <div className="relative flex">
-                    <img src={icon} alt="" />
-                  </div>
-                  <p className="text-light-primary text-lg">{value}</p>
-                </li>
-              );
-            })}
-          </ul>
+          {selected === 0 && 
+            <ul className="flex flex-col gap-y-6">
+              {cryptolist.map((item) => {
+                const { id, icon, value } = item;
+                return (
+                  <li key={id} className="flex gap-x-1">
+                    <div className="relative flex">
+                      <img src={icon} alt="" />
+                    </div>
+                    <p className="text-light-primary text-lg">{value}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          }
+          {selected === 1 && 
+            <ul className="flex flex-col gap-y-6">
+              {ethlist.map((item) => {
+                const { id, icon, value } = item;
+                return (
+                  <li key={id} className="flex gap-x-1">
+                    <div className="relative flex">
+                      <img src={icon} alt="" />
+                    </div>
+                    <p className="text-light-primary text-lg">{value}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          }
         </StyledModal>
       </Modal>
     </div>
