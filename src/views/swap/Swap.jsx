@@ -12,9 +12,6 @@ const Swap = () => {
   return (
     <>
       <div className="bg-white-bg dark:bg-dark-primary">
-        <div className="py-8 border-b border-grey-dark dark:border-grey-light bg-white-bg dark:bg-dark-primary dark:bg-opacity-95">
-          <h2 className="title-secondary main-container">Swap</h2>
-        </div>
         <div className="main-container">
           <div className="py-6 border-b border-grey-dark">
             <h3 className="model-title mb-4">Sided Pairs</h3>
@@ -29,11 +26,7 @@ const Swap = () => {
           <hr className="mb-10" />
 
           <div>
-            {!advance ? (
-              <SimpleSwap handleMode={handleMode} />
-            ) : (
-              <AdvanceSwap handleMode={handleMode} />
-            )}
+            <SimpleSwap handleMode={handleMode} />
           </div>
         </div>
       </div>

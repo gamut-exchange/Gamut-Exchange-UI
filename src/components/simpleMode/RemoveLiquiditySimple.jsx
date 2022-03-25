@@ -36,11 +36,11 @@ const RemoveLiquiditySimple = () => {
   absolute
   top-1/2 left-1/2
   bg-white-bg
-  max-w-sm
   p-6
   shadow-box overflow-y-scroll
   min-h-min
   transform -translate-x-1/2 -translate-y-1/2
+  w-1/4
   `;
 
   return (

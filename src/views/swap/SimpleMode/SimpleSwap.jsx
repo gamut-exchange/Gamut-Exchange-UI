@@ -7,7 +7,7 @@ import eth from "../../../images/crypto/eth.svg";
 import chart from "../../../images/chart.png";
 import Button from '@mui/material/Button';
 import Modal from "@mui/material/Modal";
-import tw from "twin.macro";
+import tw, { styled } from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 
@@ -21,11 +21,11 @@ const StyledModal = tw.div`
   absolute
   top-1/2 left-1/2
   bg-white-bg
-  max-w-sm
   p-6
   shadow-box overflow-y-scroll
   min-h-min
   transform -translate-x-1/2 -translate-y-1/2
+  w-1/4
   `;
 
 const SimpleSwap = ({ handleMode }) => {
