@@ -3,11 +3,6 @@ import AdvanceSwap from "./AdvanceMode/AdvanceSwap";
 import SimpleSwap from "./SimpleMode/SimpleSwap";
 
 const Swap = () => {
-  const [advance, setAdvance] = useState(false);
-
-  const handleMode = () => {
-    setAdvance(!advance);
-  };
 
   return (
     <>
@@ -24,9 +19,8 @@ const Swap = () => {
             </p>
           </div>
           <hr className="mb-10" />
-
           <div>
-            <SimpleSwap handleMode={handleMode} />
+            <SimpleSwap />
           </div>
         </div>
       </div>

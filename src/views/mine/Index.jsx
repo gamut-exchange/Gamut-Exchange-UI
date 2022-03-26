@@ -2,9 +2,9 @@ import React from "react";
 import Layout from "../../components/Layout";
 import Mine from "./Mine";
 
-const Index = () => {
+const Index = ({ handleDark, dark }) => {
   return (
-    <Layout>
+    <Layout handleDark={handleDark} dark={dark}>
       <Mine />
     </Layout>
   );

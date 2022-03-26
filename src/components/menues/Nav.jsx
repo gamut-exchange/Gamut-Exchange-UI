@@ -84,7 +84,7 @@ const Nav = ({ handleDark, dark }) => {
             </button>
             <Link
               style={{ width: 166, height: 49 }}
-              className="btn-primary font-sans "
+              className="btn-primary font-sans  dark:text-dark-primary"
               to="/"
             >
               Connect
@@ -102,21 +102,6 @@ const Nav = ({ handleDark, dark }) => {
                 <Link to={`/`}>
                   <img src={log} alt="logo" />
                 </Link>
-                <ul className="flex flex-col px-4 mt-8 gap-y-7">
-                  {links.map((link) => {
-                    const { id, text, url } = link;
-                    return (
-                      <li key={id}>
-                        <Link
-                          className="text-light-primary dark:text-grey-dark"
-                          to={url}
-                        >
-                          {text}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
                 <div className="flex flex-col gap-y-6 items-start px-4 mt-7">
                   <div className="flex items-center justify-between w-full order-last">
                     <p className="text-light-primary text-xs dark:text-grey-dark">
@@ -134,14 +119,38 @@ const Nav = ({ handleDark, dark }) => {
                     </button>
                   </div>
                   <Link
-                    className="text-light-primary dark:text-grey-dark text-lg capitalize"
-                    to={`/`}
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/swap'
                   >
-                    Launch App
+                    Swap
+                  </Link>
+                  <Link
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/liquidity'
+                  >
+                    Liquidity
+                  </Link>
+                  <Link
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/mine'
+                  >
+                    Liquidity Mining
+                  </Link>
+                  <Link
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/lock'
+                  >
+                    Gnt Lock
+                  </Link>
+                  <Link
+                      className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                      to='/lp_tokens'
+                    >
+                      LP Tokens
                   </Link>
                   <Link
                     style={{ height: 49 }}
-                    className="btn-primary font-sans w-full"
+                    className="btn-primary font-sans w-full dark:text-dark-primary"
                     to="/"
                   >
                     Connect

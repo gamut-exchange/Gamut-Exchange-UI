@@ -68,8 +68,8 @@ const Liquidity = () => {
             <div className="max-w-2xl mx-auto py-8">
                 <div className="flex justify-between mb-10">
                   <Tabs value={tab} onChange={handleTab}>
-                    <Tab label="Add Lp" {...a11yProps(0)} />
-                    <Tab label="remove lp" {...a11yProps(1)} />
+                    <Tab label="Add Lp" className="dark:text-white" {...a11yProps(0)} />
+                    <Tab label="remove lp" className="dark:text-white" {...a11yProps(1)} />
                   </Tabs>
                 </div>
                 <TabPanel value={tab} index={0}>

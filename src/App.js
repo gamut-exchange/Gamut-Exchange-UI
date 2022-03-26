@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./styles/global.css";
 import Home from "./views/home/Index";
 import Liquidity from "./views/liquidity/Index";
@@ -8,15 +9,21 @@ import Lock from "./views/lock/Index";
 import LpTokens from "./views/lpTokens/Index";
 
 function App() {
+
+  const [dark, setDark] = useState(false);
+  const handleDark = () => {
+    setDark(!dark);
+  };
+
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/swap" element={<Swap />} />
-        <Route path="/liquidity" element={<Liquidity />} />
-        <Route path="/mine" element={<Mine />} />
-        <Route path="/lock" element={<Lock />} />
-        <Route path="/lp_tokens" element={<LpTokens />} />
+        <Route path="/" element={<Home handleDark={handleDark} dark={dark} />} />
+        <Route path="/swap" element={<Swap handleDark={handleDark} dark={dark} />} />
+        <Route path="/liquidity" element={<Liquidity handleDark={handleDark} dark={dark} />} />
+        <Route path="/mine" element={<Mine handleDark={handleDark} dark={dark} />} />
+        <Route path="/lock" element={<Lock handleDark={handleDark} dark={dark} />} />
+        <Route path="/lp_tokens" element={<LpTokens handleDark={handleDark} dark={dark} />} />
       </Routes>
     </>
   );

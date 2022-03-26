@@ -2,9 +2,9 @@ import React from "react";
 import Layout from "../../components/Layout";
 import Liquidity from "./Liquidity";
 
-const Index = () => {
+const Index = ({handleDark, dark}) => {
   return (
-    <Layout>
+    <Layout handleDark={handleDark} dark={dark}>
       <Liquidity />
     </Layout>
   );

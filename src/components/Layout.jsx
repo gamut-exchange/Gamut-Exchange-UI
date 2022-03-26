@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Footer from "./menues/Footer";
 import Nav from "./menues/Nav";
 // import { ThemeProvider, useTheme, createTheme } from "@mui/material/styles";
@@ -31,11 +31,12 @@ import Nav from "./menues/Nav";
 //   },
 // });
 
-const Layout = ({ children }) => {
-  const [dark, setDark] = useState(false);
-  const handleDark = () => {
-    setDark(!dark);
-  };
+const Layout = ({ handleDark, dark, children }) => {
+
+  useEffect(() => {
+    console.log(dark);
+  }, []);
+
   return (
     <div
       className={`${

@@ -109,7 +109,7 @@ const AddLiquiditySimple = () => {
           <h3 className="input-lable mb-4">Input</h3>
           <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
             <div className="flex-1">
-              <Button variant="outlined" startIcon={<img src={btc} alt="" />} style={{background:'white', padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+              <Button variant="outlined" startIcon={<img src={btc} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
                 BTC
               </Button>
             </div>
@@ -135,7 +135,7 @@ const AddLiquiditySimple = () => {
           <h3 className="input-lable mb-4">Input</h3>
           <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center  rounded-sm p-2 sm:p-4 bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
             <div>
-              <Button variant="outlined" startIcon={<img src={eth} alt="" />} style={{background:'white', padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
+              <Button variant="outlined" startIcon={<img src={eth} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
                 ETH
               </Button>
             </div>
@@ -158,7 +158,7 @@ const AddLiquiditySimple = () => {
         <button
           onClick={handleOpen}
           style={{ minHeight: 57 }}
-          className="btn-primary font-bold w-full"
+          className="btn-primary font-bold w-full dark:text-dark-primary"
         >
           {" "}
           confirm{" "}

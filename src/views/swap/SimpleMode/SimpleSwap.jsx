@@ -28,7 +28,7 @@ const StyledModal = tw.div`
   w-1/4
   `;
 
-const SimpleSwap = ({ handleMode }) => {
+const SimpleSwap = () => {
   const [crypto, setCrypto] = useState("");
   const [value, setValue] = useState(0);
   const [open, setOpen] = React.useState(false);
@@ -79,7 +79,7 @@ const SimpleSwap = ({ handleMode }) => {
               <h3 className="input-lable mb-4">Input</h3>
               <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div>
-                  <Button variant="outlined" startIcon={<img src={btc} alt="" />} style={{background:'white', padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                  <Button variant="outlined" startIcon={<img src={btc} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
                     BTC
                   </Button>
                 </div>
@@ -107,7 +107,7 @@ const SimpleSwap = ({ handleMode }) => {
               <h3 className="input-lable mb-4">Output</h3>
               <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div>
-                  <Button variant="outlined" startIcon={<img src={eth} alt="" />} style={{background:'white', padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
+                  <Button variant="outlined" startIcon={<img src={eth} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
                     ETH
                   </Button>
                 </div>
@@ -136,7 +136,7 @@ const SimpleSwap = ({ handleMode }) => {
           <div className="mt-8">
             <button
               style={{ minHeight: 57 }}
-              className="btn-primary font-bold w-full"
+              className="btn-primary font-bold w-full dark:text-dark-primary"
             >
               {" "}
               Swap{" "}

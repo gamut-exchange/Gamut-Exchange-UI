@@ -97,9 +97,9 @@ const RemoveLiquiditySimple = () => {
         <div>
           <div className="flex justify-between sm:flex-row flex-col gap-y-8 items-center p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
             <div className="flex-1 w-full">
-              <Button variant="outlined" startIcon={<img src={eth} alt="" />} style={{background:'white', padding:'10px 15px'}} onClick={handleOpen}>
-                ETH
-              </Button>
+            <Button variant="outlined" startIcon={<img src={eth} alt="" />} style={{padding:'10px 15px'}} onClick={handleOpen} css={[tw`bg-white dark:bg-black`]}>
+              ETH
+            </Button>
             </div>
             <div className="sm:text-right text-left flex-1 w-full">
               {" "}
@@ -152,7 +152,7 @@ const RemoveLiquiditySimple = () => {
         <button
           onClick={handleOpen}
           style={{ minHeight: 57 }}
-          className="btn-primary rounded-sm font-bold w-full"
+          className="btn-primary rounded-sm font-bold w-full dark:text-dark-primary"
         >
           confirm
         </button>
