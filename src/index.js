@@ -3,11 +3,31 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
+import MaterialThemeProvider from "./providers/theme";
+import MuiSnackbarProvider from "./providers/snackbar";
+import NotificationProvider from "./providers/notification";
+import Web3Provider from "./providers/web3";
+import { Provider as ReduxProvider } from "react-redux";
+
+// ** Initialize Store
+import configureStore from "./redux/store";
+
+const store = configureStore();
 
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <ReduxProvider store={store}>
+        <MaterialThemeProvider>
+          <MuiSnackbarProvider>
+            <NotificationProvider>
+              <Web3Provider>
+                <App />
+              </Web3Provider>
+            </NotificationProvider>
+          </MuiSnackbarProvider>
+        </MaterialThemeProvider>
+      </ReduxProvider>
     </BrowserRouter>
   </React.StrictMode>,
   document.getElementById("root")

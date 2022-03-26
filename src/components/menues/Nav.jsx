@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useWeb3React } from "@web3-react/core";
 import Drawer from "react-modern-drawer";
+import Box from "@mui/material/Box";
+// import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import "react-modern-drawer/dist/index.css";
@@ -8,11 +13,30 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { BsToggleOff, BsToggleOn } from "react-icons/bs";
 import log from "../../images/logo.svg";
 
+// ** Import Assets
+import useStyles from "../../assets/styles";
+import Logo from "../../assets/img/logo.png";
+import LogoMobile from "../../assets/img/logoMobile.png";
+
+
+// ** Import Components
+import ConnectWallet from "../ConnectWallet";
+import { ConnectedWallet } from "../../assets/constants/wallets";
+
+
 const Nav = ({ handleDark, dark }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isToggleOpen, setIsToggleOpen] = useState(false);
+  const [openWalletList, setOpenWalletList] = useState(false);
+
+  const classes = useStyles.header();
+  const isMobile = useMediaQuery("(max-width:600px)");
+
+  const { account } = useWeb3React();
+
+  const cWallet = ConnectedWallet();
 
   const toggleDrawer = () => {
-    setIsOpen((prevState) => !prevState);
+    setIsToggleOpen((prevState) => !prevState);
   };
   return (
     <div
@@ -74,7 +98,7 @@ const Nav = ({ handleDark, dark }) => {
           <div className="hidden md:flex gap-x-6 items-center">
             <button onClick={handleDark} className="text-2xl">
               {!dark ? (
-                <BsToggleOff />
+                <BsToggleOff className="text-black" />
               ) : (
                 <div className="text-white">
                   {" "}
@@ -82,14 +106,49 @@ const Nav = ({ handleDark, dark }) => {
                 </div>
               )}{" "}
             </button>
-            <Link
-              style={{ width: 166, height: 49 }}
-              className="btn-primary font-sans  dark:text-dark-primary"
-              to="/"
-            >
-              Connect
-            </Link>
+            <Box className={classes.actionGroup}>
+              <Box className={classes.connectWallet}>
+                  {(() => {
+                      if (account) {
+                          return (
+                              <Button
+                                  variant="contained"
+                                  className="btn-primary dark:text-dark-primary w-full"
+                                  style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                                  startIcon={
+                                      cWallet && <img width={22} src={cWallet.logo} alt={cWallet.name} />
+                                  }
+                                  onClick={() => {
+                                      setOpenWalletList(true);
+                                  }}
+                                  className={isMobile ? classes.hide : ""}
+                              >
+                                  {`${account.substring(0, 8)} ... ${account.substring(account.length - 4)}`}
+                              </Button>
+                          )
+                      } else {
+                          return (
+                              <Button
+                                  variant="contained"
+                                  className="btn-primary dark:text-dark-primary w-full"
+                                  style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                                  onClick={() => {
+                                      setOpenWalletList(true);
+                                  }}
+                                 
+                              >
+                                  Connect Wallet
+                              </Button>
+                          )
+                      }
+                  })()}
+              </Box>
+            </Box>
           </div>
+          <ConnectWallet
+              isOpen={openWalletList}
+              setIsOpen={setOpenWalletList}
+          />
           <div className="md:hidden flex items-center">
             <button
               className="text-light-primary dark:text-grey-dark text-2xl"
@@ -97,7 +156,7 @@ const Nav = ({ handleDark, dark }) => {
             >
               <GiHamburgerMenu />
             </button>
-            <Drawer open={isOpen} onClose={toggleDrawer} direction="left">
+            <Drawer open={isToggleOpen} onClose={toggleDrawer} direction="left">
               <div className="bg-white-bg dark:bg-dark-primary h-full w-full py-10 px-4">
                 <Link to={`/`}>
                   <img src={log} alt="logo" />
@@ -148,13 +207,42 @@ const Nav = ({ handleDark, dark }) => {
                     >
                       LP Tokens
                   </Link>
-                  <Link
-                    style={{ height: 49 }}
-                    className="btn-primary font-sans w-full dark:text-dark-primary"
-                    to="/"
-                  >
-                    Connect
-                  </Link>
+                  <Box className={classes.actionGroup}>
+                    <Box className={classes.connectWallet}>
+                        {(() => {
+                            if (account) {
+                                return (
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        startIcon={
+                                            cWallet && <img width={22} src={cWallet.logo} alt={cWallet.name} />
+                                        }
+                                        onClick={() => {
+                                            setOpenWalletList(true);
+                                        }}
+                                        className={isMobile ? classes.hide : ""}
+                                    >
+                                        {`${account.substring(0, 8)} ... ${account.substring(account.length - 4)}`}
+                                    </Button>
+                                )
+                            } else {
+                                return (
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => {
+                                            setOpenWalletList(true);
+                                        }}
+                                       
+                                    >
+                                        Connect Wallet
+                                    </Button>
+                                )
+                            }
+                        })()}
+                    </Box>
+                  </Box>
                 </div>
               </div>
             </Drawer>

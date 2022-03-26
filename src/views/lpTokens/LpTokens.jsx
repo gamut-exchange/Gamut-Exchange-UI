@@ -5,7 +5,7 @@ const LpTokens = () => {
 
   return (
     <div className="">
-      <div className="dark:bg-dark-primary">
+      <div className="bg-white-bg dark:bg-dark-primary">
         <div className="main-container">
           <MyLpTokens />
         </div>

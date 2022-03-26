@@ -5,7 +5,7 @@ const Lock = () => {
 
   return (
     <div className="">
-      <div className="dark:bg-dark-primary">
+      <div className="bg-white-bg dark:bg-dark-primary">
         <div className="main-container">
           <GntLock />
         </div>
