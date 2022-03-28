@@ -3,10 +3,9 @@ import { useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import Drawer from "react-modern-drawer";
 import Box from "@mui/material/Box";
-// import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import MenuList from '@mui/material/MenuList';
+import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import "react-modern-drawer/dist/index.css";
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -27,6 +26,8 @@ import { ConnectedWallet } from "../../assets/constants/wallets";
 const Nav = ({ handleDark, dark }) => {
   const [isToggleOpen, setIsToggleOpen] = useState(false);
   const [openWalletList, setOpenWalletList] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [chainLabel, setChainLabel] = useState('Ropsten');
 
   const classes = useStyles.header();
   const isMobile = useMediaQuery("(max-width:600px)");
@@ -34,6 +35,16 @@ const Nav = ({ handleDark, dark }) => {
   const { account } = useWeb3React();
 
   const cWallet = ConnectedWallet();
+
+  const menuOpen = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleChain = (chain) => {
+    if(chain != '')
+      setChainLabel(chain);
+    setAnchorEl(null);
+  };
 
   const toggleDrawer = () => {
     setIsToggleOpen((prevState) => !prevState);
@@ -106,6 +117,29 @@ const Nav = ({ handleDark, dark }) => {
                 </div>
               )}{" "}
             </button>
+            <Button
+              id="basic-button"
+              aria-controls={menuOpen ? 'basic-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={menuOpen ? 'true' : undefined}
+              onClick={handleClick}
+            >
+              {chainLabel}
+            </Button>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={menuOpen}
+              style={{borderRadius:'0px'}}
+              onClose={() => handleChain('')}
+              PopoverClasses={{
+                borderRadius:'0px'
+              }}
+            >
+              <MenuItem key="ropsten" onClick={() => handleChain('Ropsten')}>Ropsten</MenuItem>
+              <MenuItem key="mumbai" onClick={() => handleChain('Mumbai')}>Mumbai</MenuItem>
+              <MenuItem key="fantom" onClick={() => handleChain('Fantom')}>Fantom</MenuItem>
+            </Menu>
             <Box className={classes.actionGroup}>
               <Box className={classes.connectWallet}>
                   {(() => {
@@ -207,6 +241,28 @@ const Nav = ({ handleDark, dark }) => {
                     >
                       LP Tokens
                   </Link>
+                  <Button
+                    id="basic-button"
+                    aria-controls={menuOpen ? 'basic-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={menuOpen ? 'true' : undefined}
+                    onClick={handleClick}
+                  >
+                    {chainLabel}
+                  </Button>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={menuOpen}
+                    onClose={() => handleChain('')}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    <MenuItem key="ropsten" onClick={() => handleChain('Ropsten')}>Ropsten</MenuItem>
+                    <MenuItem key="mumbai" onClick={() => handleChain('Mumbai')}>Mumbai</MenuItem>
+                    <MenuItem key="fantom" onClick={() => handleChain('Fantom')}>Fantom</MenuItem>
+                  </Menu>
                   <Box className={classes.actionGroup}>
                     <Box className={classes.connectWallet}>
                         {(() => {
@@ -214,7 +270,7 @@ const Nav = ({ handleDark, dark }) => {
                                 return (
                                     <Button
                                         variant="contained"
-                                        color="primary"
+                                        style={{borderRadius:'0px', minHeight:36, fontSize:16}}
                                         startIcon={
                                             cWallet && <img width={22} src={cWallet.logo} alt={cWallet.name} />
                                         }
@@ -230,7 +286,7 @@ const Nav = ({ handleDark, dark }) => {
                                 return (
                                     <Button
                                         variant="contained"
-                                        color="primary"
+                                        style={{borderRadius:'0px', minHeight:36, fontSize:16}}
                                         onClick={() => {
                                             setOpenWalletList(true);
                                         }}

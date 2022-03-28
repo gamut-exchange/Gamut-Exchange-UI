@@ -19,11 +19,11 @@ const MaterialThemeProvider = ({ children }) => {
                     main: "#4b6989",
                 },
                 secondary: {
-                    main: "#4b6989"
+                    main: "#455ee7"
                 },
             },
             shape: {
-                borderRadius: 8
+                borderRadius: 2
             },
             typography: {
                 fontFamily: "Inter,sans-serif",

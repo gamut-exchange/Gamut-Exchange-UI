@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
@@ -10,7 +10,6 @@ import Modal from "@mui/material/Modal";
 import tw, { styled } from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-
 // import tw from "twin.macro";
 import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
@@ -19,13 +18,13 @@ const StyledModal = tw.div`
   flex
   flex-col
   absolute
-  top-1/2 left-1/2
+  top-1/4 left-1/3
   bg-white-bg
   p-6
   shadow-box overflow-y-scroll
   min-h-min
   transform -translate-x-1/2 -translate-y-1/2
-  w-1/4
+  w-1/3
   `;
 
 const SimpleSwap = () => {
@@ -52,6 +51,10 @@ const SimpleSwap = () => {
   const handleChange = (event) => {
     setCrypto(event.target.value);
   };
+
+  useEffect(() => {
+    // console.log(TokenList);
+  }, []);
 
   return (
     <div className="flex sm:flex-row flex-col items-center">

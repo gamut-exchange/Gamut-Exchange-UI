@@ -46,13 +46,13 @@ const AddLiquiditySimple = () => {
   flex
   flex-col
   absolute
-  top-1/2 left-1/2
+  top-1/4 left-1/3
   bg-white-bg
   p-6
   shadow-box overflow-y-scroll
   min-h-min
   transform -translate-x-1/2 -translate-y-1/2
-  w-1/4
+  w-1/3
   `;
   return (
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
