@@ -28,12 +28,12 @@ const ConnectedWallet = () => {
                     logo: MetaMaskLogo,
                 };
             }
-            // case walletconnect: {
-            //     return {
-            //         name: "WalletConnect",
-            //         logo: WalletConnect,
-            //     };
-            // }
+            case walletconnect: {
+                return {
+                    name: "WalletConnect",
+                    logo: WalletConnect,
+                };
+            }
         }
     } else {
         return {};

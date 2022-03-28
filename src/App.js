@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {useDispatch} from 'react-redux';
 import "./styles/global.css";
 import Home from "./views/home/Index";
 import Liquidity from "./views/liquidity/Index";
@@ -8,7 +9,18 @@ import Swap from "./views/swap/Index";
 import Lock from "./views/lock/Index";
 import LpTokens from "./views/lpTokens/Index";
 
+import { STATISTICS } from "./redux/constants";
+
 function App() {
+
+  const dispatch = useDispatch();
+    
+  useEffect(() => {
+      dispatch({
+          type:STATISTICS,
+          payload: {}
+      })
+  })
 
   const [dark, setDark] = useState(false);
   const handleDark = () => {

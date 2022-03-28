@@ -8,10 +8,6 @@ import mobileStyles from "./_mobile";
 const useStyles = {
     header: headerStyles,
     base: baseStyles,
-    pools: poolsStyles,
-    footer: footerStyles,
-    pool: poolStyles,
-    mobile: mobileStyles
 };
 
 export default useStyles;

@@ -398,6 +398,7 @@ const useStyles = makeStyles((theme) => ({
             border: "1px solid #2b81eb",
             borderRadius: 4,
             margin: theme.spacing(2),
+            color: '#333'
         },
         "& .Mui-selected": {
             boxShadow: theme.shadows[4],

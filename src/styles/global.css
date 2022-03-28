@@ -7,8 +7,6 @@
   font-family: "TTNorms-Regular";
   font-style: normal;
   font-weight: normal;
-  src: local("TTNorms-Regular"),
-    url("/public/FontFamily/TTNorms-Regular.otf") format("otf");
 }
 /* @font-face {
   font-family: "Segoe UI Bold";

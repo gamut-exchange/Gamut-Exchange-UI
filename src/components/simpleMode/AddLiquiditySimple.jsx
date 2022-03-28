@@ -184,6 +184,10 @@ const AddLiquiditySimple = () => {
                 InputProps={{
                   ...params.InputProps,
                   type: "search",
+                  style: {color: '#333'}
+                }}
+                InputLabelProps={{
+                  style: { color: '#333' },
                 }}
               />
             )}

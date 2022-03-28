@@ -59,7 +59,6 @@ const useStyles = makeStyles((theme) => ({
             fontSize: 24,
             textAlign: "center",
             fontWeight: "bold",
-            color: theme.palette.primary.main,
         },
         "& .coin-list": {
             maxHeight: 600,
@@ -71,7 +70,6 @@ const useStyles = makeStyles((theme) => ({
                     minWidth: 40,
                     fontWeight: 600,
                     fontSize: 18,
-                    color: theme.palette.primary.main,
                 },
                 "& .symbol": {
                     "& img": {
@@ -201,7 +199,6 @@ const useStyles = makeStyles((theme) => ({
             fontWeight: "bold",
             marginLeft: 0,
             margin: "auto",
-            color: theme.palette.primary.main,
         },
         "& .subtitle": {
             fontWeight: 600,

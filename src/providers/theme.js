@@ -88,7 +88,6 @@ const MaterialThemeProvider = ({ children }) => {
     const theme = createTheme(themeConfig[mode]);
     return (
         <ThemeProvider theme={theme}>
-            <CssBaseline />
             {children}
         </ThemeProvider>
     );

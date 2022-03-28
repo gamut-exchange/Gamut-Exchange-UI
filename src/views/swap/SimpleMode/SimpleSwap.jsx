@@ -158,13 +158,19 @@ const SimpleSwap = () => {
                 id="free-solo-2-demo"
                 disableClearable
                 options={ethlist.map((option) => option.value)}
+                className="input-value"
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label="Search"
+                    className="input-value"
                     InputProps={{
-                      ...params.InputProps,
                       type: "search",
+                      className: 'input-value',
+                      style: {color: '#333'}
+                    }}
+                    InputLabelProps={{
+                      style: { color: '#333' },
                     }}
                   />
                 )}
