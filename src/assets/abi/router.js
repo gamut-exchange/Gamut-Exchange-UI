@@ -1,4 +1,4 @@
-var routerABI = [
+const routerABI = [
     [
         {
             "inputs": [
@@ -364,3 +364,5 @@ var routerABI = [
         }
     ]
 ]
+
+export default routerABI;

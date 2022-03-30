@@ -1,4 +1,4 @@
-var hedgeFactoryABI = [
+const hedgeFactoryABI = [
     [
         {
             "inputs": [
@@ -242,3 +242,5 @@ var hedgeFactoryABI = [
         }
     ]
 ]
+
+export default hedgeFactoryABI;

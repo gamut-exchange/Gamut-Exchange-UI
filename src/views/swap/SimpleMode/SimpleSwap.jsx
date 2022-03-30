@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useWeb3React } from "@web3-react/core";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
@@ -13,6 +14,7 @@ import TextField from "@mui/material/TextField";
 // import tw from "twin.macro";
 import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
+import { getTokenBalance, getPoolAddress, getPoolData } from "../../../config/web3.js";
 
 import './SimpleSwap.css'
 
@@ -32,19 +34,22 @@ const StyledModal = tw.div`
 let img_in = "https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ";
 let img_out = "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe";
 
-let in_value = "BTCC"
-let out_value = "ETH"
-
-var text_in = "123"
-var text_out = "456"
 
 const SimpleSwap = () => {
+
+  const { account } = useWeb3React();
+
   const [crypto, setCrypto] = useState("");
   const [value, setValue] = useState(0);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState(0);
   const [valueEth, setValueEth] = useState(0);
+  const [inToken, setInToken] = useState('BTC');
+  const [outToken, setOutToken] = useState('TETH');
+  const [inVal, setInVal] = useState(0);
+  const [outVal, setOutVal] = useState(0);
   const [chartOpen, setChartOpen] = useState(false);
+  const [filterData, setFilterData] = useState(uniList);
 
   const handleOpen = (val) => {
     setSelected(val);
@@ -64,8 +69,29 @@ const SimpleSwap = () => {
   };
 
   useEffect(() => {
-    // console.log(TokenList);
+    if(account) {
+      const getInfo = async () => {
+        let inVal = await getTokenBalance(inToken.toLowerCase(), account);
+        let outVal = await getTokenBalance(outToken.toLowerCase(), account);
+        debugger;
+        setInVal(inVal);
+        setOutVal(outVal);
+      }
+      getInfo();
+    }
   }, []);
+
+  useEffect(() => {
+    if(inToken !== outToken) {
+      const getInfo = async () => {
+        const poolAddress = await getPoolAddress(inToken.toLowerCase(), outToken.toLowerCase());
+        const poolData = await getPoolData(poolAddress);
+        // alert(poolData);
+      }
+
+      getInfo();
+    }
+  }, [inToken, outToken]);
 
   return (
     <div className="flex sm:flex-row flex-col items-center">
@@ -94,7 +120,7 @@ const SimpleSwap = () => {
               <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div>
                   <Button id="address_in" variant="outlined" startIcon={<img src={img_in} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
-                   {text_in}
+                   {inToken}
                   </Button>
                 </div>
                 <div className="text-right">
@@ -107,7 +133,7 @@ const SimpleSwap = () => {
                     ></input>
                   </form>
                   <p className="text-base text-grey-dark">
-                    Balance: 0.10202 ETH
+                    Balance: {inVal}
                   </p>
                 </div>
               </div>
@@ -122,7 +148,7 @@ const SimpleSwap = () => {
               <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div>
                   <Button id="address_out" variant="outlined" startIcon={<img src={img_out} alt="abc" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
-                    {text_out}
+                    {outToken}
                   </Button>
                 </div>
                 <div className="text-right">
@@ -135,7 +161,7 @@ const SimpleSwap = () => {
                     ></input>
                   </form>
                   <p className="text-base text-grey-dark">
-                    Balance: 0.10202 ETH
+                    Balance: {outVal}
                   </p>
                 </div>
               </div>
@@ -168,7 +194,7 @@ const SimpleSwap = () => {
                 freeSolo
                 id="free-solo-2-demo"
                 disableClearable
-                options={uniList.map((option) => option.value)}
+                options={filterData.map((option) => option.value)}
                 className="input-value"
                 renderInput={(params) => (
                   <TextField
@@ -187,36 +213,19 @@ const SimpleSwap = () => {
                 )}
               />
               <hr className="my-6" />
-              {selected === 0 && 
-                <ul className="flex flex-col gap-y-2">
-                  {uniList.map((item) => {
-                    const { address, logoURL, symbol} = item;
-                    return (
-                      <li key={address} className="flex gap-x-1 thelist"  onClick={() => selectToken({address},symbol ,logoURL, selected)}>
-                        <div className="relative flex">
-                          <img src={logoURL} alt="" />
-                        </div>
-                        <p className="text-light-primary text-lg">{symbol}</p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              }
-              {selected === 1 && 
-                <ul className="flex flex-col gap-y-2">
-                  {uniList.map((item) => {
-                    const { address, logoURL, symbol} = item;
-                    return (
-                      <li key={address} className="flex gap-x-1 thelist" onClick={() => selectToken({address},symbol ,logoURL, selected)}>
-                        <div className="relative flex">
-                          <img src={logoURL} alt="" />
-                        </div>
-                        <p className="text-light-primary text-lg">{symbol}</p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              }
+              <ul className="flex flex-col gap-y-2">
+                {filterData.map((item) => {
+                  const { address, logoURL, symbol} = item;
+                  return (
+                    <li key={address} className="flex gap-x-1 thelist"  onClick={() => selectToken({address},symbol ,logoURL, selected)}>
+                      <div className="relative flex">
+                        <img src={logoURL} alt="" />
+                      </div>
+                      <p className="text-light-primary text-lg">{symbol}</p>
+                    </li>
+                  );
+                })}
+              </ul>
             </StyledModal>
           </Modal>
         </div>
@@ -227,22 +236,31 @@ const SimpleSwap = () => {
   async function selectToken(address, value , url, selected){
     handleClose()
 
+    var bal = 0;
+    if(account)
+      bal = await getTokenBalance(value.toLowerCase(), account);
     if(selected == 0){
-      token_In = address
-      img_in = url
-      text_in = value
-      
+    setInVal(bal);
+    let tempData = uniList.filter((item) => {
+      return item['address'] !== address['address']
+    });
 
-    } else if (selected == 1){
-      token_Out = address
-      img_out = url
-      text_out = value
+    setFilterData(tempData);
+
+      token_In = address;
+      img_in = url;
+      setInToken(value);
+    } else if (selected == 1) {
+      setOutVal(bal);
+      let tempData = uniList.filter((item) => {
+        return item['address'] !== address['address']
+      });
+
+      setFilterData(tempData);
+      token_Out = address;
+      img_out = url;
+      setOutToken(value);
     }
-
-  
-   
-    console.log(img_out)
-    
   }
 
 };
@@ -251,20 +269,6 @@ export default SimpleSwap;
 
 let token_In
 let token_Out
-
-// const StyledModal = tw.div`
-//   flex
-//   flex-col
-//   absolute
-//   top-1/2 left-1/2
-//   bg-white-bg
-//   max-w-sm
-//   p-6
-//   shadow-box overflow-y-scroll
-//   min-h-min
-//   transform -translate-x-1/2 -translate-y-1/2
-//   `;
-
 
 const uniList = [
   {value: "some", chainId: 3, address: "0x3346B2A939aA13e76Ce8Aa05ECCAe92E0D4F6580", symbol: "tETH", name: "tETH Coin", decimals: 18, logoURL: "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe", tags: ["stablecoin"]},

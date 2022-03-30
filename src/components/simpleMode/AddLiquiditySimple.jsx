@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useWeb3React } from "@web3-react/core";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import { BsPlus } from "react-icons/bs";
@@ -13,6 +14,9 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 
 const AddLiquiditySimple = () => {
+
+  const { account } = useWeb3React();
+
   const [crypto, setCrypto] = useState("");
   const [ratio, setRatio] = useState(false);
   const [open, setOpen] = React.useState(false);

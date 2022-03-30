@@ -1,4 +1,4 @@
-var PoolABI = [
+const poolABI = [
     [
         {
             "inputs": [
@@ -607,3 +607,5 @@ var PoolABI = [
         }
     ]
 ]
+
+export default poolABI;
