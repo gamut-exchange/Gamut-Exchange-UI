@@ -86,7 +86,7 @@ const SimpleSwap = () => {
       const getInfo = async () => {
         const poolAddress = await getPoolAddress(inToken.toLowerCase(), outToken.toLowerCase());
         const poolData = await getPoolData(poolAddress);
-        // alert(poolData);
+        console.log(poolData);
       }
 
       getInfo();
