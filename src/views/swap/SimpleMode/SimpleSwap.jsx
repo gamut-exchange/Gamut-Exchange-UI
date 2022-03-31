@@ -14,7 +14,7 @@ import TextField from "@mui/material/TextField";
 // import tw from "twin.macro";
 import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
-import { getTokenBalance, getPoolAddress, getPoolData } from "../../../config/web3.js";
+import { getTokenBalance, getPoolAddress, getPoolData, swapTokens } from "../../../config/web3.js";
 import {token_addresses, contract_addresses } from "../../../config/constants";
 
 import './SimpleSwap.css'
@@ -45,6 +45,7 @@ const SimpleSwap = () => {
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState(0);
   const [valueEth, setValueEth] = useState(0);
+  const [poolAddress, setPoolAddress] = useState('');
   const [inToken, setInToken] = useState('BTC');
   const [outToken, setOutToken] = useState('TETH');
   const [inVal, setInVal] = useState(0);
@@ -69,12 +70,18 @@ const SimpleSwap = () => {
     setCrypto(event.target.value);
   };
 
+  const executeSwap = async () => {
+    if(account && inToken !== outToken) {
+      const limit = valueEth*0.99;
+      await swapTokens(inToken.toLowerCase(), outToken.toLowerCase(), value*1, account, limit, poolAddress);
+    }
+  }
+
   useEffect(() => {
     if(account) {
       const getInfo = async () => {
         let inVal = await getTokenBalance(inToken.toLowerCase(), account);
         let outVal = await getTokenBalance(outToken.toLowerCase(), account);
-        debugger;
         setInVal(inVal);
         setOutVal(outVal);
       }
@@ -87,6 +94,7 @@ const SimpleSwap = () => {
       const getInfo = async () => {
         const poolAddress = await getPoolAddress(inToken.toLowerCase(), outToken.toLowerCase());
         const poolData = await getPoolData(poolAddress);
+        setPoolAddress(poolAddress);
         const amountOut = await calculateSwap(inToken, poolData, value);
         setValueEth(amountOut.toPrecision(6));
       }
@@ -179,6 +187,7 @@ const SimpleSwap = () => {
             <button
               style={{ minHeight: 57 }}
               className="btn-primary font-bold w-full dark:text-dark-primary"
+              onClick={executeSwap}
             >
               {" "}
               Swap{" "}
@@ -280,7 +289,6 @@ const uniList = [
 ]
 
 async function calculateSwap(inToken, poolData, input){
-
 
   let ammount = input * 10 ** 18;
   
