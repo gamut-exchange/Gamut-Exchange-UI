@@ -45,17 +45,13 @@ export const getPoolData = async (poolAddress) => {
 export const swapTokens = async (provider, inToken, outToken, amount, account, limit, poolAddress) => {
 
     const abi = routerABI[0];
-    const tokenAbi = erc20ABI[0];
     const c_address = contract_addresses['router'];
-    const t_address = token_addresses[inToken];
     let web3 = new Web3(provider);
 
     const wei_amount = web3.utils.toWei(amount.toString());
     const wei_limit = web3.utils.toWei(limit.toString());
 
     let contract = new web3.eth.Contract(abi, c_address);
-    let token_contract = new web3.eth.Contract(tokenAbi, t_address);
-    await token_contract.methods['approve'](c_address, wei_amount).send({from: account});
     let deadline = (new Date()).getTime()+900000;
     let result = await contract.methods["swap"]([ token_addresses[inToken], token_addresses[outToken], wei_amount ], [ account, account ], wei_limit, deadline).send({from: account});
 }
