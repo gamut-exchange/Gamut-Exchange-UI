@@ -38,7 +38,7 @@ let img_out = "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB
 
 const SimpleSwap = () => {
 
-  const { account } = useWeb3React();
+  const { account, connector } = useWeb3React();
 
   const [crypto, setCrypto] = useState("");
   const [value, setValue] = useState(0);
@@ -73,7 +73,8 @@ const SimpleSwap = () => {
   const executeSwap = async () => {
     if(account && inToken !== outToken) {
       const limit = valueEth*0.99;
-      await swapTokens(inToken.toLowerCase(), outToken.toLowerCase(), value*1, account, limit, poolAddress);
+      const provider = await connector.getProvider();
+      await swapTokens(provider, inToken.toLowerCase(), outToken.toLowerCase(), value*1, account, limit, poolAddress);
     }
   }
 

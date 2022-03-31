@@ -15,9 +15,9 @@ export const getTokenBalance = async (token, walletaddress) => {
     let web3 = new Web3(provider);
     let contract = new web3.eth.Contract(abi, token_addresses[token]);
     let bal = await contract.methods["balanceOf"](walletaddress).call();
-    let result = web3.utils.fromWei(bal);
+    let result = Number(web3.utils.fromWei(bal)).toFixed(2);
     if(Number(result) > 999)
-        result = result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        result = result.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return result;
 }
 
@@ -42,7 +42,7 @@ export const getPoolData = async (poolAddress) => {
     return result;
 }
 
-export const swapTokens = async (inToken, outToken, amount, account, limit, poolAddress) => {
+export const swapTokens = async (provider, inToken, outToken, amount, account, limit, poolAddress) => {
 
     const abi = routerABI[0];
     const tokenAbi = erc20ABI[0];
@@ -57,5 +57,5 @@ export const swapTokens = async (inToken, outToken, amount, account, limit, pool
     let token_contract = new web3.eth.Contract(tokenAbi, t_address);
     await token_contract.methods['approve'](c_address, wei_amount).send({from: account});
     let deadline = (new Date()).getTime()+900000;
-    let result = await contract.methods["swap"]({'tokenIn':token_addresses[inToken], 'tokenOut':token_addresses[outToken], 'amount':wei_amount}, {'sender': account, 'recipient': account}, wei_limit, deadline).send({from: account});
+    let result = await contract.methods["swap"]([ token_addresses[inToken], token_addresses[outToken], wei_amount ], [ account, account ], wei_limit, deadline).send({from: account});
 }
