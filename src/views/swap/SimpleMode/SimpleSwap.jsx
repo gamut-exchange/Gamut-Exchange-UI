@@ -15,6 +15,7 @@ import TextField from "@mui/material/TextField";
 import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
 import { getTokenBalance, getPoolAddress, getPoolData } from "../../../config/web3.js";
+import {token_addresses, contract_addresses } from "../../../config/constants";
 
 import './SimpleSwap.css'
 
@@ -86,7 +87,8 @@ const SimpleSwap = () => {
       const getInfo = async () => {
         const poolAddress = await getPoolAddress(inToken.toLowerCase(), outToken.toLowerCase());
         const poolData = await getPoolData(poolAddress);
-        console.log(poolData);
+        const amountOut = await calculateSwap(inToken, poolData, value);
+        setValueEth(amountOut.toPrecision(6));
       }
 
       getInfo();
@@ -274,4 +276,43 @@ const uniList = [
   {value: "some", chainId: 3, address: "0x3346B2A939aA13e76Ce8Aa05ECCAe92E0D4F6580", symbol: "tETH", name: "tETH Coin", decimals: 18, logoURL: "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe", tags: ["stablecoin"]},
   {value: "other", chainId: 3, address: "0x817F61606B7f073854c51ec93beF408708A5b4E4", symbol: "BTC", name: "BTC Coin", decimals: 18, logoURL: "https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", tags: ["stablecoin"]},
   { }
+  
 ]
+
+async function calculateSwap(inToken, poolData, input){
+
+
+  let ammount = input * 10 ** 18;
+  
+  let balance_from;
+  let balance_to;
+  let weight_from;
+  let weight_to;
+  
+  if (token_addresses[inToken.toLowerCase()] == poolData.tokens[0]){
+      balance_from = poolData.balances[0];
+      balance_to = poolData.balances[1];
+      weight_from = poolData.weights[0];
+      weight_to = poolData.weights[1];
+  }
+  else{
+      balance_from = poolData.balances[1];
+      balance_to = poolData.balances[0];
+      weight_from = poolData.weights[1];
+      weight_to = poolData.weights[0];
+  }
+
+  
+  let bIn = ammount / (10 ** 18);
+  let pbA = balance_to / (10 ** 18);
+  let pbB = balance_from / (10 ** 18);
+  let wA = weight_to / (10 ** 18);
+  let wB = weight_from / (10 ** 18);
+
+  let exp = (wB - wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn))) / (wA + wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn)));
+  let bOut = pbA * (1 - (pbB / (pbB + bIn)) ** exp);
+
+  console.log(bOut);    
+  
+  return bOut;
+}
