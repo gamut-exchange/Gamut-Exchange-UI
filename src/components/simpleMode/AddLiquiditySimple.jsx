@@ -12,6 +12,8 @@ import Modal from "@mui/material/Modal";
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
+import { getTokenBalance, getPoolAddress, getPoolData, swapTokens } from "../../config/web3";
+import { uniList }  from "../../config/constants";
 
 const AddLiquiditySimple = () => {
 
@@ -21,9 +23,28 @@ const AddLiquiditySimple = () => {
   const [ratio, setRatio] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState(0);
+  const [poolAddress, setPoolAddress] = useState('');
+  const [inToken, setInToken] = useState(uniList[0]);
+  const [outToken, setOutToken] = useState(uniList[1]);
   const [value, setValue] = useState(0);
   const [valueEth, setValueEth] = useState(0);
+  const [inBal, setInBal] = useState(0);
+  const [outBal, setOutBal] = useState(0);
   const [sliderValue, setSliderValue] = React.useState(50);
+  const [filterData, setFilterData] = useState(uniList);
+
+  const StyledModal = tw.div`
+    flex
+    flex-col
+    absolute
+    top-1/4 left-1/3
+    bg-white-bg
+    p-6
+    shadow-box overflow-y-scroll
+    min-h-min
+    transform -translate-x-1/2 -translate-y-1/2
+    w-1/3
+  `;
 
   const handleSlider = (event, newValue) => {
     setSliderValue(newValue);
@@ -46,18 +67,30 @@ const AddLiquiditySimple = () => {
     setValue(event.target.value);
   };
 
-  const StyledModal = tw.div`
-  flex
-  flex-col
-  absolute
-  top-1/4 left-1/3
-  bg-white-bg
-  p-6
-  shadow-box overflow-y-scroll
-  min-h-min
-  transform -translate-x-1/2 -translate-y-1/2
-  w-1/3
-  `;
+  const selectToken = async (token, selected) => {
+    handleClose()
+
+    var bal = 0;
+    if(account)
+      bal = await getTokenBalance(token['address'], account);
+    if(selected == 0){
+      setInBal(bal);
+      let tempData = uniList.filter((item) => {
+        return item['address'] !== token['address']
+      });
+      setFilterData(tempData);
+      setInToken(token);
+    } else if (selected == 1) {
+      setOutBal(bal);
+      let tempData = uniList.filter((item) => {
+        return item['address'] !== token['address']
+      });
+
+      setFilterData(tempData);
+      setOutToken(token);
+    }
+  }
+
   return (
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
       <h3 className="model-title mb-4">Add Liquidity </h3>
@@ -113,8 +146,8 @@ const AddLiquiditySimple = () => {
           <h3 className="input-lable mb-4">Input</h3>
           <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
             <div className="flex-1">
-              <Button variant="outlined" startIcon={<img src={btc} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
-                BTC
+              <Button variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                { inToken['symbol'] }
               </Button>
             </div>
             <div className="text-right flex-1">
@@ -126,7 +159,7 @@ const AddLiquiditySimple = () => {
                   className="input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
                 ></input>
               </form>
-              <p className="text-base text-grey-dark">Balance: 0.10202 ETH</p>
+              <p className="text-base text-grey-dark">Balance: {inBal}</p>
             </div>
           </div>
         </div>
@@ -136,11 +169,11 @@ const AddLiquiditySimple = () => {
         </div>
 
         <div>
-          <h3 className="input-lable mb-4">Input</h3>
+          <h3 className="input-lable mb-4">Output</h3>
           <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center  rounded-sm p-2 sm:p-4 bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
             <div>
-              <Button variant="outlined" startIcon={<img src={eth} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
-                ETH
+              <Button variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
+                { outToken['symbol'] }
               </Button>
             </div>
             <div className="text-right">
@@ -152,7 +185,7 @@ const AddLiquiditySimple = () => {
                   className="input-value text-right max-w-[300px] sm:max-w-none w-full bg-transparent focus:outline-none"
                 ></input>
               </form>
-              <p className="text-base text-grey-dark">Balance: 0.10202 ETH</p>
+              <p className="text-base text-grey-dark">Balance: {outBal}</p>
             </div>
           </div>
         </div>
@@ -180,7 +213,7 @@ const AddLiquiditySimple = () => {
             freeSolo
             id="free-solo-2-demo"
             disableClearable
-            options={ethlist.map((option) => option.value)}
+            options={filterData.map((option) => option.value)}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -197,36 +230,18 @@ const AddLiquiditySimple = () => {
             )}
           />
           <hr className="my-6" />
-          {selected === 0 && 
-            <ul className="flex flex-col gap-y-6">
-              {cryptolist.map((item) => {
-                const { id, icon, value } = item;
-                return (
-                  <li key={id} className="flex gap-x-1">
-                    <div className="relative flex">
-                      <img src={icon} alt="" />
-                    </div>
-                    <p className="text-light-primary text-lg">{value}</p>
-                  </li>
-                );
-              })}
-            </ul>
-          }
-          {selected === 1 && 
-            <ul className="flex flex-col gap-y-6">
-              {ethlist.map((item) => {
-                const { id, icon, value } = item;
-                return (
-                  <li key={id} className="flex gap-x-1">
-                    <div className="relative flex">
-                      <img src={icon} alt="" />
-                    </div>
-                    <p className="text-light-primary text-lg">{value}</p>
-                  </li>
-                );
-              })}
-            </ul>
-          }
+          <ul className="flex flex-col gap-y-6">
+            {filterData.map((item) => {
+              return (
+                <li key={item['address']} className="flex gap-x-1" onClick={() => selectToken(item, selected)}>
+                  <div className="relative flex">
+                    <img src={item['logoURL']} alt="" />
+                  </div>
+                  <p className="text-light-primary text-lg">{item['symbol']}</p>
+                </li>
+              );
+            })}
+          </ul>
         </StyledModal>
       </Modal>
     </div>
@@ -234,19 +249,3 @@ const AddLiquiditySimple = () => {
 };
 
 export default AddLiquiditySimple;
-
-const cryptolist = [
-  { id: 1, icon: btc, value: "BTC" },
-  { id: 2, icon: btc, value: "BTC" },
-  { id: 3, icon: btc, value: "BTC" },
-  { id: 4, icon: btc, value: "BTC" },
-  { id: 5, icon: btc, value: "BTC" },
-];
-
-const ethlist = [
-  { id: 1, icon: eth, value: "ETH" },
-  { id: 2, icon: eth, value: "ETH" },
-  { id: 3, icon: eth, value: "ETH" },
-  { id: 4, icon: eth, value: "ETH" },
-  { id: 5, icon: eth, value: "ETH" },
-];
