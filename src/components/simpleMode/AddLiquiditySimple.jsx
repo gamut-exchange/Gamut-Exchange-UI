@@ -12,7 +12,7 @@ import Modal from "@mui/material/Modal";
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { getTokenBalance, getPoolAddress, getPoolData, joinPool, getPoolBalance } from "../../config/web3";
+import { getTokenBalance, getPoolAddress, getPoolData, joinPool, getPoolBalance, poolApproval, approvePool } from "../../config/web3";
 import { uniList }  from "../../config/constants";
 
 const AddLiquiditySimple = () => {
@@ -31,6 +31,7 @@ const AddLiquiditySimple = () => {
   const [outBal, setOutBal] = useState(0);
   const [firstToken, setFirstToken] = useState('');
   const [sliderValue, setSliderValue] = React.useState(50);
+  const [approval, setApproval] = useState(false);
   const [filterData, setFilterData] = useState(uniList);
 
   const StyledModal = tw.div`
@@ -120,8 +121,16 @@ const AddLiquiditySimple = () => {
     }
   }
 
-  useEffect(() => {
+  const approveLP = async () => {
     if(account) {
+      const provider = await connector.getProvider();
+      const approved = await approvePool(account, provider, poolAddress);
+      setApproval(approved);
+    }
+  }
+
+  useEffect(() => {
+    if (account) {
       const getInfo = async () => {
         let inBal = await getTokenBalance(inToken['address'], account);
         let outBal = await getTokenBalance(outToken['address'], account);
@@ -145,6 +154,8 @@ const AddLiquiditySimple = () => {
         const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
         const poolData = await getPoolData(provider, poolAddress);
         setPoolAddress(poolAddress);
+        const approval = await poolApproval(account, provider, poolAddress);
+        setApproval(approval);
         await calculateRatio(inToken, poolData, value);
       }
 
@@ -167,7 +178,7 @@ const AddLiquiditySimple = () => {
       {rOpen && (
         <div className="my-4">
           <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
-            rOpen
+            Change Ratio
           </div>
           <Slider
             size="small"
@@ -182,7 +193,7 @@ const AddLiquiditySimple = () => {
               style={{ fontSize: 12, fontWeight: 400, minHeight: 32 }}
               className="flex-1 btn-primary"
             >
-              {sliderValue}% BTC
+              {sliderValue.toPrecision(4)}% BTC
             </button>
             <button
               style={{
@@ -194,7 +205,7 @@ const AddLiquiditySimple = () => {
               className="flex-1 btn-primary "
             >
               <span className="text-light-primary dark:text-grey-dark">
-                {100 - sliderValue}% ETH
+                {(100 - sliderValue).toPrecision(4)}% ETH
               </span>
             </button>
           </div>
@@ -253,11 +264,21 @@ const AddLiquiditySimple = () => {
         </div>
       </div>
 
-      <div className="mt-20">
+      <div className="mt-20 flex">
+      {!approval &&
+        <button
+          onClick={approveLP}
+          style={{ minHeight: 57,  }}
+          className={approval?"btn-primary font-bold w-full dark:text-dark-secondary flex-1":"btn-primary font-bold w-full dark:text-dark-secondary flex-1 mr-2"}
+        >
+          {" "}
+          Approval{" "}
+        </button>
+      }
         <button
           onClick={executeAddPool}
           style={{ minHeight: 57 }}
-          className="btn-primary font-bold w-full dark:text-dark-primary"
+          className={approval?"btn-primary font-bold w-full dark:text-dark-secondary flex-1":"btn-primary font-bold w-full dark:text-dark-secondary flex-1 ml-2"}
         >
           {" "}
           confirm{" "}

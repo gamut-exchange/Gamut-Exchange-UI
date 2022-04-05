@@ -14,7 +14,7 @@ import TextField from "@mui/material/TextField";
 // import tw from "twin.macro";
 import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
-import { getTokenBalance, getPoolAddress, getPoolData, swapTokens } from "../../../config/web3";
+import { getTokenBalance, getPoolAddress, getPoolData, swapTokens, tokenApproval, approveToken } from "../../../config/web3";
 import { uniList }  from "../../../config/constants";
 import {AreaChart, Area, XAxis, YAxis, 
     CartesianGrid, Tooltip} from 'recharts';
@@ -35,6 +35,7 @@ const SimpleSwap = () => {
   const [inBal, setInBal] = useState(0);
   const [outBal, setOutBal] = useState(0);
   const [chartOpen, setChartOpen] = useState(false);
+  const [approval, setApproval] = useState(false);
   const [filterData, setFilterData] = useState(uniList);
 
   const chartData = [
@@ -69,7 +70,9 @@ const SimpleSwap = () => {
 
   const handleValue = async (event) => {
     setValue(event.target.value);
-    const poolData = await getPoolData(poolAddress);
+    const provider = await connector.getProvider();
+    const poolData = await getPoolData(provider, poolAddress);
+    debugger;
     const amountOut = await calculateSwap(inToken, poolData, event.target.value);
     setValueEth(amountOut.toPrecision(6));
   };
@@ -126,6 +129,10 @@ const SimpleSwap = () => {
       });
       setFilterData(tempData);
       setInToken(token);
+
+      const provider = await connector.getProvider();
+      const approval = await tokenApproval(account, provider, token['address']);
+      setApproval(approval);
     } else if (selected == 1) {
       setOutBal(bal);
       let tempData = uniList.filter((item) => {
@@ -145,6 +152,14 @@ const SimpleSwap = () => {
     }
   }
 
+  const approveTk = async () => {
+    if(account) {
+      const provider = await connector.getProvider();
+      const approved = await approveToken(account, provider, inToken['address']);
+      setApproval(approved);
+    }
+  }
+
   useEffect(() => {
     if(account) {
       const getInfo = async () => {
@@ -152,6 +167,9 @@ const SimpleSwap = () => {
         let outBal = await getTokenBalance(outToken['address'], account);
         setInBal(inBal);
         setOutBal(outBal);
+        const provider = await connector.getProvider();
+        const approval = await tokenApproval(account, provider, inToken['address']);
+        setApproval(approval);
       }
       getInfo();
     }
@@ -276,14 +294,24 @@ const SimpleSwap = () => {
             <p className="text-light-primary">0.09 USDC</p>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-20 flex">
+          {!approval &&
             <button
-              style={{ minHeight: 57 }}
-              className="btn-primary font-bold w-full dark:text-dark-primary"
-              onClick={executeSwap}
+              onClick={approveTk}
+              style={{ minHeight: 57,  }}
+              className={approval?"btn-primary font-bold w-full dark:text-dark-secondary flex-1":"btn-primary font-bold w-full dark:text-dark-secondary flex-1 mr-2"}
             >
               {" "}
-              Swap{" "}
+              Approval{" "}
+            </button>
+          }
+            <button
+              onClick={executeSwap}
+              style={{ minHeight: 57 }}
+              className={approval?"btn-primary font-bold w-full dark:text-dark-secondary flex-1":"btn-primary font-bold w-full dark:text-dark-secondary flex-1 ml-2"}
+            >
+              {" "}
+              confirm{" "}
             </button>
           </div>
           <Modal

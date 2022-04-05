@@ -18,10 +18,12 @@ const RemoveLiquiditySimple = () => {
 
   const { account, connector } = useWeb3React();
   const [open, setOpen] = useState(false);
+  const [rOpen, setROpen] = useState(false);
   const [value, setValue] = useState(0);
   const [weightA, setWeightA] = useState(0.5);
   const [tokenAAddr, setTokenAAddr] = useState('');
   const [tokenBAddr, setTokenBAddr] = useState('');
+  const [scale, setScale] = useState(50);
   const [lpPercentage, setLpPercentage] = useState(50);
   const [poolAmount, setPoolAmount] = useState(0);
   const [selectedItem, setSelectedItem] = useState(poolList[0]);
@@ -49,6 +51,10 @@ const RemoveLiquiditySimple = () => {
     let lpPercentage = Number((val/poolAmount*100).toFixed(2));
     setLpPercentage(lpPercentage);
   };
+
+  const handleScale = (event, newValue) => {
+    setScale(newValue);
+  }
 
   const handleSlider = (event, newValue) => {
     setLpPercentage(newValue);
@@ -80,7 +86,7 @@ const RemoveLiquiditySimple = () => {
       const provider = await connector.getProvider();
       let amount1 = value*weightA;
       let amount2 = value*(1-weightA);
-      await removePool(account, provider, selectedItem['address'], value, amount1, amount2, tokenAAddr, tokenBAddr);
+      await removePool(account, provider, selectedItem['address'], value, scale, tokenAAddr, tokenBAddr);
     }
   }
 
@@ -89,7 +95,6 @@ const RemoveLiquiditySimple = () => {
       const getInfo = async () => {
       const provider = await connector.getProvider();
       const poolData = await getPoolData(provider, poolList[0]['address']);
-      debugger;
       const weightA = fromWeiVal(provider, poolData['weights'][0]);
       setWeightA(weightA);
       setTokenAAddr(poolData['tokens'][0]);
@@ -108,8 +113,52 @@ const RemoveLiquiditySimple = () => {
   return (
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
       <h3 className="model-title mb-4">Remove Liquidity </h3>
+      <div className=" flex justify-between">
+        <p className="capitalize text-grey-dark">Ratio 50% BTC - 50% ETH</p>
+        <button
+          onClick={() => setROpen(!rOpen)}
+          className="capitalize text-light-primary dark:text-grey-dark"
+        >
+          Change Ratio %
+        </button>
+      </div>
+      {rOpen && (
+        <div className="my-4">
+          <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
+            Change Ratio
+          </div>
+          <Slider
+            size="small"
+            value={scale}
+            onChange={handleScale}
+            step={0.01}
+            aria-label="Small"
+            valueLabelDisplay="auto"
+          />
+          <div className="flex">
+            <button
+              style={{ fontSize: 12, fontWeight: 400, minHeight: 32 }}
+              className="flex-1 btn-primary"
+            >
+              {Number(scale).toPrecision(4)}% {selectedItem['symbols'][0]}
+            </button>
+            <button
+              style={{
+                fontSize: 12,
+                fontWeight: 400,
+                background: "#fafafa",
+                minHeight: 32,
+              }}
+              className="flex-1 btn-primary "
+            >
+              <span className="text-light-primary dark:text-grey-dark">
+                {(100 - scale).toPrecision(4)}% {selectedItem['symbols'][1]}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
       <hr className="my-4" />
-
       <div className="w-full flex flex-col gap-y-6">
         <div>
           <div className="flex justify-between sm:flex-row flex-col gap-y-8 items-center p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
@@ -156,7 +205,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][0]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-            {(poolAmount*(lpPercentage/100)*(weightA)).toPrecision(6)}
+            {(poolAmount*(lpPercentage/100)*(weightA)*(1+(scale-50)*2/100)).toPrecision(6)}
           </div>
         </div>
         <div className="flex">
@@ -164,7 +213,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][1]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-            {(poolAmount*(lpPercentage/100)*(1-weightA)).toPrecision(6)}
+            {(poolAmount*(lpPercentage/100)*(1-weightA)*(1+(50-scale)*2/100)).toPrecision(6)}
           </div>
         </div>
       </div>

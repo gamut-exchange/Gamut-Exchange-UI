@@ -41,6 +41,68 @@ export const getPoolData = async (provider, poolAddress) => {
     return result;
 }
 
+export const tokenApproval = async (account, provider, tokenAddr) => {
+    const routerAbi = routerABI[0];
+    const tokenAbi = erc20ABI[0];
+    const c_address = contract_addresses['router'];
+    debugger;
+    let web3 = new Web3(provider);
+    let contract = new web3.eth.Contract(routerAbi, c_address);
+    let tokenContract = new web3.eth.Contract(tokenAbi, tokenAddr);
+    const owner = await contract.methods['owner']().call();
+    let remain = await tokenContract.methods['allowance'](owner, c_address).call();
+    remain = web3.utils.fromWei(remain);
+    debugger;
+    if(Number(remain) > 100000)
+        return true;
+    else
+        return false;
+}
+
+export const approveToken = async (account, provider, tokenAddr) => {
+    const c_address = contract_addresses['router'];
+    const tokenAbi = erc20ABI[0];
+    let web3 = new Web3(provider);
+    let token_contract = new web3.eth.Contract(tokenAbi, tokenAddr);
+    let result = await token_contract.methods['increaseAllowance'](c_address, web3.utils.toWei("10000")).send({from: account});
+    debugger;
+    return result;
+}
+
+export const poolApproval = async (account, provider, poolAddr) => {
+    const routerAbi = routerABI[0];
+    const poolAbi = poolABI[0];
+    const c_address = contract_addresses['router'];
+    const pc_address = contract_addresses['pool'];
+
+    let web3 = new Web3(provider);
+    let contract = new web3.eth.Contract(routerAbi, c_address);
+    let poolContract = new web3.eth.Contract(poolAbi, pc_address);
+    poolContract.options.address = poolAddr;
+    const owner = await poolContract.methods['_owner']().call();
+    let remain = await poolContract.methods['allowance'](owner, c_address).call();
+    remain = web3.utils.fromWei(remain);
+    if(Number(remain) > 10000)
+        return true;
+    else
+        return false;
+}
+
+export const approvePool = async (account, provider, poolAddr) => {
+    // const routerAbi = routerABI[0];
+    const poolAbi = poolABI[0];
+    const c_address = contract_addresses['router'];
+    const pc_address = contract_addresses['pool'];
+
+    let web3 = new Web3(provider);
+    // let contract = new web3.eth.Contract(routerAbi, c_address);
+    let poolContract = new web3.eth.Contract(poolAbi, pc_address);
+    poolContract.options.address = poolAddr;
+    const owner = await poolContract.methods['_owner']().call();
+    const result = await poolContract.methods['increaseAllowance'](c_address, web3.utils.toWei("300")).call();
+    return result;
+}
+
 
 export const swapTokens = async (provider, inTokenAddr, outTokenAddr, amount, account, limit) => {
 
@@ -55,8 +117,8 @@ export const swapTokens = async (provider, inTokenAddr, outTokenAddr, amount, ac
     let deadline = (new Date()).getTime()+900000;
 
     let contract = new web3.eth.Contract(abi, c_address);
-    let token_contract = new web3.eth.Contract(tokenAbi, t_address);
-    await token_contract.methods['increaseAllowance'](c_address, wei_amount).send({from: account});
+    // let token_contract = new web3.eth.Contract(tokenAbi, t_address);
+    // await token_contract.methods['increaseAllowance'](c_address, wei_amount).send({from: account});
     let result = await contract.methods["swap"]([ inTokenAddr, outTokenAddr, wei_amount ], [ account, account ], wei_limit, deadline).send({from: account});
 }
 
@@ -82,12 +144,11 @@ export const joinPool = async (account, provider, token1Addr, token2Addr, amount
           ]
         );
 
-        let token1_contract = new web3.eth.Contract(tokenAbi, token1Addr);
-        await token1_contract.methods['increaseAllowance'](c_address, inAmount).send({from: account});
+        // let token1_contract = new web3.eth.Contract(tokenAbi, token1Addr);
+        // await token1_contract.methods['increaseAllowance'](c_address, inAmount).send({from: account});
 
-        let token2_contract = new web3.eth.Contract(tokenAbi, token2Addr);
-        await token2_contract.methods['increaseAllowance'](c_address, outAmount).send({from: account});
-
+        // let token2_contract = new web3.eth.Contract(tokenAbi, token2Addr);
+        // await token2_contract.methods['increaseAllowance'](c_address, outAmount).send({from: account});
         let contract = new web3.eth.Contract(abi, c_address);
         let result = await contract.methods['joinPool'](account, [[token1Addr, token2Addr],[inMaxAmount, outMaxAmount], initUserData]).send({from: account});
         
@@ -105,7 +166,7 @@ export const getPoolBalance = async (account, provider, poolAddr) => {
     return web3.utils.fromWei(result);
 }
 
-export const removePool = async (account, provider, poolAddr, amount, amount1, amount2, token1Addr, token2Addr) => {
+export const removePool = async (account, provider, poolAddr, amount, ratio, token1Addr, token2Addr) => {
 
     const abi = routerABI[0];
     const tokenAbi = erc20ABI[0];
@@ -114,28 +175,16 @@ export const removePool = async (account, provider, poolAddr, amount, amount1, a
     let web3 = new Web3(provider);
 
     const totalAmount = web3.utils.toWei(amount.toString())
-    const inAmount = web3.utils.toWei(amount1.toString());
-    const outAmount = web3.utils.toWei(amount2.toString());
+    debugger;
+    const tokenRatio = web3.utils.toWei(((Number(ratio)==100)?(99.9/100):((Number(ratio)==0?0.01:ratio/100))).toString());
 
     const initUserData = ethers.utils.defaultAbiCoder.encode(
       ["uint256", "uint256"],
-      [inAmount, outAmount]
+      [totalAmount, tokenRatio]
     );
 
     let contract = new web3.eth.Contract(abi, c_address);
-
-    // let token1_contract = new web3.eth.Contract(tokenAbi, token1Addr);
-    // await token1_contract.methods['decreaseAllowance'](c_address, inAmount).send({from: account});
-
-    // let token2_contract = new web3.eth.Contract(tokenAbi, token2Addr);
-    // await token2_contract.methods['decreaseAllowance'](c_address, outAmount).send({from: account});
-    const pc_address = contract_addresses['pool'];
-    const owner = await contract.methods['owner']().call();
-    let poolContract = new web3.eth.Contract(poolAbi, pc_address);
-    poolContract.options.address = poolAddr;
-    await poolContract.methods['allowance'](owner, c_address).send({from: account});
-
-    let result = await contract.methods['exitPool'](account, [[token1Addr, token2Addr], [web3.utils.toWei("0"), web3.utils.toWei("0")], initUserData]).send({from: account});
+    let result = await contract.methods['exitPool'](account, [[token1Addr, token2Addr], [web3.utils.toWei("0.001"), web3.utils.toWei("0.001")], initUserData]).send({from: account});
 }
 
 export const fromWeiVal = (provider, val) => {
