@@ -185,6 +185,8 @@ const AddLiquiditySimple = () => {
             value={sliderValue}
             onChange={handleSlider}
             step={0.01}
+            min={0.1}
+            max={99.9}
             aria-label="Small"
             valueLabelDisplay="auto"
           />
