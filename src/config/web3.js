@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import erc20ABI from "../assets/abi/erc20";
 import hedgeFactoryABI from "../assets/abi/hedgeFactory";
 import poolABI from "../assets/abi/pool";
@@ -44,28 +44,27 @@ export const getPoolData = async (provider, poolAddress) => {
 export const tokenApproval = async (account, provider, tokenAddr) => {
     const routerAbi = routerABI[0];
     const tokenAbi = erc20ABI[0];
+    const decimals = 18;
     const c_address = contract_addresses['router'];
-    debugger;
     let web3 = new Web3(provider);
     let contract = new web3.eth.Contract(routerAbi, c_address);
     let tokenContract = new web3.eth.Contract(tokenAbi, tokenAddr);
-    const owner = await contract.methods['owner']().call();
-    let remain = await tokenContract.methods['allowance'](owner, c_address).call();
+    // const owner = await contract.methods['owner']().call();
+    let remain = await tokenContract.methods['allowance'](account, c_address).call();
     remain = web3.utils.fromWei(remain);
-    debugger;
-    if(Number(remain) > 100000)
+    if(Math.log10(remain) >= 26)
         return true;
     else
         return false;
 }
 
-export const approveToken = async (account, provider, tokenAddr) => {
+export const approveToken = async (account, provider, tokenAddr, value) => {
     const c_address = contract_addresses['router'];
     const tokenAbi = erc20ABI[0];
     let web3 = new Web3(provider);
     let token_contract = new web3.eth.Contract(tokenAbi, tokenAddr);
-    let result = await token_contract.methods['increaseAllowance'](c_address, web3.utils.toWei("10000")).send({from: account});
-    debugger;
+    await token_contract.methods['increaseAllowance'](c_address, web3.utils.toWei(value.toString())).send({from: account});
+    const result = await tokenApproval(account, provider, tokenAddr);
     return result;
 }
 
@@ -82,7 +81,7 @@ export const poolApproval = async (account, provider, poolAddr) => {
     const owner = await poolContract.methods['_owner']().call();
     let remain = await poolContract.methods['allowance'](owner, c_address).call();
     remain = web3.utils.fromWei(remain);
-    if(Number(remain) > 10000)
+    if(Number(remain) >= 10^26)
         return true;
     else
         return false;

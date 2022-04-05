@@ -72,7 +72,6 @@ const SimpleSwap = () => {
     setValue(event.target.value);
     const provider = await connector.getProvider();
     const poolData = await getPoolData(provider, poolAddress);
-    debugger;
     const amountOut = await calculateSwap(inToken, poolData, event.target.value);
     setValueEth(amountOut.toPrecision(6));
   };
@@ -155,7 +154,7 @@ const SimpleSwap = () => {
   const approveTk = async () => {
     if(account) {
       const provider = await connector.getProvider();
-      const approved = await approveToken(account, provider, inToken['address']);
+      const approved = await approveToken(account, provider, inToken['address'], value);
       setApproval(approved);
     }
   }

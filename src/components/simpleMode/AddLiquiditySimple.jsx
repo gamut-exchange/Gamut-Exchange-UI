@@ -12,7 +12,7 @@ import Modal from "@mui/material/Modal";
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { getTokenBalance, getPoolAddress, getPoolData, joinPool, getPoolBalance, poolApproval, approvePool } from "../../config/web3";
+import { getTokenBalance, getPoolAddress, getPoolData, joinPool, getPoolBalance, tokenApproval, approveToken } from "../../config/web3";
 import { uniList }  from "../../config/constants";
 
 const AddLiquiditySimple = () => {
@@ -86,6 +86,11 @@ const AddLiquiditySimple = () => {
       });
       setFilterData(tempData);
       setInToken(token);
+
+      const provider = await connector.getProvider();
+      const approval = await tokenApproval(account, provider, token['address']);
+      setApproval(approval);
+
     } else if (selected == 1) {
       setOutBal(bal);
       let tempData = uniList.filter((item) => {
@@ -121,10 +126,10 @@ const AddLiquiditySimple = () => {
     }
   }
 
-  const approveLP = async () => {
+  const approveTK = async () => {
     if(account) {
       const provider = await connector.getProvider();
-      const approved = await approvePool(account, provider, poolAddress);
+      const approved = await approveToken(account, provider, inToken['address']);
       setApproval(approved);
     }
   }
@@ -142,6 +147,8 @@ const AddLiquiditySimple = () => {
         setFirstToken(poolData['tokens'][0]);
         setPoolAddress(poolAddress);
         await calculateRatio(inToken, poolData, value);
+        const approval = await tokenApproval(account, provider, inToken['address']);
+        setApproval(approval);
       }
       getInfo();
     }
@@ -154,8 +161,6 @@ const AddLiquiditySimple = () => {
         const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
         const poolData = await getPoolData(provider, poolAddress);
         setPoolAddress(poolAddress);
-        const approval = await poolApproval(account, provider, poolAddress);
-        setApproval(approval);
         await calculateRatio(inToken, poolData, value);
       }
 
@@ -269,7 +274,7 @@ const AddLiquiditySimple = () => {
       <div className="mt-20 flex">
       {!approval &&
         <button
-          onClick={approveLP}
+          onClick={approveTK}
           style={{ minHeight: 57,  }}
           className={approval?"btn-primary font-bold w-full dark:text-dark-secondary flex-1":"btn-primary font-bold w-full dark:text-dark-secondary flex-1 mr-2"}
         >
