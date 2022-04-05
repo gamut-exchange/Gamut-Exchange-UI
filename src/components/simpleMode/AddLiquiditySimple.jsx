@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useWeb3React } from "@web3-react/core";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -12,15 +12,14 @@ import Modal from "@mui/material/Modal";
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { getTokenBalance, getPoolAddress, getPoolData, swapTokens } from "../../config/web3";
+import { getTokenBalance, getPoolAddress, getPoolData, joinPool, getPoolBalance } from "../../config/web3";
 import { uniList }  from "../../config/constants";
 
 const AddLiquiditySimple = () => {
 
-  const { account } = useWeb3React();
-
-  const [crypto, setCrypto] = useState("");
-  const [ratio, setRatio] = useState(false);
+  const { account, connector } = useWeb3React();
+  const [rOpen, setROpen] = useState(false);
+  const [ratio, setRatio] = useState(1);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState(0);
   const [poolAddress, setPoolAddress] = useState('');
@@ -30,6 +29,7 @@ const AddLiquiditySimple = () => {
   const [valueEth, setValueEth] = useState(0);
   const [inBal, setInBal] = useState(0);
   const [outBal, setOutBal] = useState(0);
+  const [firstToken, setFirstToken] = useState('');
   const [sliderValue, setSliderValue] = React.useState(50);
   const [filterData, setFilterData] = useState(uniList);
 
@@ -48,6 +48,9 @@ const AddLiquiditySimple = () => {
 
   const handleSlider = (event, newValue) => {
     setSliderValue(newValue);
+    if(inToken['address'] != outToken['address']) {
+      setValueEth((value*(ratio)*((100-newValue)/newValue)).toFixed(4));
+    }
   };
   const handleOpen = (val) => {
     setSelected(val);
@@ -55,16 +58,18 @@ const AddLiquiditySimple = () => {
   };
   const handleClose = () => setOpen(false);
 
-  const handleChange = (event) => {
-    setCrypto(event.target.value);
-  };
-
   const handleValueEth = (event) => {
     setValueEth(event.target.value);
+    if(inToken['address'] != outToken['address']) {
+      setSliderValue(Number((ratio*value/(Number(event.target.value)+ratio*value)*100).toFixed(2)));
+    }
   };
 
   const handleValue = (event) => {
     setValue(event.target.value);
+    if(inToken['address'] != outToken['address']) {
+      setValueEth((event.target.value*(ratio)*((100-sliderValue)/sliderValue)).toFixed(4));
+    }
   };
 
   const selectToken = async (token, selected) => {
@@ -73,7 +78,7 @@ const AddLiquiditySimple = () => {
     var bal = 0;
     if(account)
       bal = await getTokenBalance(token['address'], account);
-    if(selected == 0){
+    if(selected == 0) {
       setInBal(bal);
       let tempData = uniList.filter((item) => {
         return item['address'] !== token['address']
@@ -91,27 +96,84 @@ const AddLiquiditySimple = () => {
     }
   }
 
+  const calculateRatio = async (inToken, poolData, input) => {
+    let weight_from;
+    let weight_to;
+    if (inToken['address'] == poolData.tokens[0]){
+        weight_from = poolData.weights[0];
+        weight_to = poolData.weights[1];
+    } else {
+        weight_from = poolData.weights[1];
+        weight_to = poolData.weights[0];
+    }
+    setRatio(weight_from/weight_to);
+    setValueEth((input*(weight_from/weight_to)*((100-sliderValue)/sliderValue)).toFixed(4));
+  }
+
+  const executeAddPool = async () => {
+    if(inToken['address'] != outToken['address']) {
+      const provider = await connector.getProvider();
+      if(inToken['address'] == firstToken)
+        await joinPool(account, provider, inToken['address'], outToken['address'], value, valueEth);
+      else
+        await joinPool(account, provider, outToken['address'], inToken['address'], valueEth, value);
+    }
+  }
+
+  useEffect(() => {
+    if(account) {
+      const getInfo = async () => {
+        let inBal = await getTokenBalance(inToken['address'], account);
+        let outBal = await getTokenBalance(outToken['address'], account);
+        setInBal(inBal);
+        setOutBal(outBal);
+        const provider = await connector.getProvider();
+        const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
+        const poolData = await getPoolData(provider, poolAddress);
+        setFirstToken(poolData['tokens'][0]);
+        setPoolAddress(poolAddress);
+        await calculateRatio(inToken, poolData, value);
+      }
+      getInfo();
+    }
+  }, []);
+
+  useEffect(() => {
+    if(account && inToken['address'] !== outToken['address']) {
+      const getInfo = async () => {
+        const provider = await connector.getProvider();
+        const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
+        const poolData = await getPoolData(provider, poolAddress);
+        setPoolAddress(poolAddress);
+        await calculateRatio(inToken, poolData, value);
+      }
+
+      getInfo();
+    }
+  }, [inToken, outToken]);
+
   return (
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
       <h3 className="model-title mb-4">Add Liquidity </h3>
       <div className=" flex justify-between">
         <p className="capitalize text-grey-dark">Ratio 50% BTC - 50% ETH</p>
         <button
-          onClick={() => setRatio(!ratio)}
+          onClick={() => setROpen(!rOpen)}
           className="capitalize text-light-primary dark:text-grey-dark"
         >
           Change Ratio %
         </button>
       </div>
-      {ratio && (
+      {rOpen && (
         <div className="my-4">
           <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
-            ratio
+            rOpen
           </div>
           <Slider
             size="small"
             value={sliderValue}
             onChange={handleSlider}
+            step={0.01}
             aria-label="Small"
             valueLabelDisplay="auto"
           />
@@ -193,7 +255,7 @@ const AddLiquiditySimple = () => {
 
       <div className="mt-20">
         <button
-          onClick={handleOpen}
+          onClick={executeAddPool}
           style={{ minHeight: 57 }}
           className="btn-primary font-bold w-full dark:text-dark-primary"
         >

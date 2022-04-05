@@ -16,6 +16,8 @@ import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
 import { getTokenBalance, getPoolAddress, getPoolData, swapTokens } from "../../../config/web3";
 import { uniList }  from "../../../config/constants";
+import {AreaChart, Area, XAxis, YAxis, 
+    CartesianGrid, Tooltip} from 'recharts';
 
 import './SimpleSwap.css'
 
@@ -34,6 +36,16 @@ const SimpleSwap = () => {
   const [outBal, setOutBal] = useState(0);
   const [chartOpen, setChartOpen] = useState(false);
   const [filterData, setFilterData] = useState(uniList);
+
+  const chartData = [
+        {name:"0", x:0.5, y:0.5},
+        {name:"1", x:0.4, y:0.6},
+        {name:"2", x:0.45, y:0.55},
+        {name:"3", x:0.52, y:0.48},
+        {name:"4", x:0.44, y:0.56},
+        {name:"5", x:0.37, y:0.63},
+        {name:"6", x:0.64, y:0.36}
+    ];
 
   const StyledModal = tw.div`
     flex
@@ -57,7 +69,6 @@ const SimpleSwap = () => {
 
   const handleValue = async (event) => {
     setValue(event.target.value);
-    debugger;
     const poolData = await getPoolData(poolAddress);
     const amountOut = await calculateSwap(inToken, poolData, event.target.value);
     setValueEth(amountOut.toPrecision(6));
@@ -149,8 +160,9 @@ const SimpleSwap = () => {
   useEffect(() => {
     if(inToken !== outToken) {
       const getInfo = async () => {
-        const poolAddress = await getPoolAddress(inToken['symbol'].toLowerCase(), outToken['symbol'].toLowerCase());
-        const poolData = await getPoolData(poolAddress);
+        const provider = await connector.getProvider();
+        const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
+        const poolData = await getPoolData(provider, poolAddress);
         setPoolAddress(poolAddress);
         const amountOut = await calculateSwap(inToken, poolData, value);
         setValueEth(amountOut.toPrecision(6));
@@ -160,11 +172,34 @@ const SimpleSwap = () => {
     }
   }, [inToken, outToken]);
 
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip" style={{backgroundColor:'white', padding:5}}>
+          <p className="label fw-bold">Number: {label}</p>
+          <p className="label">widgetA : {payload[0]['value']}</p>
+          <p className="label">widgetB : {payload[1]['value']}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="flex sm:flex-row flex-col items-center">
       {chartOpen && (
         <div className="flex-1">
-          <img src={chart} alt="chart" />
+          <AreaChart width={500} height={500} data={chartData}>
+            <CartesianGrid/>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip  content={<CustomTooltip />} />
+            <Area dataKey="x" stackId="1" 
+                stroke="green" fill="green" />
+            <Area dataKey="y" stackId="1" 
+                stroke="blue" fill="blue" />
+          </AreaChart>
         </div>
       )}
 
