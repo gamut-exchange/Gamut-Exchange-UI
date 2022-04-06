@@ -52,10 +52,7 @@ export const tokenApproval = async (account, provider, tokenAddr) => {
     // const owner = await contract.methods['owner']().call();
     let remain = await tokenContract.methods['allowance'](account, c_address).call();
     remain = web3.utils.fromWei(remain);
-    if(Math.log10(remain) >= 26)
-        return true;
-    else
-        return false;
+    return remain;
 }
 
 export const approveToken = async (account, provider, tokenAddr, value) => {
@@ -79,10 +76,7 @@ export const poolApproval = async (account, provider, poolAddr) => {
     poolContract.options.address = poolAddr;
     let remain = await poolContract.methods['allowance'](account, c_address).call();
     remain = web3.utils.fromWei(remain);
-    if(Math.log10(remain) >= 26)
-        return true;
-    else
-        return false;
+    return remain;
 }
 
 export const approvePool = async (account, provider, poolAddr, amount1, amount2) => {

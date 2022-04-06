@@ -74,11 +74,14 @@ const SimpleSwap = () => {
     const poolData = await getPoolData(provider, poolAddress);
     const amountOut = await calculateSwap(inToken, poolData, event.target.value);
     setValueEth(amountOut.toPrecision(6));
+    checkApproved(event.target.value);
   };
 
-  const handleValueEth = async (event) => {
-    setValueEth(event.target.value);
-  };
+  const checkApproved = async (val) => {
+    const provider = await connector.getProvider();
+    const approval = await tokenApproval(account,  provider, inToken['address']);
+    setApproval(approval*1 > val*1);
+  }
 
   const calculateSwap = async (inToken, poolData, input) => {
 
@@ -129,9 +132,7 @@ const SimpleSwap = () => {
       setFilterData(tempData);
       setInToken(token);
 
-      const provider = await connector.getProvider();
-      const approval = await tokenApproval(account, provider, token['address']);
-      setApproval(approval);
+      checkApproved(value);
     } else if (selected == 1) {
       setOutBal(bal);
       let tempData = uniList.filter((item) => {
@@ -154,8 +155,8 @@ const SimpleSwap = () => {
   const approveTk = async () => {
     if(account) {
       const provider = await connector.getProvider();
-      const approved = await approveToken(account, provider, inToken['address'], value);
-      setApproval(approved);
+      const approvedToken = await approveToken(account, provider, inToken['address'], value);
+      setApproval(approvedToken > value);
     }
   }
 
@@ -166,9 +167,7 @@ const SimpleSwap = () => {
         let outBal = await getTokenBalance(outToken['address'], account);
         setInBal(inBal);
         setOutBal(outBal);
-        const provider = await connector.getProvider();
-        const approval = await tokenApproval(account, provider, inToken['address']);
-        setApproval(approval);
+        checkApproved(value);
       }
       getInfo();
     }
@@ -247,6 +246,7 @@ const SimpleSwap = () => {
                     <input
                       type="number"
                       value={value}
+                      min={0}
                       onChange={handleValue}
                       className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
                     ></input>
@@ -275,7 +275,6 @@ const SimpleSwap = () => {
                     <input
                       type="number"
                       value={valueEth}
-                      onChange={handleValueEth}
                       disabled
                       className="input-value w-full text-right bg-transparent focus:outline-none"
                     ></input>

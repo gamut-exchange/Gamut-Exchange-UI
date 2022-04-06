@@ -63,19 +63,21 @@ const AddLiquiditySimple = () => {
     setValueEth(event.target.value);
     if(inToken['address'] != outToken['address']) {
       setSliderValue(Number((ratio*value/(Number(event.target.value)+ratio*value)*100).toFixed(2)));
+      checkApproved(value, event.target.value);
     }
   };
 
-  const handleValue = (event) => {
+  const handleValue = async (event) => {
     setValue(event.target.value);
     if(inToken['address'] != outToken['address']) {
-      setValueEth((event.target.value*(ratio)*((100-sliderValue)/sliderValue)).toFixed(4));
+      let valEth = (event.target.value*(ratio)*((100-sliderValue)/(sliderValue+0.000000000001))).toFixed(4);
+      setValueEth(valEth);
+      checkApproved(event.target.value, valEth);
     }
   };
 
   const selectToken = async (token, selected) => {
     handleClose()
-
     var bal = 0;
     if(account)
       bal = await getTokenBalance(token['address'], account);
@@ -86,11 +88,7 @@ const AddLiquiditySimple = () => {
       });
       setFilterData(tempData);
       setInToken(token);
-
-      const provider = await connector.getProvider();
-      const approval = await tokenApproval(account, provider, token['address']);
-      setApproval(approval);
-
+      checkApproved(value, valueEth);
     } else if (selected == 1) {
       setOutBal(bal);
       let tempData = uniList.filter((item) => {
@@ -99,7 +97,15 @@ const AddLiquiditySimple = () => {
 
       setFilterData(tempData);
       setOutToken(token);
+      checkApproved(value, valueEth);
     }
+  }
+
+  const checkApproved = async (val1, val2) => {
+      const provider = await connector.getProvider();
+      const approved1 = await tokenApproval(account, provider, inToken['address']);
+      const approved2 = await tokenApproval(account, provider, outToken['address']);
+      setApproval(approved1*1 > val1*1 && approved2*1 > val2*1);
   }
 
   const calculateRatio = async (inToken, poolData, input) => {
@@ -129,10 +135,9 @@ const AddLiquiditySimple = () => {
   const approveTK = async () => {
     if(account) {
       const provider = await connector.getProvider();
-      const poolApproved = await approvePool(account, provider, inToken['address'], value, valueEth);
       const approved1 = await approveToken(account, provider, inToken['address'], value);
       const approved2 = await approveToken(account, provider, outToken['address'], valueEth);
-      setApproval(poolApproved);
+      setApproval(approved1*1 > value*1 && approved2*1 > valueEth*1);
     }
   }
 
@@ -149,8 +154,7 @@ const AddLiquiditySimple = () => {
         setFirstToken(poolData['tokens'][0]);
         setPoolAddress(poolAddress);
         await calculateRatio(inToken, poolData, value);
-        const approval = await tokenApproval(account, provider, inToken['address']);
-        setApproval(approval);
+        checkApproved(value, valueEth);
       }
       getInfo();
     }
@@ -237,6 +241,7 @@ const AddLiquiditySimple = () => {
                 <input
                   type="number"
                   value={value}
+                  min={0}
                   onChange={handleValue}
                   className="input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
                 ></input>
@@ -264,6 +269,7 @@ const AddLiquiditySimple = () => {
                   type="number"
                   value={valueEth}
                   onChange={handleValueEth}
+                  min={0}
                   className="input-value text-right max-w-[300px] sm:max-w-none w-full bg-transparent focus:outline-none"
                 ></input>
               </form>
