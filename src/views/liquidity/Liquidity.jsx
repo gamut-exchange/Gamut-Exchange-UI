@@ -32,13 +32,6 @@ TabPanel.propTypes = {
 };
 
 
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
-
 const Liquidity = () => {
 
   const [tab, setTab] = useState(0);
@@ -68,8 +61,8 @@ const Liquidity = () => {
             <div className="max-w-2xl mx-auto py-8">
                 <div className="flex justify-between mb-10">
                   <Tabs value={tab} onChange={handleTab}>
-                    <Tab label="Add Lp" style={{color:'inherit'}} className="text-dark-primary dark:text-white" {...a11yProps(0)} />
-                    <Tab label="Remove lp" style={{color:'inherit'}} className="text-dark-primary dark:text-white" {...a11yProps(1)} />
+                    <Tab label="Add Lp" style={{color:'cornflowerblue'}} className="text-dark-primary dark:text-gray-300" />
+                    <Tab label="Remove lp" style={{color:'cornflowerblue'}} className="text-dark-primary dark:text-gray-300" />
                   </Tabs>
                 </div>
                 <TabPanel value={tab} index={0}>

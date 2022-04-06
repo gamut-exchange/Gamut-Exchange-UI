@@ -248,7 +248,7 @@ const SimpleSwap = () => {
                       type="number"
                       value={value}
                       onChange={handleValue}
-                      className="input-value text-right w-full bg-transparent focus:outline-none"
+                      className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
                     ></input>
                   </form>
                   <p className="text-base text-grey-dark">
@@ -298,7 +298,7 @@ const SimpleSwap = () => {
             <button
               onClick={approveTk}
               style={{ minHeight: 57,  }}
-              className={approval?"btn-primary font-bold w-full dark:text-dark-secondary flex-1":"btn-primary font-bold w-full dark:text-dark-secondary flex-1 mr-2"}
+              className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 mr-2"}
             >
               {" "}
               Approval{" "}
@@ -307,7 +307,7 @@ const SimpleSwap = () => {
             <button
               onClick={executeSwap}
               style={{ minHeight: 57 }}
-              className={approval?"btn-primary font-bold w-full dark:text-dark-secondary flex-1":"btn-primary font-bold w-full dark:text-dark-secondary flex-1 ml-2"}
+              className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
             >
               {" "}
               confirm{" "}

@@ -223,7 +223,7 @@ const RemoveLiquiditySimple = () => {
         <button
           onClick={executeRemovePool}
           style={{ minHeight: 57 }}
-          className="btn-primary rounded-sm font-bold w-full dark:text-dark-primary"
+          className="btn-primary rounded-sm font-bold w-full dark:text-black"
         >
           confirm
         </button>

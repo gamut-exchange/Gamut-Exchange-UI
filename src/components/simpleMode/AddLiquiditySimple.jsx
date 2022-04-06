@@ -12,7 +12,7 @@ import Modal from "@mui/material/Modal";
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { getTokenBalance, getPoolAddress, getPoolData, joinPool, getPoolBalance, tokenApproval, approveToken } from "../../config/web3";
+import { getTokenBalance, getPoolAddress, getPoolData, joinPool, getPoolBalance, tokenApproval, approvePool, approveToken } from "../../config/web3";
 import { uniList }  from "../../config/constants";
 
 const AddLiquiditySimple = () => {
@@ -129,8 +129,10 @@ const AddLiquiditySimple = () => {
   const approveTK = async () => {
     if(account) {
       const provider = await connector.getProvider();
-      const approved = await approveToken(account, provider, inToken['address']);
-      setApproval(approved);
+      const poolApproved = await approvePool(account, provider, inToken['address'], value, valueEth);
+      const approved1 = await approveToken(account, provider, inToken['address'], value);
+      const approved2 = await approveToken(account, provider, outToken['address'], valueEth);
+      setApproval(poolApproved);
     }
   }
 
@@ -276,7 +278,7 @@ const AddLiquiditySimple = () => {
         <button
           onClick={approveTK}
           style={{ minHeight: 57,  }}
-          className={approval?"btn-primary font-bold w-full dark:text-dark-secondary flex-1":"btn-primary font-bold w-full dark:text-dark-secondary flex-1 mr-2"}
+          className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 mr-2"}
         >
           {" "}
           Approval{" "}
@@ -285,7 +287,7 @@ const AddLiquiditySimple = () => {
         <button
           onClick={executeAddPool}
           style={{ minHeight: 57 }}
-          className={approval?"btn-primary font-bold w-full dark:text-dark-secondary flex-1":"btn-primary font-bold w-full dark:text-dark-secondary flex-1 ml-2"}
+          className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
         >
           {" "}
           confirm{" "}
