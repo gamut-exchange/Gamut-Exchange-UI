@@ -50,7 +50,7 @@ const AddLiquiditySimple = () => {
   const handleSlider = (event, newValue) => {
     setSliderValue(newValue);
     if(inToken['address'] != outToken['address']) {
-      setValueEth((value*(ratio)*((100-newValue)/newValue)).toFixed(4));
+      setValueEth(((ratio*(1-newValue/100)*value)/(newValue/100)).toFixed(4));
     }
   };
   const handleOpen = (val) => {
@@ -70,7 +70,11 @@ const AddLiquiditySimple = () => {
   const handleValue = async (event) => {
     setValue(event.target.value);
     if(inToken['address'] != outToken['address']) {
-      let valEth = (event.target.value*(ratio)*((100-sliderValue)/(sliderValue+0.000000000001))).toFixed(4);
+      let valEth = ((event.target.value*(ratio)*(100-sliderValue))/(sliderValue)).toFixed(4);
+      console.log(ratio)
+      console.log(sliderValue)
+      console.log(100-sliderValue)
+      console.log(((ratio*event.target.value*(100-sliderValue))/(sliderValue)))
       setValueEth(valEth);
       checkApproved(event.target.value, valEth);
     }
@@ -111,16 +115,31 @@ const AddLiquiditySimple = () => {
   const calculateRatio = async (inToken, poolData, input) => {
     let weight_from;
     let weight_to;
+    let balance_from;
+    let balance_to;
     if (inToken['address'] == poolData.tokens[0]){
+        balance_from = poolData.balances[0];
+        balance_to = poolData.balances[1];
         weight_from = poolData.weights[0];
         weight_to = poolData.weights[1];
     } else {
         weight_from = poolData.weights[1];
         weight_to = poolData.weights[0];
+        balance_from = poolData.balances[1];
+        balance_to = poolData.balances[0];
     }
-    setRatio(weight_from/weight_to);
-    setValueEth((input*(weight_from/weight_to)*((100-sliderValue)/sliderValue)).toFixed(4));
+    let price = (balance_to/weight_to)/(balance_from/weight_from);
+    let some = (price*input*weight_to)/weight_from;
+    console.log(price);
+    console.log(some);
+    console.log(input);
+    console.log(weight_from)
+    console.log(weight_to)
+    setRatio(price);
+    setValueEth(((price*input*weight_to)/weight_from).toFixed(4));
   }
+
+  
 
   const executeAddPool = async () => {
     if(inToken['address'] != outToken['address']) {
@@ -151,14 +170,47 @@ const AddLiquiditySimple = () => {
         const provider = await connector.getProvider();
         const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
         const poolData = await getPoolData(provider, poolAddress);
+
+        const sliderInit = await sliderInitVal(poolData, inToken);
+
         setFirstToken(poolData['tokens'][0]);
         setPoolAddress(poolAddress);
+        setSliderValue(sliderInit*100);
         await calculateRatio(inToken, poolData, value);
         checkApproved(value, valueEth);
       }
       getInfo();
     }
   }, []);
+
+  const sliderInitVal = async (poolData, inToken) => {
+
+    let balance_from;
+    let balance_to;
+    let weight_from;
+    let weight_to;
+    
+    if (inToken['address'] == poolData.tokens[0]){
+        balance_from = poolData.balances[0];
+        balance_to = poolData.balances[1];
+        weight_from = poolData.weights[0];
+        weight_to = poolData.weights[1];
+    }
+    else{
+        balance_from = poolData.balances[1];
+        balance_to = poolData.balances[0];
+        weight_from = poolData.weights[1];
+        weight_to = poolData.weights[0];
+    }
+
+    let pricePool = (balance_from/weight_from) / (balance_to/weight_to);
+
+    console.log(pricePool);
+    let x = weight_from / (10 **18) ;
+
+    return x;
+
+  };
 
   useEffect(() => {
     if(account && inToken['address'] !== outToken['address']) {
