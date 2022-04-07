@@ -184,9 +184,7 @@ export const requestToken = async (account, provider, token) => {
     let web3 = new Web3(provider);
 
     let contract = new web3.eth.Contract(abi, faucet_addr);
-    debugger;
     await contract.methods['requestTokens']().send({from: account});
-    return false;
 }
 
 export const allowedToWithdraw = async (account, provider, token) => {

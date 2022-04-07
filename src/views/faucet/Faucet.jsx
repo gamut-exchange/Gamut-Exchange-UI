@@ -46,7 +46,8 @@ const Faucet = () => {
 
   const requestTToken = async () => {
     const provider = await connector.getProvider();
-    const fau_allowed = await requestToken(account, provider, selectedToken['symbol'].toLowerCase());
+    await requestToken(account, provider, selectedToken['symbol'].toLowerCase());
+    const fau_allowed = await allowedToWithdraw(account, provider, selectedToken['symbol'].toLowerCase());
     setAllowed(fau_allowed);
   }
 
@@ -65,6 +66,13 @@ const Faucet = () => {
     <>
       <div className="bg-white-bg dark:bg-dark-primary py-12" style={{minHeight:'calc(100vh - 280px)'}}>
         <div className="main-container">
+          <div className="py-6 border-b border-grey-dark">
+            <h3 className="model-title mb-4">Token Faucet</h3>
+            <p className="desc-small">
+              Here you can get Tokens to participate in the Testnet, make sure you also got some <a href="https://faucet.dimensions.network/" target="blank"><span className="text-light-primary text-lg">ropsten ETH</span></a> in your Wallet.
+            </p>
+          </div>
+          <hr className="mb-10" />
           <div className="text-center mt-12">
             <Button variant="outlined" startIcon={<img src={selectedToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={handleOpen}>
               {selectedToken['symbol']}
@@ -77,7 +85,7 @@ const Faucet = () => {
             <div className="text-center">
               <button
                 onClick={requestTToken}
-                style={{ minHeight: 50, margin:"14px auto" }}
+                style={{ minHeight: 50, margin:"34px auto" }}
                 className="btn-primary font-bold md:w-1/2 xs:w-full lg:w-1/3 self-center dark:text-black flex-1"
               >
                 {" "}
