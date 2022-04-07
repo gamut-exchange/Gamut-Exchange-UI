@@ -64,7 +64,7 @@ const Faucet = () => {
 
   return (
     <>
-      <div className="bg-white-bg dark:bg-dark-primary py-12" style={{minHeight:'calc(100vh - 280px)'}}>
+      <div className="bg-white-bg dark:bg-dark-primary" style={{minHeight:'calc(100vh - 295px)'}}>
         <div className="main-container">
           <div className="py-6 border-b border-grey-dark">
             <h3 className="model-title mb-4">Token Faucet</h3>
@@ -72,28 +72,30 @@ const Faucet = () => {
               Here you can get Tokens to participate in the Testnet, make sure you also got some <a href="https://faucet.dimensions.network/" target="blank"><span className="text-light-primary text-lg">ropsten ETH</span></a> in your Wallet.
             </p>
           </div>
-          <hr className="mb-10" />
-          <div className="text-center mt-12">
-            <Button variant="outlined" startIcon={<img src={selectedToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={handleOpen}>
-              {selectedToken['symbol']}
-            </Button>
-          </div>
-          {!allowed &&
-            <h3 className="font-semibold w-full text-center mb-10 text-lg" style={{color:'#4b4b4b'}}>It's not available to get this token now. Please try 24 hours later after your last request.</h3>
-          }
-          {allowed &&
-            <div className="text-center">
-              <button
-                onClick={requestTToken}
-                style={{ minHeight: 50, margin:"34px auto" }}
-                className="btn-primary font-bold md:w-1/2 xs:w-full lg:w-1/3 self-center dark:text-black flex-1"
-              >
-                {" "}
-                Request Token{" "}
-              </button>
+          <div className="flex" style={{minHeight:'calc(100vh - 400px)'}}>
+            <div className="w-full m-auto">
+                <div className="text-center mt-12">
+                  <Button variant="outlined" startIcon={<img src={selectedToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={handleOpen}>
+                    {selectedToken['symbol']}
+                  </Button>
+                </div>
+                {!allowed &&
+                  <h3 className="font-semibold w-full text-center mb-10 text-lg" style={{color:'#4b4b4b'}}>It's not available to get this token now. Please try 24 hours later after your last request.</h3>
+                }
+                {allowed &&
+                  <div className="text-center">
+                    <button
+                      onClick={requestTToken}
+                      style={{ minHeight: 50, margin:"34px auto" }}
+                      className="btn-primary font-bold md:w-1/2 xs:w-full lg:w-1/3 self-center dark:text-black flex-1"
+                    >
+                      {" "}
+                      Request Token{" "}
+                    </button>
+                  </div>
+                }
             </div>
-          }
-          <hr className="mb-10" />
+          </div>
           <Modal
             open={open}
             onClose={handleClose}
