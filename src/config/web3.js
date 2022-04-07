@@ -4,6 +4,7 @@ import erc20ABI from "../assets/abi/erc20";
 import hedgeFactoryABI from "../assets/abi/hedgeFactory";
 import poolABI from "../assets/abi/pool";
 import routerABI from "../assets/abi/router";
+import faucetABI from "../assets/abi/faucet";
 
 import {token_addresses, contract_addresses } from "./constants";
 
@@ -166,7 +167,6 @@ export const removePool = async (account, provider, poolAddr, amount, ratio, tok
     let web3 = new Web3(provider);
 
     const totalAmount = web3.utils.toWei(amount.toString())
-    debugger;
     const tokenRatio = web3.utils.toWei(((Number(ratio)==100)?(99.9/100):((Number(ratio)==0?0.01:ratio/100))).toString());
 
     const initUserData = ethers.utils.defaultAbiCoder.encode(
@@ -178,20 +178,28 @@ export const removePool = async (account, provider, poolAddr, amount, ratio, tok
     let result = await contract.methods['exitPool'](account, [[token1Addr, token2Addr], [web3.utils.toWei("0.001"), web3.utils.toWei("0.001")], initUserData]).send({from: account});
 }
 
+export const requestToken = async (account, provider, token) => {
+    const abi = faucetABI[0];
+    const faucet_addr = contract_addresses[token];
+    let web3 = new Web3(provider);
+
+    let contract = new web3.eth.Contract(abi, faucet_addr);
+    debugger;
+    await contract.methods['requestTokens']().send({from: account});
+    return false;
+}
+
+export const allowedToWithdraw = async (account, provider, token) => {
+    const abi = faucetABI[0];
+    const faucet_addr = contract_addresses[token];
+    let web3 = new Web3(provider);
+
+    let contract = new web3.eth.Contract(abi, faucet_addr);
+    let allowed = contract.methods['allowedToWithdraw'](account).call();
+    return allowed;
+}
+
 export const fromWeiVal = (provider, val) => {
     let web3 = new Web3(provider);
     return web3.utils.fromWei(val);
 }
-
-// export const getAllPools = async () => {
-//     const abi = hedgeFactoryABI[0];
-//     const c_address = contract_addresses['hedgeFactory'];
-//     let web3 = new Web3(provider);
-//     let contract = new web3.eth.Contract(abi, c_address);
-//     let result = await contract.methods["allPools"](1000000000000000).call();
-//     return result;
-// }
-
-// export const exitPool = async () => {
-
-// }

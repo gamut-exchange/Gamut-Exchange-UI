@@ -8,6 +8,7 @@ import { Routes, Route } from "react-router-dom";
 import Swap from "./views/swap/Index";
 import Lock from "./views/lock/Index";
 import LpTokens from "./views/lpTokens/Index";
+import Faucet from "./views/faucet/Index";
 
 import { STATISTICS } from "./redux/constants";
 
@@ -36,6 +37,7 @@ function App() {
         {/* <Route path="/mine" element={<Mine handleDark={handleDark} dark={dark} />} />
         <Route path="/lock" element={<Lock handleDark={handleDark} dark={dark} />} />
         <Route path="/lp_tokens" element={<LpTokens handleDark={handleDark} dark={dark} />} /> */}
+        <Route path="/faucet" element={<Faucet handleDark={handleDark} dark={dark} />} />
       </Routes>
     </>
   );

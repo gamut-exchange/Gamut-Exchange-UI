@@ -1,6 +1,8 @@
 export const contract_addresses = {
 	'router': '0xbbd5D17B9aC782709724e16B3ABafB69a4913B09',
-	'hedgeFactory': '0xC19088c49DA26e8F74B28aDFD9D838ad495c3c19'
+	'hedgeFactory': '0xC19088c49DA26e8F74B28aDFD9D838ad495c3c19',
+	'btc': '0xd213f2993eeA1a44C4E35de325aCf0462290D20F',
+	'teth': '0xd465a5cDa8DA969557d3f492008b1b09f777Ce81',
 }
 
 export const token_addresses = {

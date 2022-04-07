@@ -241,6 +241,6 @@ const hedgeFactoryABI = [
             "type": "function"
         }
     ]
-]
+];
 
 export default hedgeFactoryABI;

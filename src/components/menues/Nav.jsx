@@ -107,6 +107,12 @@ const Nav = ({ handleDark, dark }) => {
           </div>
 
           <div className="hidden md:flex gap-x-6 items-center">
+            <Link
+              className="text-light-primary dark:text-grey-dark transition-all duration-300"
+              to='/faucet'
+            >
+              Faucet
+            </Link>
             <button onClick={handleDark} className="text-2xl">
               {!dark ? (
                 <BsToggleOff className="text-black" />
