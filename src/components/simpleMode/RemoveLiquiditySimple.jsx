@@ -11,7 +11,7 @@ import Button from '@mui/material/Button';
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { getPoolData, getPoolBalance, removePool, fromWeiVal } from "../../config/web3";
+import { getPoolData, getPoolBalance, removePool, fromWeiVal, getPoolSupply } from "../../config/web3";
 import { poolList }  from "../../config/constants";
 
 const RemoveLiquiditySimple = () => {
@@ -21,6 +21,7 @@ const RemoveLiquiditySimple = () => {
   const [rOpen, setROpen] = useState(false);
   const [value, setValue] = useState(0);
   const [weightA, setWeightA] = useState(0.5);
+  const [price, setPrice] = useState(0);
   const [tokenAAddr, setTokenAAddr] = useState('');
   const [tokenBAddr, setTokenBAddr] = useState('');
   const [scale, setScale] = useState(50);
@@ -28,6 +29,52 @@ const RemoveLiquiditySimple = () => {
   const [poolAmount, setPoolAmount] = useState(0);
   const [selectedItem, setSelectedItem] = useState(poolList[0]);
   const [filterData, setFilterData] = useState(poolList);
+
+
+  const [totalLPTokens, setTotalLPTokens] = useState(0);
+  const [poolBalanceA, setPoolBalanceA] = useState(0);
+  const [poolBalanceB, setPoolBalanceB] = useState(0);
+  const [outTokenA, setOutTokenA] = useState(0);
+  const [outTokenB, setOutTokenB] = useState(0);
+  const [poolDat, setPoolDat] = useState();
+
+
+  const calculateSwap = async (inToken, poolData, input) => {
+
+    let ammount = input;
+    
+    let balance_from;
+    let balance_to;
+    let weight_from;
+    let weight_to;
+    
+    if (inToken['address'] == poolData.tokens[0]){
+        balance_from = poolData.balances[0];
+        balance_to = poolData.balances[1];
+        weight_from = poolData.weights[0];
+        weight_to = poolData.weights[1];
+    }
+    else{
+        balance_from = poolData.balances[1];
+        balance_to = poolData.balances[0];
+        weight_from = poolData.weights[1];
+        weight_to = poolData.weights[0];
+    }
+
+    
+    let bIn = ammount / (10 ** 18);
+    let pbA = balance_to / (10 ** 18);
+    let pbB = balance_from / (10 ** 18);
+    let wA = weight_to / (10 ** 18);
+    let wB = weight_from / (10 ** 18);
+
+    let exp = (wB - wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn))) / (wA + wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn)));
+    let bOut = pbA * (1 - (pbB / (pbB + bIn)) ** exp);
+
+    console.log(balance_from)
+    
+    return bOut;
+  }
 
   const StyledModal = tw.div`
     flex
@@ -54,12 +101,14 @@ const RemoveLiquiditySimple = () => {
 
   const handleScale = (event, newValue) => {
     setScale(newValue);
+    setWeightA(newValue);
   }
 
   const handleSlider = (event, newValue) => {
     setLpPercentage(newValue);
     const val = (poolAmount*(newValue/100)).toPrecision(6);
     setValue(val);
+    let h = calculateOutput();
   };
 
   const selectToken = async (item) => {
@@ -86,8 +135,55 @@ const RemoveLiquiditySimple = () => {
       const provider = await connector.getProvider();
       let amount1 = value*weightA;
       let amount2 = value*(1-weightA);
-      await removePool(account, provider, selectedItem['address'], value, scale, tokenAAddr, tokenBAddr);
+      let ratio = scale/100;
+      await removePool(account, provider, selectedItem['address'], value, ratio, tokenAAddr, tokenBAddr);
     }
+  }
+
+  const calculateOutput =  () => {
+
+    let removeingPercentage = value/totalLPTokens
+    let standardOutA = removeingPercentage * poolDat.balances[0]
+    let standardOutB = removeingPercentage * poolDat.balances[1]
+    
+    let reqWeightA = (1-weightA) * (10**18);
+    let reqWeightB =  weightA * (10**18);
+
+    let outB;
+    let outA;
+
+    console.log(reqWeightB < poolDat.weights[1])
+    console.log(poolDat.weights[1])
+    console.log(reqWeightB)
+
+    if (reqWeightB < poolDat.weights[1]){
+      outB = standardOutB/poolDat.weights[1]*reqWeightB
+      outA = standardOutA
+      let extraA = calculateSwap(poolDat.tokens[1], poolDat, (standardOutB-outB))
+      console.log(extraA);
+    }else if (reqWeightB > poolDat.weights[1]){
+      outA = standardOutA/poolDat.weights[0]*reqWeightA
+      outB = standardOutB
+    } else{
+      outA = standardOutA
+      outB = standardOutB
+    }
+
+
+    console.log(outB);
+    
+
+    console.log("-----------------")
+
+    console.log(reqWeightB)
+    console.log(poolDat.weights[1])
+
+    console.log("-----------------")
+    
+    let x = 0
+
+    return x;
+
   }
 
   useEffect(() => {
@@ -95,14 +191,24 @@ const RemoveLiquiditySimple = () => {
       const getInfo = async () => {
       const provider = await connector.getProvider();
       const poolData = await getPoolData(provider, poolList[0]['address']);
-      const weightA = fromWeiVal(provider, poolData['weights'][0]);
+      const weightA = fromWeiVal(provider, poolData['weights'][1]);
+      setPoolDat(poolData);
       setWeightA(weightA);
+      setScale(poolData.weights[1]/(10**18)*100);
+      setPrice((poolData.balances[0]/poolData.weights[0])/(poolData.balances[1]/poolData.weights[1]));
       setTokenAAddr(poolData['tokens'][0]);
       setTokenBAddr(poolData['tokens'][1]);
       let amount = await getPoolBalance(account, provider, poolList[0]['address']);
+      let amount2 = await getPoolSupply(provider, poolList[0]['address']);
+      console.log(amount2);
       amount = Number(amount).toPrecision(6);
+      setTotalLPTokens(amount2)
       setPoolAmount(amount);
       setValue((amount*lpPercentage/100).toPrecision(6));
+
+      setPoolBalanceA(poolData.balances[0])
+      setPoolBalanceB(poolData.balances[1])
+      console.log(poolData.balances[0])
     }
 
     getInfo();
@@ -207,7 +313,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][0]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-            {(poolAmount*(lpPercentage/100)*(weightA)*(1+(scale-50)*2/100)).toPrecision(6)}
+            {(((poolAmount*(lpPercentage/100))/totalLPTokens)*(poolBalanceB/(10**18))).toPrecision(6)}
           </div>
         </div>
         <div className="flex">
@@ -215,7 +321,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][1]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-            {(poolAmount*(lpPercentage/100)*(1-weightA)*(1+(50-scale)*2/100)).toPrecision(6)}
+          {(((poolAmount*(lpPercentage/100))/totalLPTokens)*(poolBalanceA/(10**18))).toPrecision(6)}
           </div>
         </div>
       </div>
@@ -274,6 +380,10 @@ const RemoveLiquiditySimple = () => {
       </Modal>
     </div>
   );
+
+
+  
+
 };
 
 export default RemoveLiquiditySimple;
