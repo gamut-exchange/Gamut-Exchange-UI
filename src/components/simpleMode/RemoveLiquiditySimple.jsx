@@ -170,8 +170,8 @@ const RemoveLiquiditySimple = () => {
       outB = standardOutB+extraB
     }
 
-    setOutTokenA(outA)
-    setOutTokenB(outB)
+    setOutTokenA(outB)
+    setOutTokenB(outA)
   }
 
   useEffect(() => {
@@ -182,7 +182,7 @@ const RemoveLiquiditySimple = () => {
       const weightA = fromWeiVal(provider, poolData['weights'][1]);
       setPoolDat(poolData);
       setWeightA(weightA);
-      setScale(poolData.weights[1]/(10**18)*100);
+      setScale(weightA*100);
       setPrice((poolData.balances[0]/poolData.weights[0])/(poolData.balances[1]/poolData.weights[1]));
       setTokenAAddr(poolData['tokens'][0]);
       setTokenBAddr(poolData['tokens'][1]);
