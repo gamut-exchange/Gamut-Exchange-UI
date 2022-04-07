@@ -158,6 +158,16 @@ export const getPoolBalance = async (account, provider, poolAddr) => {
     return web3.utils.fromWei(result);
 }
 
+export const getPoolSupply = async (provider, poolAddr) => {
+    const abi = poolABI[0];
+    const c_address = contract_addresses['pool'];
+    let web3 = new Web3(provider);
+    let contract = new web3.eth.Contract(abi, c_address);
+    contract.options.address = poolAddr;
+    const result = await contract.methods['totalSupply']().call();
+    return web3.utils.fromWei(result);
+}
+
 export const removePool = async (account, provider, poolAddr, amount, ratio, token1Addr, token2Addr) => {
 
     const abi = routerABI[0];
@@ -167,7 +177,8 @@ export const removePool = async (account, provider, poolAddr, amount, ratio, tok
     let web3 = new Web3(provider);
 
     const totalAmount = web3.utils.toWei(amount.toString())
-    const tokenRatio = web3.utils.toWei(((Number(ratio)==100)?(99.9/100):((Number(ratio)==0?0.01:ratio/100))).toString());
+    debugger;
+    const tokenRatio = web3.utils.toWei(ratio.toString());
 
     const initUserData = ethers.utils.defaultAbiCoder.encode(
       ["uint256", "uint256"],
