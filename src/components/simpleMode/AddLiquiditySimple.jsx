@@ -130,11 +130,7 @@ const AddLiquiditySimple = () => {
     }
     let price = (balance_to/weight_to)/(balance_from/weight_from);
     let some = (price*input*weight_to)/weight_from;
-    console.log(price);
-    console.log(some);
-    console.log(input);
-    console.log(weight_from)
-    console.log(weight_to)
+
     setRatio(price);
     setValueEth(((price*input*weight_to)/weight_from).toFixed(4));
   }

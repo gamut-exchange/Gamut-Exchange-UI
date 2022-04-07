@@ -36,10 +36,11 @@ const RemoveLiquiditySimple = () => {
   const [poolBalanceB, setPoolBalanceB] = useState(0);
   const [outTokenA, setOutTokenA] = useState(0);
   const [outTokenB, setOutTokenB] = useState(0);
+  const [poolAddresse, setPoolAddresse] = useState();
   const [poolDat, setPoolDat] = useState();
 
 
-  const calculateSwap = async (inToken, poolData, input) => {
+  const calculateSwap = (inToken, poolData, input) => {
 
     let ammount = input;
     
@@ -48,7 +49,7 @@ const RemoveLiquiditySimple = () => {
     let weight_from;
     let weight_to;
     
-    if (inToken['address'] == poolData.tokens[0]){
+    if (inToken == poolData.tokens[0]){
         balance_from = poolData.balances[0];
         balance_to = poolData.balances[1];
         weight_from = poolData.weights[0];
@@ -70,8 +71,6 @@ const RemoveLiquiditySimple = () => {
 
     let exp = (wB - wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn))) / (wA + wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn)));
     let bOut = pbA * (1 - (pbB / (pbB + bIn)) ** exp);
-
-    console.log(balance_from)
     
     return bOut;
   }
@@ -97,18 +96,22 @@ const RemoveLiquiditySimple = () => {
     setValue(val);
     let lpPercentage = Number((val/poolAmount*100).toFixed(2));
     setLpPercentage(lpPercentage);
+    calculateOutput();
+
   };
 
   const handleScale = (event, newValue) => {
     setScale(newValue);
-    setWeightA(newValue);
+    setWeightA(newValue/100);
+    calculateOutput();
+
   }
 
   const handleSlider = (event, newValue) => {
     setLpPercentage(newValue);
     const val = (poolAmount*(newValue/100)).toPrecision(6);
     setValue(val);
-    let h = calculateOutput();
+    calculateOutput();
   };
 
   const selectToken = async (item) => {
@@ -135,55 +138,40 @@ const RemoveLiquiditySimple = () => {
       const provider = await connector.getProvider();
       let amount1 = value*weightA;
       let amount2 = value*(1-weightA);
-      let ratio = scale/100;
+      let ratio = (1-scale/100).toFixed(8);
+      console.log(ratio)
       await removePool(account, provider, selectedItem['address'], value, ratio, tokenAAddr, tokenBAddr);
     }
   }
 
-  const calculateOutput =  () => {
+  const calculateOutput =  async () => {
+
+    const provider = await connector.getProvider();
+    const poolData = await getPoolData(provider, selectedItem['address']);
 
     let removeingPercentage = value/totalLPTokens
-    let standardOutA = removeingPercentage * poolDat.balances[0]
-    let standardOutB = removeingPercentage * poolDat.balances[1]
+    let standardOutA = removeingPercentage * poolData.balances[0]
+    let standardOutB = removeingPercentage * poolData.balances[1]
     
     let reqWeightA = (1-weightA) * (10**18);
     let reqWeightB =  weightA * (10**18);
 
-    let outB;
-    let outA;
+    let outB = 0 ;
+    let outA = 0 ;
 
-    console.log(reqWeightB < poolDat.weights[1])
-    console.log(poolDat.weights[1])
-    console.log(reqWeightB)
-
-    if (reqWeightB < poolDat.weights[1]){
-      outB = standardOutB/poolDat.weights[1]*reqWeightB
-      outA = standardOutA
-      let extraA = calculateSwap(poolDat.tokens[1], poolDat, (standardOutB-outB))
-      console.log(extraA);
-    }else if (reqWeightB > poolDat.weights[1]){
-      outA = standardOutA/poolDat.weights[0]*reqWeightA
-      outB = standardOutB
-    } else{
-      outA = standardOutA
-      outB = standardOutB
+    if (reqWeightB < poolData.weights[1]){
+      outB =standardOutB/poolData.weights[1]*reqWeightB
+      let extraA = calculateSwap(poolData.tokens[1], poolData, (standardOutB-outB)) * (10 ** 18)
+      outA = standardOutA + extraA;
+      
+    }else if (reqWeightB > poolData.weights[1]){
+      outA = standardOutA/poolData.weights[0]*reqWeightA
+      let extraB = calculateSwap(poolData.tokens[0], poolData, (standardOutA - outA)) * (10 ** 18)
+      outB = standardOutB+extraB
     }
 
-
-    console.log(outB);
-    
-
-    console.log("-----------------")
-
-    console.log(reqWeightB)
-    console.log(poolDat.weights[1])
-
-    console.log("-----------------")
-    
-    let x = 0
-
-    return x;
-
+    setOutTokenA(outA)
+    setOutTokenB(outB)
   }
 
   useEffect(() => {
@@ -205,13 +193,14 @@ const RemoveLiquiditySimple = () => {
       setTotalLPTokens(amount2)
       setPoolAmount(amount);
       setValue((amount*lpPercentage/100).toPrecision(6));
-
       setPoolBalanceA(poolData.balances[0])
       setPoolBalanceB(poolData.balances[1])
       console.log(poolData.balances[0])
+      await calculateOutput();
     }
 
     getInfo();
+    
 
     }
   }, []);
@@ -313,7 +302,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][0]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-            {(((poolAmount*(lpPercentage/100))/totalLPTokens)*(poolBalanceB/(10**18))).toPrecision(6)}
+            {(outTokenA/(10**18)).toPrecision(6)}
           </div>
         </div>
         <div className="flex">
@@ -321,7 +310,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][1]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-          {(((poolAmount*(lpPercentage/100))/totalLPTokens)*(poolBalanceA/(10**18))).toPrecision(6)}
+          {(outTokenB/(10**18)).toPrecision(6)}
           </div>
         </div>
       </div>

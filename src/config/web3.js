@@ -179,6 +179,7 @@ export const removePool = async (account, provider, poolAddr, amount, ratio, tok
     const totalAmount = web3.utils.toWei(amount.toString())
     debugger;
     const tokenRatio = web3.utils.toWei(ratio.toString());
+    console.log(tokenRatio);
 
     const initUserData = ethers.utils.defaultAbiCoder.encode(
       ["uint256", "uint256"],
