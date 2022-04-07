@@ -78,7 +78,7 @@ const Nav = ({ handleDark, dark }) => {
                     Liquidity
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     className="text-light-primary dark:text-grey-dark transition-all duration-300"
                     to='/mine'
@@ -101,7 +101,7 @@ const Nav = ({ handleDark, dark }) => {
                   >
                     LP Tokens
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>

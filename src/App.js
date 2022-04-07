@@ -33,9 +33,9 @@ function App() {
         <Route path="/" element={<Home handleDark={handleDark} dark={dark} />} />
         <Route path="/swap" element={<Swap handleDark={handleDark} dark={dark} />} />
         <Route path="/liquidity" element={<Liquidity handleDark={handleDark} dark={dark} />} />
-        <Route path="/mine" element={<Mine handleDark={handleDark} dark={dark} />} />
+        {/* <Route path="/mine" element={<Mine handleDark={handleDark} dark={dark} />} />
         <Route path="/lock" element={<Lock handleDark={handleDark} dark={dark} />} />
-        <Route path="/lp_tokens" element={<LpTokens handleDark={handleDark} dark={dark} />} />
+        <Route path="/lp_tokens" element={<LpTokens handleDark={handleDark} dark={dark} />} /> */}
       </Routes>
     </>
   );
