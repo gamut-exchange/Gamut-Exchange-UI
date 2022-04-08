@@ -16,5 +16,5 @@ export const uniList = [
 ]
 
 export const poolList = [
-	{address:"0x4D72553001fE88371aEc189455E1Ed18849b8bA2", symbols:["BTC", "tETH"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe"]}
+	{value: "other", address:"0x4D72553001fE88371aEc189455E1Ed18849b8bA2", symbols:["BTC", "tETH"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe"]}
 ]

@@ -29,8 +29,7 @@ const RemoveLiquiditySimple = () => {
   const [poolAmount, setPoolAmount] = useState(0);
   const [selectedItem, setSelectedItem] = useState(poolList[0]);
   const [filterData, setFilterData] = useState(poolList);
-
-
+  const [query, setQuery] = useState("");
   const [totalLPTokens, setTotalLPTokens] = useState(0);
   const [poolBalanceA, setPoolBalanceA] = useState(0);
   const [poolBalanceB, setPoolBalanceB] = useState(0);
@@ -88,36 +87,53 @@ const RemoveLiquiditySimple = () => {
     w-1/3
   `;
 
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () =>  {
+    setQuery("");
+    setOpen(true);
+  }
   const handleClose = () => setOpen(false);
 
-  const handleValue = (event) => {
+  const handleValue = async (event) => {
     const val = Number(event.target.value);
     setValue(val);
     let lpPercentage = Number((val/poolAmount*100).toFixed(2));
     setLpPercentage(lpPercentage);
-    calculateOutput();
+    await calculateOutput(totalLPTokens, val, selectedItem);
 
   };
 
-  const handleScale = (event, newValue) => {
+  const handleScale = async (event, newValue) => {
     setScale(newValue);
     setWeightA(newValue/100);
-    calculateOutput();
+    await calculateOutput(totalLPTokens, value, selectedItem);
 
   }
 
-  const handleSlider = (event, newValue) => {
+  const handleSlider = async (event, newValue) => {
     setLpPercentage(newValue);
     const val = (poolAmount*(newValue/100)).toPrecision(6);
     setValue(val);
-    calculateOutput();
+    await calculateOutput(totalLPTokens, val, selectedItem);
   };
+
+  const filterLP = (e) => {
+    let search_qr = e.target.value;
+    setQuery(search_qr);
+    if(search_qr.length != 0) {
+      const filterDT = poolList.filter((item) => {
+        return item['symbols'][0].toLowerCase().indexOf(search_qr) != -1 || item['symbols'][1].toLowerCase().indexOf(search_qr) != -1
+      });
+      setFilterData(filterDT);
+    } else {
+      setFilterData(poolList);
+    }
+  }
 
   const selectToken = async (item) => {
     handleClose();
     if(account) {
       setSelectedItem(item);
+      await calculateOutput(totalLPTokens, value, item);
       const provider = await connector.getProvider();
       const poolData = await getPoolData(provider, item['address']);
       const weightA = fromWeiVal(provider, poolData['weights'][0]);
@@ -139,64 +155,61 @@ const RemoveLiquiditySimple = () => {
       let amount1 = value*weightA;
       let amount2 = value*(1-weightA);
       let ratio = (1-scale/100).toFixed(8);
-      console.log(ratio)
       await removePool(account, provider, selectedItem['address'], value, ratio, tokenAAddr, tokenBAddr);
     }
   }
 
-  const calculateOutput =  async () => {
+  const calculateOutput =  async (totalLkTk, inValue, item) => {
 
     const provider = await connector.getProvider();
-    const poolData = await getPoolData(provider, selectedItem['address']);
-
-    let removeingPercentage = value/totalLPTokens
-    let standardOutA = removeingPercentage * poolData.balances[0]
-    let standardOutB = removeingPercentage * poolData.balances[1]
+    const poolData = await getPoolData(provider, item['address']);
+    let removeingPercentage = inValue/(Number(totalLkTk)+0.0000000001);
+    let standardOutA = removeingPercentage * poolData.balances[0];
+    let standardOutB = removeingPercentage * poolData.balances[1];
     
     let reqWeightA = (1-weightA) * (10**18);
     let reqWeightB =  weightA * (10**18);
 
     let outB = 0 ;
     let outA = 0 ;
-
-    if (reqWeightB < poolData.weights[1]){
+    if (reqWeightB < Number(poolData.weights[1])){
       outB =standardOutB/poolData.weights[1]*reqWeightB
       let extraA = calculateSwap(poolData.tokens[1], poolData, (standardOutB-outB)) * (10 ** 18)
       outA = standardOutA + extraA;
-      
-    }else if (reqWeightB > poolData.weights[1]){
+    } else {
       outA = standardOutA/poolData.weights[0]*reqWeightA
       let extraB = calculateSwap(poolData.tokens[0], poolData, (standardOutA - outA)) * (10 ** 18)
       outB = standardOutB+extraB
     }
 
-    setOutTokenA(outB)
-    setOutTokenB(outA)
+    const amount1 = fromWeiVal(provider, outA.toString());
+    const amount2 = fromWeiVal(provider, outB.toString());
+    setOutTokenA(Number(amount1));
+    setOutTokenB(Number(amount2));
   }
 
   useEffect(() => {
     if(account) {
       const getInfo = async () => {
       const provider = await connector.getProvider();
+      setSelectedItem(poolList[0]);
       const poolData = await getPoolData(provider, poolList[0]['address']);
       const weightA = fromWeiVal(provider, poolData['weights'][1]);
       setPoolDat(poolData);
       setWeightA(weightA);
-      setScale(weightA*100);
+      setScale((weightA*100).toPrecision(6));
       setPrice((poolData.balances[0]/poolData.weights[0])/(poolData.balances[1]/poolData.weights[1]));
       setTokenAAddr(poolData['tokens'][0]);
       setTokenBAddr(poolData['tokens'][1]);
       let amount = await getPoolBalance(account, provider, poolList[0]['address']);
       let amount2 = await getPoolSupply(provider, poolList[0]['address']);
-      console.log(amount2);
       amount = Number(amount).toPrecision(6);
       setTotalLPTokens(amount2)
       setPoolAmount(amount);
       setValue((amount*lpPercentage/100).toPrecision(6));
       setPoolBalanceA(poolData.balances[0])
       setPoolBalanceB(poolData.balances[1])
-      console.log(poolData.balances[0])
-      await calculateOutput();
+      await calculateOutput(amount2, amount*lpPercentage/100, poolList[0]);
     }
 
     getInfo();
@@ -209,7 +222,7 @@ const RemoveLiquiditySimple = () => {
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
       <h3 className="model-title mb-4">Remove Liquidity </h3>
       <div className=" flex justify-between">
-        <p className="capitalize text-grey-dark">Ratio 50% BTC - 50% ETH</p>
+        <p className="capitalize text-grey-dark">Ratio {scale}% BTC - {(100-scale)}% ETH</p>
         <button
           onClick={() => setROpen(!rOpen)}
           className="capitalize text-light-primary dark:text-grey-dark"
@@ -273,7 +286,7 @@ const RemoveLiquiditySimple = () => {
                   min={0}
                   onChange={handleValue}
                   className="input-value text-right bg-transparent focus:outline-none"
-                ></input>
+                />
               </form>
               <p className="text-base text-grey-dark">LP Balance: {poolAmount}</p>
             </div>
@@ -302,7 +315,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][0]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-            {(outTokenA/(10**18)).toPrecision(6)}
+            {(outTokenA).toPrecision(6)}
           </div>
         </div>
         <div className="flex">
@@ -310,7 +323,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][1]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-          {(outTokenB/(10**18)).toPrecision(6)}
+          {(outTokenB).toPrecision(6)}
           </div>
         </div>
       </div>
@@ -326,30 +339,21 @@ const RemoveLiquiditySimple = () => {
       <Modal
         open={open}
         onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
       >
         <StyledModal>
           <h3 className="model-title mb-6">Remove Liquidity</h3>
-          <Autocomplete
-            freeSolo
-            id="free-solo-2-demo"
-            disableClearable
-            options={filterData.map((option) => option.value)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search"
-                InputProps={{
-                  ...params.InputProps,
-                  type: "search",
-                  style: {color: '#333'}
-                }}
-                InputLabelProps={{
-                  style: { color: '#333' },
-                }}
-              />
-            )}
+          <TextField
+            autoFocus={true}
+            value={query}
+            onChange={filterLP}
+            label="Search"
+            InputProps={{
+              type: "search",
+              style: {color: '#333'}
+            }}
+            InputLabelProps={{
+              style: { color: '#333' },
+            }}
           />
           <hr className="my-6" />
           <ul className="flex flex-col gap-y-6">

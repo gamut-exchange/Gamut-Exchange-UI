@@ -28,6 +28,7 @@ const SimpleSwap = () => {
   const [value, setValue] = useState(0);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState(0);
+  const [query, setQuery] = useState("");
   const [valueEth, setValueEth] = useState(0);
   const [poolAddress, setPoolAddress] = useState('');
   const [inToken, setInToken] = useState(uniList[0]);
@@ -82,6 +83,19 @@ const SimpleSwap = () => {
     checkApproved(event.target.value);
   };
 
+  const filterToken = (e) => {
+    let search_qr = e.target.value;
+    setQuery(search_qr);
+    if(search_qr.length != 0) {
+      const filterDT = uniList.filter((item) => {
+        return item['symbol'].toLowerCase().indexOf(search_qr) != -1
+      });
+      setFilterData(filterDT);
+    } else {
+      setFilterData(uniList);
+    }
+  }
+
   const checkApproved = async (val) => {
     const provider = await connector.getProvider();
     const approval = await tokenApproval(account,  provider, inToken['address']);
@@ -89,9 +103,7 @@ const SimpleSwap = () => {
   }
 
   const calculateSwap = async (inToken, poolData, input) => {
-
     let ammount = input * 10 ** 18;
-    
     let balance_from;
     let balance_to;
     let weight_from;
@@ -175,6 +187,12 @@ const SimpleSwap = () => {
       setFilterData(tempData);
       setOutToken(token);
     }
+  }
+
+  const reverseToken = async () => {
+    let tempToken = inToken;
+    await selectToken(outToken, 0);
+    await selectToken(tempToken, 1);
   }
 
   const executeSwap = async () => {
@@ -292,7 +310,7 @@ const SimpleSwap = () => {
             </div>
 
             <div className="w-full flex justify-center items-center text-light-primary text-2xl dark:text-grey-dark">
-              <AiOutlineArrowDown />
+              <AiOutlineArrowDown onClick={reverseToken} />
             </div>
 
             <div>
@@ -353,27 +371,18 @@ const SimpleSwap = () => {
           >
             <StyledModal>
               <h3 className="model-title mb-6">Select Token</h3>
-              <Autocomplete
-                freeSolo
-                id="free-solo-2-demo"
-                disableClearable
-                options={filterData.map((option) => option.value)}
-                className="input-value"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Search"
-                    className="input-value"
-                    InputProps={{
-                      type: "search",
-                      className: 'input-value',
-                      style: {color: '#333'}
-                    }}
-                    InputLabelProps={{
-                      style: { color: '#333' },
-                    }}
-                  />
-                )}
+              <TextField
+                autoFocus={true}
+                value={query}
+                onChange={filterToken}
+                label="Search"
+                InputProps={{
+                  type: "search",
+                  style: {color: '#333'}
+                }}
+                InputLabelProps={{
+                  style: { color: '#333' },
+                }}
               />
               <hr className="my-6" />
               <ul className="flex flex-col gap-y-2">

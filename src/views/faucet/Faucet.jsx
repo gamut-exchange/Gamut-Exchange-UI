@@ -11,6 +11,7 @@ import { requestToken, allowedToWithdraw } from "../../config/web3";
 const Faucet = () => {
   const { account, connector } = useWeb3React();
   const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = useState("");
   const [selectedToken, setSelectedToken] = useState(uniList[0]);
   const [filterData, setFilterData] = useState(uniList.filter((item, index) => { return index != 0;}));
   const [allowed, setAllowed] = useState(true);
@@ -31,6 +32,19 @@ const Faucet = () => {
   const handleOpen = () => setOpen(true);
 
   const handleClose = () => setOpen(false);
+
+  const filterToken = (e) => {
+    let search_qr = e.target.value;
+    setQuery(search_qr);
+    if(search_qr.length != 0) {
+      const filterDT = uniList.filter((item) => {
+        return item['symbol'].toLowerCase().indexOf(search_qr) != -1
+      });
+      setFilterData(filterDT);
+    } else {
+      setFilterData(uniList);
+    }
+  }
 
   const selectToken = async (item) => {
     handleClose();
@@ -104,27 +118,18 @@ const Faucet = () => {
           >
             <StyledModal>
               <h3 className="model-title mb-6">Select Token</h3>
-              <Autocomplete
-                freeSolo
-                id="free-solo-2-demo"
-                disableClearable
-                options={filterData.map((option) => option.value)}
-                className="input-value"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Search"
-                    className="input-value"
-                    InputProps={{
-                      type: "search",
-                      className: 'input-value',
-                      style: {color: '#333'}
-                    }}
-                    InputLabelProps={{
-                      style: { color: '#333' },
-                    }}
-                  />
-                )}
+              <TextField
+                autoFocus={true}
+                value={query}
+                onChange={filterToken}
+                label="Search"
+                InputProps={{
+                  type: "search",
+                  style: {color: '#333'}
+                }}
+                InputLabelProps={{
+                  style: { color: '#333' },
+                }}
               />
               <hr className="my-6" />
               <ul className="flex flex-col gap-y-2">
