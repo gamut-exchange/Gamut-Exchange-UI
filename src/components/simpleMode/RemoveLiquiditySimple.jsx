@@ -315,7 +315,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][0]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-            {(outTokenA).toPrecision(6)}
+            {(outTokenB).toPrecision(6)}
           </div>
         </div>
         <div className="flex">
@@ -323,7 +323,7 @@ const RemoveLiquiditySimple = () => {
             Recieve {selectedItem['symbols'][1]}
           </div>
           <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-          {(outTokenB).toPrecision(6)}
+          {(outTokenA).toPrecision(6)}
           </div>
         </div>
       </div>
