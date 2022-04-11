@@ -222,7 +222,7 @@ const RemoveLiquiditySimple = () => {
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
       <h3 className="model-title mb-4">Remove Liquidity </h3>
       <div className=" flex justify-between">
-        <p className="capitalize text-grey-dark">Ratio {scale}% BTC - {(100-scale)}% ETH</p>
+        <p className="capitalize text-grey-dark">Ratio {Number(scale).toPrecision(4)}% {selectedItem['symbols'][0]} - {(100 - scale).toPrecision(4)}% {selectedItem['symbols'][1]}</p>
         <button
           onClick={() => setROpen(!rOpen)}
           className="capitalize text-light-primary dark:text-grey-dark"

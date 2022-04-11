@@ -241,7 +241,7 @@ const AddLiquiditySimple = () => {
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
       <h3 className="model-title mb-4">Add Liquidity </h3>
       <div className=" flex justify-between">
-        <p className="capitalize text-grey-dark">Ratio 50% BTC - 50% ETH</p>
+        <p className="capitalize text-grey-dark">Ratio {sliderValue.toPrecision(4)}% {inToken['symbol']} - {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}</p>
         <button
           onClick={() => setROpen(!rOpen)}
           className="capitalize text-light-primary dark:text-grey-dark"
@@ -269,7 +269,7 @@ const AddLiquiditySimple = () => {
               style={{ fontSize: 12, fontWeight: 400, minHeight: 32 }}
               className="flex-1 btn-primary"
             >
-              {sliderValue.toPrecision(4)}% BTC
+              {sliderValue.toPrecision(4)}% {inToken['symbol']}
             </button>
             <button
               style={{
@@ -281,7 +281,7 @@ const AddLiquiditySimple = () => {
               className="flex-1 btn-primary "
             >
               <span className="text-light-primary dark:text-grey-dark">
-                {(100 - sliderValue).toPrecision(4)}% ETH
+                {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}
               </span>
             </button>
           </div>
