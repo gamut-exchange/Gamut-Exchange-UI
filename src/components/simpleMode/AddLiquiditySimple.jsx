@@ -394,6 +394,7 @@ const AddLiquiditySimple = () => {
           onClick={executeAddPool}
           style={{ minHeight: 57 }}
           className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
+          disabled={limitedout}
         >
           {" "}
           {limitedout?"Not Enough Token":"Confirm"}

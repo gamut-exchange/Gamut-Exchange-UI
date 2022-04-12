@@ -343,6 +343,7 @@ const RemoveLiquiditySimple = () => {
           onClick={executeRemovePool}
           style={{ minHeight: 57 }}
           className="btn-primary rounded-sm font-bold w-full dark:text-black"
+          disabled={limitedout}
         >
           {limitedout?"Not Enough Token":"Confirm"}
         </button>
