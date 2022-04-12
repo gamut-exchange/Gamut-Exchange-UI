@@ -34,6 +34,7 @@ const AddLiquiditySimple = () => {
   const [sliderValue, setSliderValue] = React.useState(50);
   const [approval, setApproval] = useState(false);
   const [filterData, setFilterData] = useState(uniList);
+  const [limitedout, setLimitedout] = useState(false);
 
   const StyledModal = tw.div`
     flex
@@ -63,6 +64,12 @@ const AddLiquiditySimple = () => {
 
   const handleValueEth = (event) => {
     setValueEth(event.target.value);
+    let inLimBal = inBal.replace(',', '');
+    let outLimBal = outBal.replace(',', '');
+    if(Number(event.target.value) <= Number(outLimBal) && Number(value) <= Number(inLimBal))
+      setLimitedout(false);
+    else
+      setLimitedout(true);
     if(inToken['address'] != outToken['address']) {
       setSliderValue(Number((ratio*value/(Number(event.target.value)+ratio*value)*100).toFixed(2)));
       checkApproved(value, event.target.value);
@@ -71,6 +78,12 @@ const AddLiquiditySimple = () => {
 
   const handleValue = async (event) => {
     setValue(event.target.value);
+    let inLimBal = inBal.replace(',', '');
+    let outLimBal = outBal.replace(',', '');
+    if(Number(event.target.value) <= Number(inLimBal) && Number(valueEth) <= Number(outLimBal))
+      setLimitedout(false);
+    else
+      setLimitedout(true);
     if(inToken['address'] != outToken['address']) {
       let valEth = ((event.target.value*(ratio)*(100-sliderValue))/(sliderValue)).toFixed(4);
       console.log(ratio)
@@ -108,6 +121,10 @@ const AddLiquiditySimple = () => {
       setFilterData(tempData);
       setInToken(token);
       checkApproved(value, valueEth);
+      const provider = await connector.getProvider();
+      const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
+      const poolData = await getPoolData(provider, poolAddress);
+      sliderInitVal(poolData, token);
     } else if (selected == 1) {
       setOutBal(bal);
       let tempData = uniList.filter((item) => {
@@ -169,6 +186,26 @@ const AddLiquiditySimple = () => {
       const approved2 = await approveToken(account, provider, outToken['address'], valueEth);
       setApproval(approved1*1 > value*1 && approved2*1 > valueEth*1);
     }
+  }
+
+  const setInLimit = () => {
+    let val1 = inBal.replace(',', '');
+    let val2 = outBal.replace(',', '');
+    setValue(Number(val1));
+    if(valueEth < val2)
+      setLimitedout(false);
+    else
+      setLimitedout(true);
+  }
+
+  const setOutLimit = () => {
+    let val1 = outBal.replace(',', '');
+    let val2 = inBal.replace(',', '');
+    setValueEth(Number(val1));
+    if(valueEth < val2)
+      setLimitedout(false);
+    else
+      setLimitedout(true);
   }
 
   useEffect(() => {
@@ -309,7 +346,7 @@ const AddLiquiditySimple = () => {
                   className="input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
                 ></input>
               </form>
-              <p className="text-base text-grey-dark">Balance: {inBal}</p>
+              <p className="text-base text-grey-dark"  onClick={setInLimit}>Balance: {inBal}</p>
             </div>
           </div>
         </div>
@@ -336,7 +373,7 @@ const AddLiquiditySimple = () => {
                   className="input-value text-right max-w-[300px] sm:max-w-none w-full bg-transparent focus:outline-none"
                 ></input>
               </form>
-              <p className="text-base text-grey-dark">Balance: {outBal}</p>
+              <p className="text-base text-grey-dark" onClick={setOutLimit}>Balance: {outBal}</p>
             </div>
           </div>
         </div>
@@ -359,7 +396,7 @@ const AddLiquiditySimple = () => {
           className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
         >
           {" "}
-          confirm{" "}
+          {limitedout?"Not Enough Token":"Confirm"}
         </button>
       </div>
       <Modal

@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useWeb3React } from "@web3-react/core";
-import { injected } from "../assets/constants/connectors";
+import WalletConnectors from "../assets/constants/connectors";
 import * as actions from "./_api";
 
 export function useEagerConnect() {
+    const {injected, walletconnect1, walletconnect2} = WalletConnectors();
+    const selected_chain = useSelector((state) => state.selectedChain);
     const { activate, active } = useWeb3React();
-
     const [tried, setTried] = useState(false);
 
     useEffect(() => {
@@ -31,6 +33,8 @@ export function useEagerConnect() {
 }
 
 export function useInactiveListener(suppress = false) {
+    const {injected, walletconnect1, walletconnect2} = WalletConnectors();
+    const { selected_chain } = useSelector((state) => state.selectedChain);
     const { active, error, activate } = useWeb3React();
 
     useEffect(() => {

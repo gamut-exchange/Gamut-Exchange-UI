@@ -35,22 +35,29 @@ import ReplayIcon from '@mui/icons-material/Replay';
 
 // ** Import Assets
 import useStyles from "../assets/styles";
-import { Wallets, ConnectedWallet } from "../assets/constants/wallets";
-
-import { walletconnect } from "../assets/constants/connectors";
+import { Wallets1, Wallets2, ConnectedWallet } from "../assets/constants/wallets";
+import changeChain from "../assets/constants/changeChain";
+import walletConnectors from "../assets/constants/connectors";
 import { useEagerConnect, useInactiveListener } from "../hooks";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { CHANGE_WALLET } from "../redux/constants";
 
-const ConnectWallet = ({ isOpen, setIsOpen }) => {
+const {injected1, injected2, walletconnect1, walletconnect2} = walletConnectors();
+
+const ConnectWallet = ({ isOpen, setIsOpen, chain }) => {
     const classes = useStyles.base();
+    const dispatch = useDispatch();
     const triedEager = useEagerConnect();
     const { activate, active, account, deactivate, connector, error, setError } =
         useWeb3React();
+    const cWallet = ConnectedWallet();
+
+
+    // const injected = (chain==="ropsten")?injected1:injected2;
+    const walletconnect = (chain==="ropsten")?walletconnect1:walletconnect2;
+    const Wallets = (chain==="ropsten")?Wallets1:Wallets2;
 
     const [activatingConnector, setActivatingConnector] = React.useState();
-    const cWallet = ConnectedWallet();
-    const dispatch = useDispatch();
 
     useEffect(() => {
         dispatch({
@@ -62,9 +69,14 @@ const ConnectWallet = ({ isOpen, setIsOpen }) => {
     const copyAddress = () => {
         alert(`Copied to clipboard.`, "info");
     };
-    const viewBlockUrl = (account) => {
+    const viewBlockUrl1 = (account) => {
+        window.open(`https://ropsten.etherscan.io/address/${account}`);
+    };
+
+    const viewBlockUrl2 = (account) => {
         window.open(`https://polygonscan.com/address/${account}`);
     };
+
     // ** Effects
     useEffect(() => {
         if (activatingConnector && activatingConnector === connector) {
@@ -73,14 +85,17 @@ const ConnectWallet = ({ isOpen, setIsOpen }) => {
     }, [activatingConnector, connector]);
     // log the walletconnect URI
     useEffect(() => {
-        const logURI = (uri) => {
-            console.log("WalletConnect URI", uri);
-        };
-        walletconnect.on(URI_AVAILABLE, logURI);
-
-        return () => {
-            walletconnect.off(URI_AVAILABLE, logURI);
-        };
+        const initialData = async () => {
+            await changeChain(chain);
+            const logURI = (uri) => {
+                console.log("WalletConnect URI", uri);
+            };
+            walletconnect.on(URI_AVAILABLE, logURI);
+            return () => {
+                walletconnect.off(URI_AVAILABLE, logURI);
+            };
+        }
+        initialData();
     }, []);
 
     useInactiveListener(!triedEager);
@@ -134,11 +149,13 @@ const ConnectWallet = ({ isOpen, setIsOpen }) => {
             </DialogTitle>
             {active && (
                 <Box className={classes.connectWalletButton}>
-                    <Button endIcon={<img src={cWallet.logo} alt={cWallet.name} />}>
-                        <Typography variant="caption">
-                            {`${cWallet.name} Connected`}
-                        </Typography>
-                    </Button>
+                    {cWallet && 
+                        <Button endIcon={<img src={cWallet.logo} alt={cWallet.name} />}>
+                            <Typography variant="caption">
+                                {`${cWallet.name} Connected`}
+                            </Typography>
+                        </Button>
+                    }
                     <TextField
                         inputProps={{
                             readOnly: true,
@@ -171,7 +188,7 @@ const ConnectWallet = ({ isOpen, setIsOpen }) => {
                             </Button>
                         </CopyToClipboard>
                         <Button
-                            onClick={() => viewBlockUrl(account)}
+                            onClick={() => viewBlockUrl2(account)}
                             startIcon={<OpenInNewOutlinedIcon />}
                         >
                             <Typography variant="caption">View</Typography>

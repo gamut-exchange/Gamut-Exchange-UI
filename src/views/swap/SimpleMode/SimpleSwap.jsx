@@ -40,6 +40,7 @@ const SimpleSwap = () => {
   const [chartOpen, setChartOpen] = useState(false);
   const [approval, setApproval] = useState(false);
   const [filterData, setFilterData] = useState(uniList);
+  const [limitedout, setLimitedout] = useState(false);
 
   const chartData = [
         {name:"0", x:0.5, y:0.5},
@@ -72,6 +73,12 @@ const SimpleSwap = () => {
   const handleClose = () => setOpen(false);
 
   const handleValue = async (event) => {
+    let inLimBal = inBal.replace(',', '');
+    let outLimBal = outBal.replace(',', '');
+    if(Number(event.target.value) < inLimBal)
+      setLimitedout(false);
+    else
+      setLimitedout(true);
     setValue(event.target.value);
     const provider = await connector.getProvider();
     const poolData = await getPoolData(provider, poolAddress);
@@ -211,6 +218,17 @@ const SimpleSwap = () => {
     }
   }
 
+  const setInLimit = () => {
+    let val = inBal.replace(',', '');
+    setValue(Number(val));
+    setLimitedout(false);
+  }
+
+  const setOutLimit = () => {
+    // let val = outBal.replace(',', '');
+    // setValueEth(Number(val));
+  }
+
   useEffect(() => {
     if(account) {
       const getInfo = async () => {
@@ -225,7 +243,7 @@ const SimpleSwap = () => {
   }, []);
 
   useEffect(() => {
-    if(inToken !== outToken) {
+    if(account && inToken !== outToken) {
       const getInfo = async () => {
         const provider = await connector.getProvider();
         const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
@@ -302,7 +320,7 @@ const SimpleSwap = () => {
                       className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
                     ></input>
                   </form>
-                  <p className="text-base text-grey-dark">
+                  <p className="text-base text-grey-dark" onClick={setInLimit}>
                     Balance: {inBal}
                   </p>
                 </div>
@@ -330,7 +348,7 @@ const SimpleSwap = () => {
                       className="input-value w-full text-right bg-transparent focus:outline-none"
                     ></input>
                   </form>
-                  <p className="text-base text-grey-dark">
+                  <p className="text-base text-grey-dark" onClick={setOutLimit}>
                     Balance: {outBal}
                   </p>
                 </div>
@@ -358,9 +376,10 @@ const SimpleSwap = () => {
               onClick={executeSwap}
               style={{ minHeight: 57 }}
               className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
+              disabled={limitedout}
             >
               {" "}
-              confirm{" "}
+              {limitedout?"Not Enough Token":"Confirm"}
             </button>
           </div>
           <Modal

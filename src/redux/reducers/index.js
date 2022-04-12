@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 import config from "./config";
-import { STATISTICS, CHANGE_WALLET } from "../constants";
+import { STATISTICS, CHANGE_WALLET, SELECT_CHAIN } from "../constants";
 
 export function statistics(state = {}, action) {
     switch (action.type) {
@@ -24,9 +24,19 @@ export function walletAddress(state = '', action) {
     // return state;
 }
 
+export function selectedChain(state = 'ropsten', action) {
+    switch (action.type) {
+        case SELECT_CHAIN:
+            return action.payload
+        default:
+            return state
+    }    
+}
+
 const rootReducer = combineReducers({
     config,
     statistics,
-    walletAddress
+    walletAddress,
+    selectedChain
 });
 export default rootReducer;

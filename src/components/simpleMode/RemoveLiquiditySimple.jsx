@@ -37,7 +37,7 @@ const RemoveLiquiditySimple = () => {
   const [outTokenB, setOutTokenB] = useState(0);
   const [poolAddresse, setPoolAddresse] = useState();
   const [poolDat, setPoolDat] = useState();
-
+  const [limitedout, setLimitedout] = useState(false);
 
   const calculateSwap = (inToken, poolData, input) => {
 
@@ -96,6 +96,11 @@ const RemoveLiquiditySimple = () => {
   const handleValue = async (event) => {
     const val = Number(event.target.value);
     setValue(val);
+    let inLimBal = poolAmount.replace(',', '');
+    if(Number(event.target.value) <= Number(inLimBal))
+      setLimitedout(false);
+    else
+      setLimitedout(true);
     let lpPercentage = Number((val/poolAmount*100).toFixed(2));
     setLpPercentage(lpPercentage);
     await calculateOutput(totalLPTokens, val, selectedItem);
@@ -186,6 +191,12 @@ const RemoveLiquiditySimple = () => {
     const amount2 = fromWeiVal(provider, outB.toString());
     setOutTokenA(Number(amount1));
     setOutTokenB(Number(amount2));
+  }
+
+  const setInLimit = () => {
+    let val = poolAmount.replace(',', '');
+    setValue(Number(val));
+    setLpPercentage(100);
   }
 
   useEffect(() => {
@@ -288,7 +299,7 @@ const RemoveLiquiditySimple = () => {
                   className="input-value text-right bg-transparent focus:outline-none"
                 />
               </form>
-              <p className="text-base text-grey-dark">LP Balance: {poolAmount}</p>
+              <p className="text-base text-grey-dark" onClick={setInLimit}>LP Balance: {poolAmount}</p>
             </div>
           </div>
 
@@ -333,7 +344,7 @@ const RemoveLiquiditySimple = () => {
           style={{ minHeight: 57 }}
           className="btn-primary rounded-sm font-bold w-full dark:text-black"
         >
-          confirm
+          {limitedout?"Not Enough Token":"Confirm"}
         </button>
       </div>
       <Modal
