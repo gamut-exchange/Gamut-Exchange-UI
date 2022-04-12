@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 import MaterialThemeProvider from "./providers/theme";
 import MuiSnackbarProvider from "./providers/snackbar";
 import NotificationProvider from "./providers/notification";
@@ -16,7 +16,7 @@ const store = configureStore();
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <ReduxProvider store={store}>
         <MaterialThemeProvider>
           <MuiSnackbarProvider>
@@ -28,7 +28,7 @@ ReactDOM.render(
           </MuiSnackbarProvider>
         </MaterialThemeProvider>
       </ReduxProvider>
-    </BrowserRouter>
+    </HashRouter>
   </React.StrictMode>,
   document.getElementById("root")
 );
