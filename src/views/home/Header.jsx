@@ -99,16 +99,16 @@ const Header = () => {
 export default Header;
 
 const social = [
-  { id: 1, icon: twitter, url: "twitter" },
-  { id: 2, icon: discord, url: "discord" },
-  { id: 3, icon: telegram, url: "telegram" },
-  { id: 4, icon: git, url: "git" },
+  { id: 1, icon: twitter, url: "https://twitter.com/DeGamut" },
+  { id: 2, icon: discord, url: "https://discord.gg/5vHPEFSe7Y" },
+  { id: 3, icon: telegram, url: "https://t.me/+sAS0I9338zdlNTRk" },
+  { id: 4, icon: git, url: "https://github.com/gamut-exchange" },
 ];
 const support = [
-  { id: 1, icon: icon1, url: "twitter" },
-  { id: 2, icon: icon2, url: "discord" },
-  { id: 3, icon: icon3, url: "telegram" },
-  { id: 4, icon: icon4, url: "git" },
+  { id: 1, icon: icon1, url: "https://www.avax.network/" },
+  { id: 2, icon: icon2, url: "https://fantom.foundation/" },
+  { id: 3, icon: icon3, url: "https://www.xdaichain.com/" },
+  { id: 4, icon: icon4, url: "https://polygon.technology/" },
 ];
 
 const ValueCards = [
