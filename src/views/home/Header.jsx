@@ -10,6 +10,7 @@ import icon3 from "../../images/support/icon3.svg";
 import icon4 from "../../images/support/icon4.svg";
 
 const Header = () => {
+
   return (
     <div className="py-24 bg-white-bg dark:bg-dark-primary dark:bg-opacity-95">
       <div className="main-container">
@@ -24,19 +25,19 @@ const Header = () => {
           </div>
           <div className="flex justify-center w-full mt-9 mb-11">
             <Link
-              className="btn-primary dark:text-dark-primary w-full"
-              style={{ maxWidth: 182, minHeight: 49 }}
-              to="/"
+              className="btn-primary dark:text-dark-primary w-full m-r-10"
+              style={{ maxWidth: 182, minHeight: 49, marginRight:10 }}
+              to="/swap"
             >
               Launch App
             </Link>
-            <Link
-              className="text-light-primary underline w-full dark:text-white capitalize text-lg text-center flex justify-center items-center"
-              style={{ maxWidth: 182, minHeight: 49 }}
-              to="/"
+            <a
+              className="btn-primary dark:text-dark-primary w-full"
+              style={{ maxWidth: 182, minHeight: 49, marginLeft:10 }}
+              to="https://docs.gamut.exchange/"
             >
-              read docs
-            </Link>
+              Read Docs
+            </a>
           </div>
           <div className="flex w-full flex-wrap gap-y-7 md:flex-row flex-col gap-x-7 max-w-xl px-2">
             <div className="flex-1">

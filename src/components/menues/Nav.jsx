@@ -73,7 +73,7 @@ const Nav = ({ handleDark, dark }) => {
       <div className="main-container">
         <div className="flex justify-between items-center">
           <div className="flex gap-x-8">
-            <Link to={`/`}>
+            <Link to="/">
               <img src={log} alt="logo" />
             </Link>
             <div className="hidden md:flex items-center gap-x-8">

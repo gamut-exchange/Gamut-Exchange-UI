@@ -2,6 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const TryItOut = () => {
+
+  function handleScrollDown() {
+    window.scroll({
+      top: document.body.offsetHeight,
+      left: 0, 
+      behavior: 'smooth',
+    });
+  }
+
   return (
     <div className="bg-white py-20 dark:bg-dark-primary ">
       <div className="main-container">
@@ -19,6 +28,7 @@ const TryItOut = () => {
         <Link
           style={{ maxWidth: 357, height: 49 }}
           className="btn-primary dark:text-dark-primary mt-36 mx-auto"
+          onClick={handleScrollDown}
           to="/"
         >
           Try it out
