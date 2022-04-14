@@ -64,22 +64,22 @@ const AddLiquiditySimple = () => {
 
   const handleValueEth = (event) => {
     setValueEth(event.target.value);
-    let inLimBal = inBal.replace(',', '');
-    let outLimBal = outBal.replace(',', '');
+    let inLimBal = inBal.replaceAll(',', '');
+    let outLimBal = outBal.replaceAll(',', '');
     if(Number(event.target.value) <= Number(outLimBal) && Number(value) <= Number(inLimBal))
       setLimitedout(false);
     else
       setLimitedout(true);
     if(inToken['address'] != outToken['address']) {
       setSliderValue(Number((ratio*value/(Number(event.target.value)+ratio*value)*100).toFixed(2)));
-      checkApproved(value, event.target.value);
+      checkApproved(inToken, outToken, value, event.target.value);
     }
   };
 
   const handleValue = async (event) => {
     setValue(event.target.value);
-    let inLimBal = inBal.replace(',', '');
-    let outLimBal = outBal.replace(',', '');
+    let inLimBal = inBal.replaceAll(',', '');
+    let outLimBal = outBal.replaceAll(',', '');
     if(Number(event.target.value) <= Number(inLimBal) && Number(valueEth) <= Number(outLimBal))
       setLimitedout(false);
     else
@@ -91,7 +91,7 @@ const AddLiquiditySimple = () => {
       console.log(100-sliderValue)
       console.log(((ratio*event.target.value*(100-sliderValue))/(sliderValue)))
       setValueEth(valEth);
-      checkApproved(event.target.value, valEth);
+      checkApproved(inToken, outToken, event.target.value, valEth);
     }
   };
 
@@ -120,116 +120,38 @@ const AddLiquiditySimple = () => {
       });
       setFilterData(tempData);
       setInToken(token);
-      checkApproved(value, valueEth);
+      checkApproved(token, outToken, value, valueEth);
       const provider = await connector.getProvider();
       const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
       const poolData = await getPoolData(provider, poolAddress);
-      sliderInitVal(poolData, token);
+
+      let inLimBal = bal.replaceAll(',', '');
+      let outLimBal = outBal.replaceAll(',', '');
+      if(Number(value) <= Number(inLimBal) && Number(valueEth) <= Number(outLimBal))
+        setLimitedout(false);
+      else
+        setLimitedout(true);
+
+      const sliderInit = await sliderInitVal(poolData, token);
+      setSliderValue(sliderInit*100);
     } else if (selected == 1) {
       setOutBal(bal);
       let tempData = uniList.filter((item) => {
         return item['address'] !== token['address']
       });
 
+      let inLimBal = inBal.replaceAll(',', '');
+      let outLimBal = bal.replaceAll(',', '');
+      if(Number(value) <= Number(inLimBal) && Number(valueEth) <= Number(outLimBal))
+        setLimitedout(false);
+      else
+        setLimitedout(true);
+
       setFilterData(tempData);
       setOutToken(token);
-      checkApproved(value, valueEth);
+      checkApproved(inToken, token, value, valueEth);
     }
   }
-
-  const checkApproved = async (val1, val2) => {
-      const provider = await connector.getProvider();
-      const approved1 = await tokenApproval(account, provider, inToken['address']);
-      const approved2 = await tokenApproval(account, provider, outToken['address']);
-      setApproval(approved1*1 > val1*1 && approved2*1 > val2*1);
-  }
-
-  const calculateRatio = async (inToken, poolData, input) => {
-    let weight_from;
-    let weight_to;
-    let balance_from;
-    let balance_to;
-    if (inToken['address'] == poolData.tokens[0]){
-        balance_from = poolData.balances[0];
-        balance_to = poolData.balances[1];
-        weight_from = poolData.weights[0];
-        weight_to = poolData.weights[1];
-    } else {
-        weight_from = poolData.weights[1];
-        weight_to = poolData.weights[0];
-        balance_from = poolData.balances[1];
-        balance_to = poolData.balances[0];
-    }
-    let price = (balance_to/weight_to)/(balance_from/weight_from);
-    let some = (price*input*weight_to)/weight_from;
-
-    setRatio(price);
-    setValueEth(((price*input*weight_to)/weight_from).toFixed(4));
-  }
-
-  
-
-  const executeAddPool = async () => {
-    if(inToken['address'] != outToken['address']) {
-      const provider = await connector.getProvider();
-      if(inToken['address'] == firstToken)
-        await joinPool(account, provider, inToken['address'], outToken['address'], value, valueEth);
-      else
-        await joinPool(account, provider, outToken['address'], inToken['address'], valueEth, value);
-    }
-  }
-
-  const approveTK = async () => {
-    if(account) {
-      const provider = await connector.getProvider();
-      const approved1 = await approveToken(account, provider, inToken['address'], value);
-      const approved2 = await approveToken(account, provider, outToken['address'], valueEth);
-      setApproval(approved1*1 > value*1 && approved2*1 > valueEth*1);
-    }
-  }
-
-  const setInLimit = () => {
-    let val1 = inBal.replace(',', '');
-    let val2 = outBal.replace(',', '');
-    setValue(Number(val1));
-    if(valueEth < val2)
-      setLimitedout(false);
-    else
-      setLimitedout(true);
-  }
-
-  const setOutLimit = () => {
-    let val1 = outBal.replace(',', '');
-    let val2 = inBal.replace(',', '');
-    setValueEth(Number(val1));
-    if(valueEth < val2)
-      setLimitedout(false);
-    else
-      setLimitedout(true);
-  }
-
-  useEffect(() => {
-    if (account) {
-      const getInfo = async () => {
-        let inBal = await getTokenBalance(inToken['address'], account);
-        let outBal = await getTokenBalance(outToken['address'], account);
-        setInBal(inBal);
-        setOutBal(outBal);
-        const provider = await connector.getProvider();
-        const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
-        const poolData = await getPoolData(provider, poolAddress);
-
-        const sliderInit = await sliderInitVal(poolData, inToken);
-
-        setFirstToken(poolData['tokens'][0]);
-        setPoolAddress(poolAddress);
-        setSliderValue(sliderInit*100);
-        await calculateRatio(inToken, poolData, value);
-        checkApproved(value, valueEth);
-      }
-      getInfo();
-    }
-  }, []);
 
   const sliderInitVal = async (poolData, inToken) => {
 
@@ -259,6 +181,98 @@ const AddLiquiditySimple = () => {
     return x;
 
   };
+
+  const checkApproved = async (token1, token2, val1, val2) => {
+      const provider = await connector.getProvider();
+      const approved1 = await tokenApproval(account, provider, token1['address']);
+      const approved2 = await tokenApproval(account, provider, token2['address']);
+      setApproval(approved1*1 > val1*1 && approved2*1 > val2*1);
+  }
+
+  const calculateRatio = async (inToken, poolData, input) => {
+    let weight_from;
+    let weight_to;
+    let balance_from;
+    let balance_to;
+    if (inToken['address'] == poolData.tokens[0]){
+        balance_from = poolData.balances[0];
+        balance_to = poolData.balances[1];
+        weight_from = poolData.weights[0];
+        weight_to = poolData.weights[1];
+    } else {
+        weight_from = poolData.weights[1];
+        weight_to = poolData.weights[0];
+        balance_from = poolData.balances[1];
+        balance_to = poolData.balances[0];
+    }
+    let price = (balance_to/weight_to)/(balance_from/weight_from);
+    let some = (price*input*weight_to)/weight_from;
+
+    setRatio(price);
+    setValueEth(((price*input*weight_to)/weight_from).toFixed(4));
+  }
+
+  const executeAddPool = async () => {
+    if(inToken['address'] != outToken['address']) {
+      const provider = await connector.getProvider();
+      if(inToken['address'] == firstToken)
+        await joinPool(account, provider, inToken['address'], outToken['address'], value, valueEth);
+      else
+        await joinPool(account, provider, outToken['address'], inToken['address'], valueEth, value);
+    }
+  }
+
+  const approveTK = async () => {
+    if(account) {
+      const provider = await connector.getProvider();
+      const approved1 = await approveToken(account, provider, inToken['address'], value);
+      const approved2 = await approveToken(account, provider, outToken['address'], valueEth);
+      setApproval(approved1*1 > value*1 && approved2*1 > valueEth*1);
+    }
+  }
+
+  const setInLimit = () => {
+    let val1 = inBal.replaceAll(',', '');
+    let val2 = outBal.replaceAll(',', '');
+    setValue(Number(val1));
+    if(valueEth < val2)
+      setLimitedout(false);
+    else
+      setLimitedout(true);
+  }
+
+  const setOutLimit = () => {
+    let val1 = outBal.replaceAll(',', '');
+    let val2 = inBal.replaceAll(',', '');
+    setValueEth(Number(val1));
+    if(valueEth < val2)
+      setLimitedout(false);
+    else
+      setLimitedout(true);
+  }
+
+  useEffect(() => {
+    if (account) {
+      const getInfo = async () => {
+        let inBal = await getTokenBalance(inToken['address'], account);
+        let outBal = await getTokenBalance(outToken['address'], account);
+        setInBal(inBal);
+        setOutBal(outBal);
+        const provider = await connector.getProvider();
+        const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
+        const poolData = await getPoolData(provider, poolAddress);
+
+        const sliderInit = await sliderInitVal(poolData, inToken);
+
+        setFirstToken(poolData['tokens'][0]);
+        setPoolAddress(poolAddress);
+        setSliderValue(sliderInit*100);
+        await calculateRatio(inToken, poolData, value);
+        checkApproved(inToken, outToken, value, valueEth);
+      }
+      getInfo();
+    }
+  }, []);
 
   useEffect(() => {
     if(account && inToken['address'] !== outToken['address']) {

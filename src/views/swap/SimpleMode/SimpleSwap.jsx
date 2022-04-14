@@ -14,7 +14,7 @@ import TextField from "@mui/material/TextField";
 // import tw from "twin.macro";
 import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
-import { getTokenBalance, getPoolAddress, getPoolData, swapTokens, tokenApproval, approveToken } from "../../../config/web3";
+import { getTokenBalance, getPoolAddress, getPoolData, swapTokens, batchSwapTokens, tokenApproval, approveToken } from "../../../config/web3";
 import { uniList }  from "../../../config/constants";
 import {AreaChart, Area, XAxis, YAxis, 
     CartesianGrid, Tooltip} from 'recharts';
@@ -73,8 +73,8 @@ const SimpleSwap = () => {
   const handleClose = () => setOpen(false);
 
   const handleValue = async (event) => {
-    let inLimBal = inBal.replace(',', '');
-    let outLimBal = outBal.replace(',', '');
+    let inLimBal = inBal.replaceAll(',', '');
+    let outLimBal = outBal.replaceAll(',', '');
     if(Number(event.target.value) < inLimBal)
       setLimitedout(false);
     else
@@ -87,7 +87,7 @@ const SimpleSwap = () => {
     setValSlipage(slippage.toPrecision(2));
     setValueEth(amountOut.toPrecision(6));
     setFee((event.target.value * 0.001).toPrecision(2))
-    checkApproved(event.target.value);
+    checkApproved(inToken, event.target.value);
   };
 
   const filterToken = (e) => {
@@ -103,9 +103,9 @@ const SimpleSwap = () => {
     }
   }
 
-  const checkApproved = async (val) => {
+  const checkApproved = async (token, val) => {
     const provider = await connector.getProvider();
-    const approval = await tokenApproval(account,  provider, inToken['address']);
+    const approval = await tokenApproval(account,  provider, token['address']);
     setApproval(approval*1 > val*1);
   }
 
@@ -176,15 +176,22 @@ const SimpleSwap = () => {
     var bal = 0;
     if(account)
       bal = await getTokenBalance(token['address'], account);
-    if(selected == 0){
+    if(selected == 0) {
       setInBal(bal);
       let tempData = uniList.filter((item) => {
         return item['address'] !== token['address']
       });
       setFilterData(tempData);
       setInToken(token);
+      checkApproved(token, value);
 
-      checkApproved(value);
+      let inLimBal = bal.replaceAll(',', '');
+      let outLimBal = outBal.replaceAll(',', '');
+      if(Number(value) <= Number(inLimBal) && Number(valueEth) <= Number(outLimBal))
+        setLimitedout(false);
+      else
+        setLimitedout(true);
+
     } else if (selected == 1) {
       setOutBal(bal);
       let tempData = uniList.filter((item) => {
@@ -219,13 +226,13 @@ const SimpleSwap = () => {
   }
 
   const setInLimit = () => {
-    let val = inBal.replace(',', '');
+    let val = inBal.replaceAll(',', '');
     setValue(Number(val));
     setLimitedout(false);
   }
 
   const setOutLimit = () => {
-    // let val = outBal.replace(',', '');
+    // let val = outBal.replaceAll(',', '');
     // setValueEth(Number(val));
   }
 
@@ -236,7 +243,7 @@ const SimpleSwap = () => {
         let outBal = await getTokenBalance(outToken['address'], account);
         setInBal(inBal);
         setOutBal(outBal);
-        checkApproved(value);
+        checkApproved(inToken, value);
       }
       getInfo();
     }

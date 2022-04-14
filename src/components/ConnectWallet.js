@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-
+import React, { useState, useEffect } from "react";
+import {useDispatch, useSelector} from 'react-redux';
 // ** Web3 React
 import {
     NoEthereumProviderError,
@@ -25,7 +25,6 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
-import {useDispatch} from 'react-redux';
 
 // ** Import Material Icons
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
@@ -44,11 +43,11 @@ import { CHANGE_WALLET } from "../redux/constants";
 
 const {injected1, injected2, walletconnect1, walletconnect2} = walletConnectors();
 
-const ConnectWallet = ({ isOpen, setIsOpen, chain }) => {
+const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain }) => {
     const classes = useStyles.base();
     const dispatch = useDispatch();
     const triedEager = useEagerConnect();
-    const { activate, active, account, deactivate, connector, error, setError } =
+    const { activate, active, account, chainId, deactivate, connector, error, setError } =
         useWeb3React();
     const cWallet = ConnectedWallet();
 
@@ -56,7 +55,7 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain }) => {
     // const injected = (chain==="ropsten")?injected1:injected2;
     const walletconnect = (chain==="ropsten")?walletconnect1:walletconnect2;
     const Wallets = (chain==="ropsten")?Wallets1:Wallets2;
-
+    const selected_chain = useSelector((state) => state.selectedChain);
     const [activatingConnector, setActivatingConnector] = React.useState();
 
     useEffect(() => {
@@ -76,27 +75,6 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain }) => {
     const viewBlockUrl2 = (account) => {
         window.open(`https://polygonscan.com/address/${account}`);
     };
-
-    // ** Effects
-    useEffect(() => {
-        if (activatingConnector && activatingConnector === connector) {
-            setActivatingConnector(undefined);
-        }
-    }, [activatingConnector, connector]);
-    // log the walletconnect URI
-    useEffect(() => {
-        const initialData = async () => {
-            await changeChain(chain);
-            const logURI = (uri) => {
-                console.log("WalletConnect URI", uri);
-            };
-            walletconnect.on(URI_AVAILABLE, logURI);
-            return () => {
-                walletconnect.off(URI_AVAILABLE, logURI);
-            };
-        }
-        initialData();
-    }, []);
 
     useInactiveListener(!triedEager);
 
@@ -130,6 +108,31 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain }) => {
             return "An unknown error occurred. Check the console for more details.";
         }
     };
+
+    const handleChainChange = async () => {
+        setIsOpen(false);
+        await changeChain(chain);
+    }
+
+    useEffect(() => {
+        const initialData = async () => {
+            const logURI = (uri) => {
+                console.log("WalletConnect URI", uri);
+            };
+            walletconnect.on(URI_AVAILABLE, logURI);
+            return () => {
+                walletconnect.off(URI_AVAILABLE, logURI);
+            };
+        }
+        initialData();
+    }, []);
+
+    useEffect(() => {
+        if (activatingConnector && activatingConnector === connector) {
+            setActivatingConnector(undefined);
+        }
+    }, [activatingConnector, connector]);
+
     return (
         <Dialog
             onClose={handleCloseWalletList}
@@ -147,7 +150,7 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain }) => {
             <DialogTitle className="action">
                 <Typography>{active && "Account"}</Typography>
             </DialogTitle>
-            {active && (
+            {active && (!wrongChain?(
                 <Box className={classes.connectWalletButton}>
                     {cWallet && 
                         <Button endIcon={<img src={cWallet.logo} alt={cWallet.name} />}>
@@ -203,8 +206,17 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain }) => {
                         </Button>
                     </ButtonGroup>
                 </Box>
-            )}
-            {!active ? (
+            ):(
+                <Button
+                  variant="contained"
+                  className="btn-outlined dark:text-dark-primary w-full"
+                  style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                  onClick={handleChainChange}
+                >
+                  Connect to {chain.toUpperCase()}
+                </Button>
+            ))}
+            {!active ? ((!wrongChain)?(
                 <List className="wallet-list">
                     {Wallets.map((item, idx) => {
                         const activating =
@@ -242,7 +254,17 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain }) => {
                         );
                     })}
                 </List>
-            ) : (
+            ):(
+                <Button
+                  variant="contained"
+                  className="btn-primary dark:text-dark-primary w-full"
+                  style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                  onClick={handleChainChange}
+                 
+                >
+                  Connect to {chain.toUpperCase()}
+                </Button>
+            )) : (
                 ""
             )}
         </Dialog>

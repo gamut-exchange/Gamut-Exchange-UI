@@ -22,24 +22,24 @@ import LogoMobile from "../../assets/img/logoMobile.png";
 // ** Import Components
 import ConnectWallet from "../ConnectWallet";
 import { ConnectedWallet } from "../../assets/constants/wallets";
-import { changeChain } from "../../assets/constants/changeChain";
 import { SELECT_CHAIN } from "../../redux/constants";
 
 
 const Nav = ({ handleDark, dark }) => {
   const [isToggleOpen, setIsToggleOpen] = useState(false);
   const cWallet = ConnectedWallet();
-  debugger;
   const [openWalletList, setOpenWalletList] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const selected_chain = useSelector((state) => state.selectedChain);
   const [chainLabel, setChainLabel] = useState(selected_chain);
   const [connectedWallet, setConnectedWallet] = useState(cWallet);
+  const [wrongChain, setWrongChain] = useState(true);
+
 
   const classes = useStyles.header();
   const isMobile = useMediaQuery("(max-width:600px)");
 
-  const { account, activate } = useWeb3React();
+  const { chainId, account, active, activate, deactivate } = useWeb3React();
   const dispatch = useDispatch();
 
   const menuOpen = Boolean(anchorEl);
@@ -48,9 +48,9 @@ const Nav = ({ handleDark, dark }) => {
   };
   const handleChain = async (chain) => {
     if(chain != '') {
-      setChainLabel(chain);
       if(chainLabel !== chain) {
-        await changeChain(chain);
+        setChainLabel(chain);
+        deactivate();
       }
       dispatch({
           type:SELECT_CHAIN,
@@ -64,6 +64,22 @@ const Nav = ({ handleDark, dark }) => {
   const toggleDrawer = () => {
     setIsToggleOpen((prevState) => !prevState);
   };
+
+  const handleWrongChain = async () => {
+    let current_chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    current_chainId = Number(current_chainId);
+    debugger;
+    if((chainLabel === "ropsten" && current_chainId === 3) || (chainLabel === "mumbai" && current_chainId === 80001)) {
+      setWrongChain(false);
+    }
+    else {
+      setWrongChain(true);
+    }
+  }
+
+  useEffect(() => {
+    handleWrongChain();
+  }, [dispatch, selected_chain, activate, deactivate, setChainLabel, active]);
 
   return (
     <div
@@ -163,7 +179,22 @@ const Nav = ({ handleDark, dark }) => {
             <Box className={classes.actionGroup}>
               <Box className={classes.connectWallet}>
                   {(() => {
-                      if (account) {
+                      if (wrongChain) {
+                          return (
+                              <Button
+                                  variant="contained"
+                                  className="btn-primary dark:text-dark-primary w-full"
+                                  style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                                  onClick={() => {
+                                      setOpenWalletList(true);
+                                  }}
+                                 
+                              >
+                                  Wrong Chain
+                              </Button>
+                          )
+                      } else {
+                        if(account)
                           return (
                               <Button
                                   variant="contained"
@@ -180,7 +211,7 @@ const Nav = ({ handleDark, dark }) => {
                                   {`${account.substring(0, 8)} ... ${account.substring(account.length - 4)}`}
                               </Button>
                           )
-                      } else {
+                        else
                           return (
                               <Button
                                   variant="contained"
@@ -203,6 +234,7 @@ const Nav = ({ handleDark, dark }) => {
               isOpen={openWalletList}
               setIsOpen={setOpenWalletList}
               chain={chainLabel}
+              wrongChain={wrongChain}
           />
           <div className="md:hidden flex items-center">
             <button
@@ -285,11 +317,27 @@ const Nav = ({ handleDark, dark }) => {
                   <Box className={classes.actionGroup}>
                     <Box className={classes.connectWallet}>
                         {(() => {
-                            if (account) {
+                            if (wrongChain) {
                                 return (
                                     <Button
                                         variant="contained"
-                                        style={{borderRadius:'0px', minHeight:36, fontSize:16}}
+                                        className="btn-primary dark:text-dark-primary w-full"
+                                        style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                                        onClick={() => {
+                                            setOpenWalletList(true);
+                                        }}
+                                       
+                                    >
+                                        Wrong Chain
+                                    </Button>
+                                )
+                            } else {
+                              if(account)
+                                return (
+                                    <Button
+                                        variant="contained"
+                                        className="btn-primary dark:text-dark-primary w-full"
+                                        style={{borderRadius:'0px', minHeight:44, fontSize:18}}
                                         startIcon={
                                             connectedWallet && <img width={22} src={connectedWallet.logo} alt={connectedWallet.name} />
                                         }
@@ -301,11 +349,12 @@ const Nav = ({ handleDark, dark }) => {
                                         {`${account.substring(0, 8)} ... ${account.substring(account.length - 4)}`}
                                     </Button>
                                 )
-                            } else {
+                              else
                                 return (
                                     <Button
                                         variant="contained"
-                                        style={{borderRadius:'0px', minHeight:36, fontSize:16}}
+                                        className="btn-primary dark:text-dark-primary w-full"
+                                        style={{borderRadius:'0px', minHeight:44, fontSize:18}}
                                         onClick={() => {
                                             setOpenWalletList(true);
                                         }}
