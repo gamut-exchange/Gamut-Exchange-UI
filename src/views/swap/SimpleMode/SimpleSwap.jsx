@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import {useDispatch, useSelector} from 'react-redux';
 import { useWeb3React } from "@web3-react/core";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -14,7 +15,7 @@ import TextField from "@mui/material/TextField";
 // import tw from "twin.macro";
 import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
-import { getTokenBalance, getPoolAddress, getPoolData, swapTokens, batchSwapTokens, tokenApproval, approveToken } from "../../../config/web3";
+import { getTokenBalance, getPoolAddress, getPoolData, swapTokens, tokenApproval, approveToken } from "../../../config/web3";
 import { uniList }  from "../../../config/constants";
 import {AreaChart, Area, XAxis, YAxis, 
     CartesianGrid, Tooltip} from 'recharts';
@@ -23,24 +24,27 @@ import './SimpleSwap.css'
 
 
 const SimpleSwap = () => {
-
+  const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
+  const [chain, setChain] = useState(selected_chain);
   const [value, setValue] = useState(0);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState(0);
   const [query, setQuery] = useState("");
   const [valueEth, setValueEth] = useState(0);
   const [poolAddress, setPoolAddress] = useState('');
-  const [inToken, setInToken] = useState(uniList[0]);
-  const [outToken, setOutToken] = useState(uniList[1]);
+  const [inToken, setInToken] = useState(uniList[selected_chain][0]);
+  const [outToken, setOutToken] = useState(uniList[selected_chain][1]);
   const [inBal, setInBal] = useState(0);
   const [outBal, setOutBal] = useState(0);
   const [valSlipage, setValSlipage] = useState(0);
   const [fee, setFee] = useState(0);
   const [chartOpen, setChartOpen] = useState(false);
   const [approval, setApproval] = useState(false);
-  const [filterData, setFilterData] = useState(uniList);
+  const [filterData, setFilterData] = useState(uniList[selected_chain]);
   const [limitedout, setLimitedout] = useState(false);
+
+  const dispatch = useDispatch();
 
   const chartData = [
         {name:"0", x:0.5, y:0.5},
@@ -94,12 +98,12 @@ const SimpleSwap = () => {
     let search_qr = e.target.value;
     setQuery(search_qr);
     if(search_qr.length != 0) {
-      const filterDT = uniList.filter((item) => {
+      const filterDT = uniList[chain].filter((item) => {
         return item['symbol'].toLowerCase().indexOf(search_qr) != -1
       });
       setFilterData(filterDT);
     } else {
-      setFilterData(uniList);
+      setFilterData(uniList[chain]);
     }
   }
 
@@ -172,13 +176,12 @@ const SimpleSwap = () => {
 
   const selectToken = async (token, selected) => {
     handleClose()
-
     var bal = 0;
     if(account)
       bal = await getTokenBalance(token['address'], account);
     if(selected == 0) {
       setInBal(bal);
-      let tempData = uniList.filter((item) => {
+      let tempData = uniList[chain].filter((item) => {
         return item['address'] !== token['address']
       });
       setFilterData(tempData);
@@ -194,7 +197,7 @@ const SimpleSwap = () => {
 
     } else if (selected == 1) {
       setOutBal(bal);
-      let tempData = uniList.filter((item) => {
+      let tempData = uniList[chain].filter((item) => {
         return item['address'] !== token['address']
       });
 
@@ -236,6 +239,20 @@ const SimpleSwap = () => {
     // setValueEth(Number(val));
   }
 
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip" style={{backgroundColor:'white', padding:5}}>
+          <p className="label fw-bold">Number: {label}</p>
+          <p className="label">widgetA : {payload[0]['value']}</p>
+          <p className="label">widgetB : {payload[1]['value']}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   useEffect(() => {
     if(account) {
       const getInfo = async () => {
@@ -264,19 +281,13 @@ const SimpleSwap = () => {
     }
   }, [inToken, outToken]);
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="custom-tooltip" style={{backgroundColor:'white', padding:5}}>
-          <p className="label fw-bold">Number: {label}</p>
-          <p className="label">widgetA : {payload[0]['value']}</p>
-          <p className="label">widgetB : {payload[1]['value']}</p>
-        </div>
-      );
+  useEffect(() => {
+    if(account && chain !== selected_chain) {
+      setChain(selected_chain);
+      selectToken(uniList[selected_chain][0], 0);
+      selectToken(uniList[selected_chain][1], 1);
     }
-
-    return null;
-  };
+  }, [dispatch, selected_chain]);
 
   return (
     <div className="flex sm:flex-row flex-col items-center">

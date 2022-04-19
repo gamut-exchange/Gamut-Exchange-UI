@@ -33,7 +33,7 @@ const Header = () => {
             </Link>
             <a
               className="btn-primary dark:text-dark-primary w-full"
-              style={{ maxWidth: 182, minHeight: 49, marginLeft:10 }}
+              style={{ maxWidth: 182, minHeight: 49, marginLeft:10, cursor:"pointer" }}
               to="https://docs.gamut.exchange/"
             >
               Read Docs

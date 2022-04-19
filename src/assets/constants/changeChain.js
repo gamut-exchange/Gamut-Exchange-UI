@@ -1,9 +1,9 @@
 const chainId1 = 3;
-const chainId2 = 80001;
+const chainId2 = 4002;
 const RPC_URL1 = "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
-const RPC_URL2 = "https://rpc-mumbai.maticvigil.com/";
+const RPC_URL2 = "https://rpc.testnet.fantom.network/";
 const viewBlockUrl1 = "https://ropsten.etherscan.io";
-const viewBlockUrl2 = "https://polygonscan.com/address";
+const viewBlockUrl2 = "https://testnet.ftmscan.com/";
 
 export const changeChain = async (chain) => {
   const provider = window.ethereum

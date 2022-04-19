@@ -6,7 +6,7 @@ import poolABI from "../assets/abi/pool";
 import routerABI from "../assets/abi/router";
 import faucetABI from "../assets/abi/faucet";
 
-import {tokenAddresses, contractAddresses } from "./constants";
+import { contractAddresses } from "./constants";
 
 const provider = "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
 
@@ -110,39 +110,38 @@ export const swapTokens = async (provider, inTokenAddr, outTokenAddr, amount, ac
     let result = await contract.methods["swap"]([ inTokenAddr, outTokenAddr, wei_amount ], [ account, account ], wei_limit, deadline).send({from: account});
 }
 
-export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, amount, account, limit) => {
-    const usdtAddr = tokenAddresses['usdt'];
-    if(inTokenAddr.toLowerCase() !== usdtAddr.toLowerCase() && outTokenAddr.toLowerCase() !== usdtAddr.toLowerCase()) {
-        const abi = routerABI[0];
-        const cAddress = contractAddresses['router'];
-        let web3 = new Web3(provider);
+// export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, amount, account, limit) => {
+//     const usdtAddr = tokenAddresses['teth'];
+//     if(inTokenAddr.toLowerCase() !== usdtAddr.toLowerCase() && outTokenAddr.toLowerCase() !== usdtAddr.toLowerCase()) {
+//         const abi = routerABI[0];
+//         const cAddress = contractAddresses['router'];
+//         let web3 = new Web3(provider);
 
-        const wei_amount = web3.utils.toWei(amount.toString());
-        const wei_limit = web3.utils.toWei(limit.toString());
-        let deadline = (new Date()).getTime()+900000;
+//         const wei_amount = web3.utils.toWei(amount.toString());
+//         const wei_limit = web3.utils.toWei(limit.toString());
+//         let deadline = (new Date()).getTime()+900000;
 
-        const funds = [account, account];
+//         const funds = [account, account];
 
-        const swaps = [
-            [1, 2, wei_amount],
-            [2, 0, web3.utils.toWei("0")]
-        ];
+//         const swaps = [
+//             [1, 2, wei_amount],
+//             [2, 0, web3.utils.toWei("0")]
+//         ];
 
-        const assets = [outTokenAddr, inTokenAddr, usdtAddr];
+//         const assets = [outTokenAddr, inTokenAddr, usdtAddr];
 
-        const limits = [
-          web3.utils.toWei("0"),
-          wei_amount,
-          web3.utils.toWei("0"),
-        ];
+//         const limits = [
+//           web3.utils.toWei("1000000"),
+//           wei_amount,
+//           web3.utils.toWei("100000"),
+//         ];
 
-        let contract = new web3.eth.Contract(abi, cAddress);
-        debugger;
-        let result = await contract.methods["batchSwap"](swaps, assets, funds, limits, deadline).send({from: account});       
-    } else {
-        console.log("can't swap usdt with batchSwap function.");
-    }
-}
+//         let contract = new web3.eth.Contract(abi, cAddress);
+//         let result = await contract.methods["batchSwap"](swaps, assets, funds, limits, deadline).send({from: account});       
+//     } else {
+//         console.log("can't swap usdt with batchSwap function.");
+//     }
+// }
 
 export const joinPool = async (account, provider, token1Addr, token2Addr, amount1, amount2) => {
     const abi = routerABI[0];
@@ -155,6 +154,7 @@ export const joinPool = async (account, provider, token1Addr, token2Addr, amount
         const inMaxAmount = web3.utils.toWei((amount1*1.2).toString());
         const outAmount = web3.utils.toWei(amount2.toString());
         const outMaxAmount = web3.utils.toWei((amount2*1.2).toString());
+        debugger;
         const initUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256[]", "uint256"],
           [
@@ -206,8 +206,7 @@ export const removePool = async (account, provider, poolAddr, amount, ratio, tok
     const c_address = contractAddresses['router'];
     let web3 = new Web3(provider);
 
-    const totalAmount = web3.utils.toWei(amount.toString())
-    debugger;
+    const totalAmount = web3.utils.toWei(amount.toString());
     const tokenRatio = web3.utils.toWei(ratio.toString());
     console.log(tokenRatio);
 

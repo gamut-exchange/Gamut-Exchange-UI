@@ -52,10 +52,6 @@ const Nav = ({ handleDark, dark }) => {
         setChainLabel(chain);
         deactivate();
       }
-      dispatch({
-          type:SELECT_CHAIN,
-          payload: chain
-      });
     }
     
     setAnchorEl(null);
@@ -69,8 +65,12 @@ const Nav = ({ handleDark, dark }) => {
     let current_chainId = await window.ethereum.request({ method: 'eth_chainId' });
     current_chainId = Number(current_chainId);
     debugger;
-    if((chainLabel === "ropsten" && current_chainId === 3) || (chainLabel === "mumbai" && current_chainId === 80001)) {
+    if((chainLabel === "ropsten" && current_chainId === 3) || (chainLabel === "fantom" && current_chainId === 4002)) {
       setWrongChain(false);
+      dispatch({
+          type:SELECT_CHAIN,
+          payload: chainLabel
+      });
     }
     else {
       setWrongChain(true);
@@ -79,7 +79,7 @@ const Nav = ({ handleDark, dark }) => {
 
   useEffect(() => {
     handleWrongChain();
-  }, [dispatch, selected_chain, activate, deactivate, setChainLabel, active]);
+  }, [dispatch, chainLabel, activate, deactivate, setChainLabel, active]);
 
   return (
     <div
@@ -174,7 +174,7 @@ const Nav = ({ handleDark, dark }) => {
               }}
             >
               <MenuItem key="ropsten" onClick={() => handleChain('ropsten')}>Ropsten</MenuItem>
-              <MenuItem key="mumbai" onClick={() => handleChain('mumbai')}>Mumbai</MenuItem>
+              <MenuItem key="fantom" onClick={() => handleChain('fantom')}>Fantom</MenuItem>
             </Menu>
             <Box className={classes.actionGroup}>
               <Box className={classes.connectWallet}>
@@ -235,6 +235,7 @@ const Nav = ({ handleDark, dark }) => {
               setIsOpen={setOpenWalletList}
               chain={chainLabel}
               wrongChain={wrongChain}
+              dark={dark}
           />
           <div className="md:hidden flex items-center">
             <button
@@ -312,7 +313,7 @@ const Nav = ({ handleDark, dark }) => {
                     }}
                   >
                     <MenuItem key="ropsten" onClick={() => handleChain('ropsten')} selected={selected_chain==="ropsten"}>Ropsten</MenuItem>
-                    <MenuItem key="mumbai" onClick={() => handleChain('mumbai')} selected={selected_chain==="mumbai"}>Mumbai</MenuItem>
+                    <MenuItem key="fantom" onClick={() => handleChain('fantom')} selected={selected_chain==="fantom"}>Fantom</MenuItem>
                   </Menu>
                   <Box className={classes.actionGroup}>
                     <Box className={classes.connectWallet}>

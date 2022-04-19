@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import {useDispatch, useSelector} from 'react-redux';
 import { useWeb3React } from "@web3-react/core";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -15,8 +16,9 @@ import { getPoolData, getPoolBalance, removePool, fromWeiVal, getPoolSupply } fr
 import { poolList }  from "../../config/constants";
 
 const RemoveLiquiditySimple = () => {
-
+  const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
+  const [chain, setChain] = useState(selected_chain);
   const [open, setOpen] = useState(false);
   const [rOpen, setROpen] = useState(false);
   const [value, setValue] = useState(0);
@@ -27,8 +29,8 @@ const RemoveLiquiditySimple = () => {
   const [scale, setScale] = useState(50);
   const [lpPercentage, setLpPercentage] = useState(50);
   const [poolAmount, setPoolAmount] = useState(0);
-  const [selectedItem, setSelectedItem] = useState(poolList[0]);
-  const [filterData, setFilterData] = useState(poolList);
+  const [selectedItem, setSelectedItem] = useState(poolList[selected_chain][0]);
+  const [filterData, setFilterData] = useState(poolList[selected_chain]);
   const [query, setQuery] = useState("");
   const [totalLPTokens, setTotalLPTokens] = useState(0);
   const [poolBalanceA, setPoolBalanceA] = useState(0);
@@ -38,6 +40,8 @@ const RemoveLiquiditySimple = () => {
   const [poolAddresse, setPoolAddresse] = useState();
   const [poolDat, setPoolDat] = useState();
   const [limitedout, setLimitedout] = useState(false);
+
+  const dispatch = useDispatch();
 
   const calculateSwap = (inToken, poolData, input) => {
 
@@ -125,12 +129,12 @@ const RemoveLiquiditySimple = () => {
     let search_qr = e.target.value;
     setQuery(search_qr);
     if(search_qr.length != 0) {
-      const filterDT = poolList.filter((item) => {
+      const filterDT = poolList[selected_chain].filter((item) => {
         return item['symbols'][0].toLowerCase().indexOf(search_qr) != -1 || item['symbols'][1].toLowerCase().indexOf(search_qr) != -1
       });
       setFilterData(filterDT);
     } else {
-      setFilterData(poolList);
+      setFilterData(poolList[[selected_chain]]);
     }
   }
 
@@ -203,8 +207,7 @@ const RemoveLiquiditySimple = () => {
     if(account) {
       const getInfo = async () => {
       const provider = await connector.getProvider();
-      setSelectedItem(poolList[0]);
-      const poolData = await getPoolData(provider, poolList[0]['address']);
+      const poolData = await getPoolData(provider, poolList[selected_chain][0]['address']);
       const weightA = fromWeiVal(provider, poolData['weights'][1]);
       setPoolDat(poolData);
       setWeightA(weightA);
@@ -212,22 +215,26 @@ const RemoveLiquiditySimple = () => {
       setPrice((poolData.balances[0]/poolData.weights[0])/(poolData.balances[1]/poolData.weights[1]));
       setTokenAAddr(poolData['tokens'][0]);
       setTokenBAddr(poolData['tokens'][1]);
-      let amount = await getPoolBalance(account, provider, poolList[0]['address']);
-      let amount2 = await getPoolSupply(provider, poolList[0]['address']);
+      let amount = await getPoolBalance(account, provider, poolList[selected_chain][0]['address']);
+      let amount2 = await getPoolSupply(provider, poolList[selected_chain][0]['address']);
       amount = Number(amount).toPrecision(6);
       setTotalLPTokens(amount2)
       setPoolAmount(amount);
       setValue((amount*lpPercentage/100).toPrecision(6));
       setPoolBalanceA(poolData.balances[0])
       setPoolBalanceB(poolData.balances[1])
-      await calculateOutput(amount2, amount*lpPercentage/100, poolList[0]);
+      await calculateOutput(amount2, amount*lpPercentage/100, poolList[selected_chain][0]);
     }
-
     getInfo();
-    
-
     }
   }, []);
+
+  useEffect(() => {
+    if(account && chain !== selected_chain) {
+      setChain(selected_chain);
+      selectToken(poolList[selected_chain][0]);
+    }
+  }, [dispatch, selected_chain, account]);
 
   return (
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
@@ -376,7 +383,7 @@ const RemoveLiquiditySimple = () => {
                     <img src={item['logoURLs'][0]} alt="" />
                     <img className="z-10 relative right-2" src={item['logoURLs'][1]} alt="" />
                   </div>
-                  <p className="text-light-primary text-lg">{item['symbols'][0]} - {item['symbols'][0]} LP Token</p>
+                  <p className="text-light-primary text-lg">{item['symbols'][0]} - {item['symbols'][1]} LP Token</p>
                 </li>
               );
             })}

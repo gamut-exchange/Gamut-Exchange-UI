@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import {useDispatch, useSelector} from 'react-redux';
 import { useWeb3React } from "@web3-react/core";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -16,25 +17,28 @@ import { getTokenBalance, getPoolAddress, getPoolData, joinPool, getPoolBalance,
 import { uniList }  from "../../config/constants";
 
 const AddLiquiditySimple = () => {
-
+  const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
+  const [chain, setChain] = useState(selected_chain);
+  const [isExist, setIsExist] = useState(false);
   const [rOpen, setROpen] = useState(false);
   const [ratio, setRatio] = useState(1);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = React.useState(0);
   const [poolAddress, setPoolAddress] = useState('');
-  const [inToken, setInToken] = useState(uniList[0]);
-  const [outToken, setOutToken] = useState(uniList[1]);
+  const [inToken, setInToken] = useState(uniList[selected_chain][0]);
+  const [outToken, setOutToken] = useState(uniList[selected_chain][1]);
   const [value, setValue] = useState(0);
   const [valueEth, setValueEth] = useState(0);
   const [inBal, setInBal] = useState(0);
   const [outBal, setOutBal] = useState(0);
-  const [firstToken, setFirstToken] = useState('');
   const [sliderValue, setSliderValue] = React.useState(50);
   const [approval, setApproval] = useState(false);
-  const [filterData, setFilterData] = useState(uniList);
+  const [filterData, setFilterData] = useState(uniList[selected_chain]);
   const [limitedout, setLimitedout] = useState(false);
+
+  const dispatch = useDispatch();
 
   const StyledModal = tw.div`
     flex
@@ -99,7 +103,7 @@ const AddLiquiditySimple = () => {
     let search_qr = e.target.value;
     setQuery(search_qr);
     if(search_qr.length != 0) {
-      const filterDT = uniList.filter((item) => {
+      const filterDT = uniList[chain].filter((item) => {
         return item['symbol'].toLowerCase().indexOf(search_qr) != -1
       });
       setFilterData(filterDT);
@@ -109,21 +113,30 @@ const AddLiquiditySimple = () => {
   }
 
   const selectToken = async (token, selected) => {
-    handleClose()
+    handleClose();
+    const provider = await connector.getProvider();
     var bal = 0;
+
     if(account)
       bal = await getTokenBalance(token['address'], account);
     if(selected == 0) {
       setInBal(bal);
-      let tempData = uniList.filter((item) => {
+      let tempData = uniList[chain].filter((item) => {
         return item['address'] !== token['address']
       });
       setFilterData(tempData);
       setInToken(token);
       checkApproved(token, outToken, value, valueEth);
-      const provider = await connector.getProvider();
-      const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
-      const poolData = await getPoolData(provider, poolAddress);
+
+      try {
+        const poolAddress = await getPoolAddress(token['address'], outToken['address']);
+        const poolData = await getPoolData(provider, poolAddress);
+        setIsExist(true);
+        const sliderInit = await sliderInitVal(poolData, token);
+        setSliderValue(sliderInit*100);
+      } catch(error) {
+        setIsExist(false);
+      }
 
       let inLimBal = bal.replaceAll(',', '');
       let outLimBal = outBal.replaceAll(',', '');
@@ -131,12 +144,9 @@ const AddLiquiditySimple = () => {
         setLimitedout(false);
       else
         setLimitedout(true);
-
-      const sliderInit = await sliderInitVal(poolData, token);
-      setSliderValue(sliderInit*100);
     } else if (selected == 1) {
       setOutBal(bal);
-      let tempData = uniList.filter((item) => {
+      let tempData = uniList[chain].filter((item) => {
         return item['address'] !== token['address']
       });
 
@@ -149,6 +159,17 @@ const AddLiquiditySimple = () => {
 
       setFilterData(tempData);
       setOutToken(token);
+      
+      try {
+        const poolAddress = await getPoolAddress(inToken['address'], token['address']);
+        const poolData = await getPoolData(provider, poolAddress);
+        setIsExist(true);
+        const sliderInit = await sliderInitVal(poolData, inToken);
+        setSliderValue(sliderInit*100);
+      } catch(error) {
+        setIsExist(false);
+      }
+
       checkApproved(inToken, token, value, valueEth);
     }
   }
@@ -215,10 +236,8 @@ const AddLiquiditySimple = () => {
   const executeAddPool = async () => {
     if(inToken['address'] != outToken['address']) {
       const provider = await connector.getProvider();
-      if(inToken['address'] == firstToken)
-        await joinPool(account, provider, inToken['address'], outToken['address'], value, valueEth);
-      else
-        await joinPool(account, provider, outToken['address'], inToken['address'], valueEth, value);
+      debugger;
+      await joinPool(account, provider, inToken['address'], outToken['address'], value, valueEth);
     }
   }
 
@@ -258,17 +277,20 @@ const AddLiquiditySimple = () => {
         let outBal = await getTokenBalance(outToken['address'], account);
         setInBal(inBal);
         setOutBal(outBal);
-        const provider = await connector.getProvider();
-        const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
-        const poolData = await getPoolData(provider, poolAddress);
+        try {
+          const provider = await connector.getProvider();
+          const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
+          const poolData = await getPoolData(provider, poolAddress);
+          setIsExist(true);
+          const sliderInit = await sliderInitVal(poolData, inToken);
 
-        const sliderInit = await sliderInitVal(poolData, inToken);
-
-        setFirstToken(poolData['tokens'][0]);
-        setPoolAddress(poolAddress);
-        setSliderValue(sliderInit*100);
-        await calculateRatio(inToken, poolData, value);
-        checkApproved(inToken, outToken, value, valueEth);
+          setPoolAddress(poolAddress);
+          setSliderValue(sliderInit*100);
+          await calculateRatio(inToken, poolData, value);
+          checkApproved(inToken, outToken, value, valueEth);
+        } catch (error) {
+          setIsExist(false);
+        }
       }
       getInfo();
     }
@@ -277,16 +299,31 @@ const AddLiquiditySimple = () => {
   useEffect(() => {
     if(account && inToken['address'] !== outToken['address']) {
       const getInfo = async () => {
-        const provider = await connector.getProvider();
-        const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
-        const poolData = await getPoolData(provider, poolAddress);
-        setPoolAddress(poolAddress);
-        await calculateRatio(inToken, poolData, value);
+        try {
+          const provider = await connector.getProvider();
+          const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
+          const poolData = await getPoolData(provider, poolAddress);
+          setIsExist(true);
+          setPoolAddress(poolAddress);
+          await calculateRatio(inToken, poolData, value);
+        } catch (error) {
+          setIsExist(false);
+        }
       }
 
       getInfo();
     }
   }, [inToken, outToken]);
+
+  useEffect(() => {
+    if(account && chain !== selected_chain) {
+      setChain(selected_chain);
+      setInToken(uniList[selected_chain][0]);
+      setOutToken(uniList[selected_chain][1]);
+      selectToken(uniList[selected_chain][0], 0);
+      selectToken(uniList[selected_chain][1], 1);
+    }
+  }, [dispatch, selected_chain, account]);
 
   return (
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
@@ -313,6 +350,7 @@ const AddLiquiditySimple = () => {
             min={0.1}
             max={99.9}
             aria-label="Small"
+            disabled={!isExist}
             valueLabelDisplay="auto"
           />
           <div className="flex">
@@ -358,6 +396,7 @@ const AddLiquiditySimple = () => {
                   min={0}
                   onChange={handleValue}
                   className="input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
+                  disabled={!isExist}
                 ></input>
               </form>
               <p className="text-base text-grey-dark"  onClick={setInLimit}>Balance: {inBal}</p>
@@ -385,6 +424,7 @@ const AddLiquiditySimple = () => {
                   onChange={handleValueEth}
                   min={0}
                   className="input-value text-right max-w-[300px] sm:max-w-none w-full bg-transparent focus:outline-none"
+                  disabled={!isExist}
                 ></input>
               </form>
               <p className="text-base text-grey-dark" onClick={setOutLimit}>Balance: {outBal}</p>
@@ -394,11 +434,11 @@ const AddLiquiditySimple = () => {
       </div>
 
       <div className="mt-20 flex">
-      {!approval &&
+      {!approval && isExist &&
         <button
           onClick={approveTK}
           style={{ minHeight: 57,  }}
-          className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 mr-2"}
+          className={"btn-primary font-bold w-full dark:text-black flex-1 mr-2"}
         >
           {" "}
           Approval{" "}
@@ -408,10 +448,10 @@ const AddLiquiditySimple = () => {
           onClick={executeAddPool}
           style={{ minHeight: 57 }}
           className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
-          disabled={limitedout}
+          disabled={limitedout || !isExist}
         >
           {" "}
-          {limitedout?"Not Enough Token":"Confirm"}
+          {!isExist?"No Pool Exist":(limitedout?"Not Enough Token":"Confirm")}
         </button>
       </div>
       <Modal

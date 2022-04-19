@@ -43,7 +43,7 @@ import { CHANGE_WALLET } from "../redux/constants";
 
 const {injected1, injected2, walletconnect1, walletconnect2} = walletConnectors();
 
-const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain }) => {
+const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
     const classes = useStyles.base();
     const dispatch = useDispatch();
     const triedEager = useEagerConnect();
@@ -135,6 +135,11 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain }) => {
 
     return (
         <Dialog
+            className={`${
+                dark
+                  ? "dark transition-all duration-700 ease-in-out"
+                  : "light transition-all duration-700 ease-in-out"
+              } w-full transition-all duration-700 ease-in-out`}
             onClose={handleCloseWalletList}
             classes={{
                 paper: classes.connectWallet,
@@ -148,7 +153,8 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain }) => {
                 </Button>
             }>{getErrorMessage(error)}</Alert>}
             <DialogTitle className="action">
-                <Typography>{active && "Account"}</Typography>
+                {(active && !wrongChain) && <Typography>Account</Typography>}
+                {(wrongChain) && <Typography>Change Network</Typography>}
             </DialogTitle>
             {active && (!wrongChain?(
                 <Box className={classes.connectWalletButton}>
@@ -207,14 +213,14 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain }) => {
                     </ButtonGroup>
                 </Box>
             ):(
-                <Button
+                <button
                   variant="contained"
-                  className="btn-outlined dark:text-dark-primary w-full"
+                  className="btn-primary dark:text-dark-primary w-full"
                   style={{borderRadius:'0px', minHeight:44, fontSize:18}}
                   onClick={handleChainChange}
                 >
                   Connect to {chain.toUpperCase()}
-                </Button>
+                </button>
             ))}
             {!active ? ((!wrongChain)?(
                 <List className="wallet-list">
@@ -255,15 +261,14 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain }) => {
                     })}
                 </List>
             ):(
-                <Button
+                <button
                   variant="contained"
                   className="btn-primary dark:text-dark-primary w-full"
                   style={{borderRadius:'0px', minHeight:44, fontSize:18}}
                   onClick={handleChainChange}
-                 
                 >
                   Connect to {chain.toUpperCase()}
-                </Button>
+                </button>
             )) : (
                 ""
             )}
