@@ -85,7 +85,7 @@ const SimpleSwap = () => {
       setLimitedout(true);
     setValue(event.target.value);
     const provider = await connector.getProvider();
-    const poolData = await getPoolData(provider, poolAddress);
+    const poolData = await getPoolData(provider, poolAddress, chain);
     const amountOut = await calculateSwap(inToken, poolData, event.target.value);
     const slippage = await calcSlippage(inToken, poolData, event.target.value, amountOut);
     setValSlipage(slippage.toPrecision(2));
@@ -109,7 +109,7 @@ const SimpleSwap = () => {
 
   const checkApproved = async (token, val) => {
     const provider = await connector.getProvider();
-    const approval = await tokenApproval(account,  provider, token['address']);
+    const approval = await tokenApproval(account,  provider, token['address'], chain);
     setApproval(approval*1 > val*1);
   }
 
@@ -177,32 +177,35 @@ const SimpleSwap = () => {
   const selectToken = async (token, selected) => {
     handleClose()
     var bal = 0;
-    if(account)
-      bal = await getTokenBalance(token['address'], account);
-    if(selected == 0) {
-      setInBal(bal);
-      let tempData = uniList[chain].filter((item) => {
-        return item['address'] !== token['address']
-      });
-      setFilterData(tempData);
-      setInToken(token);
-      checkApproved(token, value);
+    
+    if(account) {
+      const provider = await connector.getProvider();
+      bal = await getTokenBalance(provider, token['address'], account);
+      if(selected == 0) {
+        setInBal(bal);
+        let tempData = uniList[chain].filter((item) => {
+          return item['address'] !== token['address']
+        });
+        setFilterData(tempData);
+        setInToken(token);
+        checkApproved(token, value);
 
-      let inLimBal = bal.replaceAll(',', '');
-      let outLimBal = outBal.replaceAll(',', '');
-      if(Number(value) <= Number(inLimBal) && Number(valueEth) <= Number(outLimBal))
-        setLimitedout(false);
-      else
-        setLimitedout(true);
+        let inLimBal = bal.replaceAll(',', '');
+        let outLimBal = outBal.replaceAll(',', '');
+        if(Number(value) <= Number(inLimBal) && Number(valueEth) <= Number(outLimBal))
+          setLimitedout(false);
+        else
+          setLimitedout(true);
 
-    } else if (selected == 1) {
-      setOutBal(bal);
-      let tempData = uniList[chain].filter((item) => {
-        return item['address'] !== token['address']
-      });
+      } else if (selected == 1) {
+        setOutBal(bal);
+        let tempData = uniList[chain].filter((item) => {
+          return item['address'] !== token['address']
+        });
 
-      setFilterData(tempData);
-      setOutToken(token);
+        setFilterData(tempData);
+        setOutToken(token);
+      }
     }
   }
 
@@ -216,14 +219,14 @@ const SimpleSwap = () => {
     if(account && inToken['address'] !== outToken['address']) {
       const limit = valueEth*0.99;
       const provider = await connector.getProvider();
-      await swapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit);
+      await swapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit, chain);
     }
   }
 
   const approveTk = async () => {
     if(account) {
       const provider = await connector.getProvider();
-      const approvedToken = await approveToken(account, provider, inToken['address'], value);
+      const approvedToken = await approveToken(account, provider, inToken['address'], value, chain);
       setApproval(approvedToken > value);
     }
   }
@@ -256,8 +259,9 @@ const SimpleSwap = () => {
   useEffect(() => {
     if(account) {
       const getInfo = async () => {
-        let inBal = await getTokenBalance(inToken['address'], account);
-        let outBal = await getTokenBalance(outToken['address'], account);
+        const provider = await connector.getProvider();
+        let inBal = await getTokenBalance(provider, inToken['address'], account);
+        let outBal = await getTokenBalance(provider, outToken['address'], account);
         setInBal(inBal);
         setOutBal(outBal);
         checkApproved(inToken, value);
@@ -270,8 +274,8 @@ const SimpleSwap = () => {
     if(account && inToken !== outToken) {
       const getInfo = async () => {
         const provider = await connector.getProvider();
-        const poolAddress = await getPoolAddress(inToken['address'], outToken['address']);
-        const poolData = await getPoolData(provider, poolAddress);
+        const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
+        const poolData = await getPoolData(provider, poolAddress, chain);
         setPoolAddress(poolAddress);
         const amountOut = await calculateSwap(inToken, poolData, value);
         setValueEth(amountOut.toPrecision(6));

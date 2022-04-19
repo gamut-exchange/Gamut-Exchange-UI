@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import {useDispatch, useSelector} from 'react-redux';
 import { useWeb3React } from "@web3-react/core";
 import Modal from "@mui/material/Modal";
 import Button from '@mui/material/Button';
@@ -9,12 +10,16 @@ import { uniList }  from "../../config/constants";
 import { requestToken, allowedToWithdraw } from "../../config/web3";
 
 const Faucet = () => {
+  const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
+  const [chain, setChain] = useState(selected_chain);
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = useState("");
-  const [selectedToken, setSelectedToken] = useState(uniList[0]);
-  const [filterData, setFilterData] = useState(uniList.filter((item, index) => { return index != 0;}));
+  const [selectedToken, setSelectedToken] = useState(uniList[selected_chain][0]);
+  const [filterData, setFilterData] = useState(uniList[selected_chain].filter((item, index) => { return index != 0;}));
   const [allowed, setAllowed] = useState(true);
+
+  const dispatch = useDispatch();
 
   const StyledModal = tw.div`
     flex
@@ -37,31 +42,32 @@ const Faucet = () => {
     let search_qr = e.target.value;
     setQuery(search_qr);
     if(search_qr.length != 0) {
-      const filterDT = uniList.filter((item) => {
+      const filterDT = uniList[chain].filter((item) => {
         return item['symbol'].toLowerCase().indexOf(search_qr) != -1
       });
       setFilterData(filterDT);
     } else {
-      setFilterData(uniList);
+      setFilterData(uniList[chain]);
     }
   }
 
   const selectToken = async (item) => {
     handleClose();
     setSelectedToken(item);
-    let filterData = uniList.filter(token => {
+    let filterData = uniList[chain].filter(token => {
       return token['address'] != item['address'];
     });
     setFilterData(filterData);
     const provider = await connector.getProvider();
-    const fau_allowed = await allowedToWithdraw(account, provider, item['symbol'].toLowerCase());
+    const fau_allowed = await allowedToWithdraw(account, provider, item['symbol'].toLowerCase(), chain);
     setAllowed(fau_allowed);
   }
 
   const requestTToken = async () => {
     const provider = await connector.getProvider();
-    await requestToken(account, provider, selectedToken['symbol'].toLowerCase());
-    const fau_allowed = await allowedToWithdraw(account, provider, selectedToken['symbol'].toLowerCase());
+    debugger;
+    await requestToken(account, provider, selectedToken['symbol'].toLowerCase(), chain);
+    const fau_allowed = await allowedToWithdraw(account, provider, selectedToken['symbol'].toLowerCase(), chain);
     setAllowed(fau_allowed);
   }
 
@@ -69,12 +75,19 @@ const Faucet = () => {
     if(account) {
         const getInfo = async () => {
         const provider = await connector.getProvider();
-        const fau_allowed = await allowedToWithdraw(account, provider, selectedToken['symbol'].toLowerCase());
+        const fau_allowed = await allowedToWithdraw(account, provider, selectedToken['symbol'].toLowerCase(), chain);
         setAllowed(fau_allowed);
       }
       getInfo();
     }
   }, []);
+
+  useEffect(() => {
+    if(account && chain !== selected_chain) {
+      setChain(selected_chain);
+      selectToken(uniList[selected_chain][0]);
+    }
+  }, [dispatch, selected_chain]);
 
   return (
     <>
