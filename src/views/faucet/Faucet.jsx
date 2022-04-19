@@ -96,7 +96,7 @@ const Faucet = () => {
           <div className="py-6 border-b border-grey-dark">
             <h3 className="model-title mb-4">Token Faucet</h3>
             <p className="desc-small">
-              Here you can get Tokens to participate in the Testnet, make sure you also got some <a href="https://faucet.dimensions.network/" target="blank"><span className="text-light-primary text-lg">ropsten ETH</span></a> in your Wallet.
+              Here you can get Tokens to participate in the Testnet, make sure you also got some <a href="https://faucet.dimensions.network/" target="blank"><span className="text-light-primary text-lg">{selected_chain} Token</span></a> in your Wallet.
             </p>
           </div>
           <div className="flex" style={{minHeight:'calc(100vh - 400px)'}}>

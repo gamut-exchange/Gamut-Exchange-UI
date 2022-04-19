@@ -152,9 +152,9 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
                     <ReplayIcon />
                 </Button>
             }>{getErrorMessage(error)}</Alert>}
-            <DialogTitle className="action">
-                {(active && !wrongChain) && <Typography>Account</Typography>}
-                {(wrongChain) && <Typography>Change Network</Typography>}
+            <DialogTitle className="action" style={{paddingLeft:0}}>
+                {(active && !wrongChain) && <Typography style={{fontSize:20}}>Account</Typography>}
+                {(wrongChain) && <Typography style={{fontSize:20}}>Change Network</Typography>}
             </DialogTitle>
             {active && (!wrongChain?(
                 <Box className={classes.connectWalletButton}>

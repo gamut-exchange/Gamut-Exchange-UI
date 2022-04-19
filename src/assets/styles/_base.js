@@ -174,10 +174,10 @@ const useStyles = makeStyles((theme) => ({
     connectWallet: {
         maxWidth: "420px !important",
         minWidth: "360px !important",
-        padding: theme.spacing(2, 2),
-        paddingBottom: theme.spacing(1),
-        paddingTop: 8,
+        padding: theme.spacing(3, 3),
         width: "inherit",
+        border: "2px solid",
+
         "& .action": {
             padding: theme.spacing(2, 2),
             paddingLeft: theme.spacing(3),
