@@ -15,8 +15,9 @@ import TextField from "@mui/material/TextField";
 // import tw from "twin.macro";
 import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
-import { getTokenBalance, getPoolAddress, getPoolData, swapTokens, tokenApproval, approveToken } from "../../../config/web3";
+import { getTokenBalance, getPoolAddress, getPoolData, swapTokens, batchSwapTokens, tokenApproval, approveToken, getSwapFeePercent } from "../../../config/web3";
 import { uniList }  from "../../../config/constants";
+import { poolList }  from "../../../config/constants";
 import {AreaChart, Area, XAxis, YAxis, 
     CartesianGrid, Tooltip} from 'recharts';
 
@@ -84,13 +85,18 @@ const SimpleSwap = () => {
     else
       setLimitedout(true);
     setValue(event.target.value);
-    const provider = await connector.getProvider();
-    const poolData = await getPoolData(provider, poolAddress, chain);
-    const amountOut = await calculateSwap(inToken, poolData, event.target.value);
-    const slippage = await calcSlippage(inToken, poolData, event.target.value, amountOut);
-    setValSlipage(slippage.toPrecision(2));
-    setValueEth(amountOut.toPrecision(6));
-    setFee((event.target.value * 0.001).toPrecision(2))
+    try {
+        const provider = await connector.getProvider();
+        const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
+        const poolData = await getPoolData(provider, poolAddress, chain);
+        const amountOut = await calculateSwap(inToken, poolData, event.target.value);
+        const slippage = await calcSlippage(inToken, poolData, event.target.value, amountOut);
+        setValSlipage(slippage.toPrecision(2));
+        setValueEth(amountOut.toPrecision(6));
+        setFee((event.target.value * 0.001).toPrecision(2));
+    } catch (error) {
+
+    }
     checkApproved(inToken, event.target.value);
   };
 
@@ -215,18 +221,75 @@ const SimpleSwap = () => {
     await selectToken(tempToken, 1);
   }
 
+  const calcOutput = async (middleAddress, provider, swapFeePercent) => {
+      try {
+          const poolAddressA = await getPoolAddress(provider, inToken['address'], middleAddress, chain);
+          const poolDataA = await getPoolData(provider, poolAddressA, chain);
+          const poolAddressB = await getPoolAddress(provider, middleAddress, outToken['address'], chain);
+          const poolDataB = await getPoolData(provider, poolAddressB, chain);
+          const middleOutput = await calculateSwap(inToken['address'], poolDataA, value*(1-swapFeePercent));
+          const output = await calculateSwap(middleAddress, poolDataB, middleOutput*(1-swapFeePercent));
+          return output;
+      } catch (error) {
+        return -1;
+      }
+  }
+
   const executeSwap = async () => {
     if(account && inToken['address'] !== outToken['address']) {
+
+      const availableLists = uniList[chain].filter(item => {
+          return (item['address'] !== inToken['address'] && item['address'] !== outToken['address']);
+      });
+
       const limit = valueEth*0.99;
+
+      let suitableRouter = [];
       const provider = await connector.getProvider();
-      await swapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit, chain);
+      const swapFeePercent = await getSwapFeePercent(provider, poolList[chain][0]['address'], chain);
+      for(let i=0; i<availableLists.length; i++) {
+        const calculatedOutput = await calcOutput(availableLists[i]['address'], provider, swapFeePercent);
+        if(suitableRouter.length === 0) {
+          if(Number(calculatedOutput) > 0) {
+              suitableRouter[0] = availableLists[i]['address'];
+              suitableRouter[1] = calculatedOutput;
+          }
+        } else {
+          if(Number(calculatedOutput) > Number(suitableRouter[1]))
+            suitableRouter[0] = availableLists[i]['address'];
+            suitableRouter[1] = calculatedOutput; 
+        }
+
+      }
+
+      try {
+          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
+          const poolData = await getPoolData(provider, poolAddress, chain);
+          const result = await calculateSwap(inToken['address'], poolData, value);
+          if(suitableRouter.length !== 0) {
+              if( Number(result) > Number(suitableRouter[1])) {
+                swapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit, chain);
+              }
+              else {
+                await batchSwapTokens(provider, inToken['address'], outToken['address'], suitableRouter[0], value*1, account, chain);
+              }
+          } else {
+            swapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit, chain);
+          }
+      } catch (error) {
+        if(suitableRouter.length !== 0)
+          await batchSwapTokens(provider, inToken['address'], outToken['address'], suitableRouter[0], value*1, account, chain);
+      }
+
+      // const provider = await connector.getProvider();
+      // await batchSwapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit, chain);
     }
   }
 
   const approveTk = async () => {
     if(account) {
       const provider = await connector.getProvider();
-      const approvedToken = await approveToken(account, provider, inToken['address'], value, chain);
+      const approvedToken = await approveToken(account, provider, inToken['address'], value*1.01, chain);
       setApproval(approvedToken > value);
     }
   }

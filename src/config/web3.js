@@ -96,7 +96,6 @@ export const approveToken = async (account, provider, tokenAddr, value, chain) =
 
 
 export const swapTokens = async (provider, inTokenAddr, outTokenAddr, amount, account, limit, chain) => {
-
     const abi = routerABI[0];
     const c_address = contractAddresses[chain]['router'];
     let web3 = new Web3(provider);
@@ -106,47 +105,45 @@ export const swapTokens = async (provider, inTokenAddr, outTokenAddr, amount, ac
     let deadline = (new Date()).getTime()+900000;
 
     let contract = new web3.eth.Contract(abi, c_address);
+    debugger;
     let result = await contract.methods["swap"]([ inTokenAddr, outTokenAddr, wei_amount ], [ account, account ], wei_limit, deadline).send({from: account});
 }
 
-// export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, amount, account, limit, chain) => {
-//     const usdtAddr = tokenAddresses['teth'];
-//     if(inTokenAddr.toLowerCase() !== usdtAddr.toLowerCase() && outTokenAddr.toLowerCase() !== usdtAddr.toLowerCase()) {
-//         const abi = routerABI[0];
-//         const cAddress = contractAddresses[chain]['router'];
-//         let web3 = new Web3(provider);
+export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, middleTokenAddr, amount, account, chain) => {
+    const abi = routerABI[0];
+    const cAddress = contractAddresses[chain]['router'];
+    let web3 = new Web3(provider);
 
-//         const wei_amount = web3.utils.toWei(amount.toString());
-//         const wei_limit = web3.utils.toWei(limit.toString());
-//         let deadline = (new Date()).getTime()+900000;
+    const wei_amount = web3.utils.toWei(amount.toString());
+    let deadline = (new Date()).getTime()+900000;
 
-//         const funds = [account, account];
+    const funds = [account, account];
 
-//         const swaps = [
-//             [1, 2, wei_amount],
-//             [2, 0, web3.utils.toWei("0")]
-//         ];
+    const swaps = [
+        [0, 1, wei_amount],
+        [1, 2, web3.utils.toWei("0")]
+    ];
 
-//         const assets = [outTokenAddr, inTokenAddr, usdtAddr];
+    const assets = [inTokenAddr, middleTokenAddr, outTokenAddr];
 
-//         const limits = [
-//           web3.utils.toWei("1000000"),
-//           wei_amount,
-//           web3.utils.toWei("100000"),
-//         ];
+    const limits = [
+      wei_amount,
+      web3.utils.toWei("0"),
+      web3.utils.toWei("0"),
+    ];
 
-//         let contract = new web3.eth.Contract(abi, cAddress);
-//         let result = await contract.methods["batchSwap"](swaps, assets, funds, limits, deadline).send({from: account});       
-//     } else {
-//         console.log("can't swap usdt with batchSwap function.");
-//     }
-// }
+    let contract = new web3.eth.Contract(abi, cAddress);
+    debugger;
+    let result = await contract.methods["batchSwap"](swaps, assets, funds, limits, deadline).send({from: account});       
+}
+
 
 export const joinPool = async (account, provider, token1Addr, token2Addr, amount1, amount2, chain) => {
     const abi = routerABI[0];
     const tokenAbi = erc20ABI[0];
     const c_address = contractAddresses[chain]['router'];
     let web3 = new Web3(provider);
+    debugger;
     const poolAddr = await getPoolAddress(provider, token1Addr, token2Addr, chain);
     if(poolAddr) {
 
@@ -213,6 +210,16 @@ export const getPoolSupply = async (provider, poolAddr, chain) => {
     contract.options.address = poolAddr;
     const result = await contract.methods['totalSupply']().call();
     return web3.utils.fromWei(result);
+}
+
+export const getSwapFeePercent = async (provider, poolAddr, chain) => {
+    const abi = poolABI[0];
+    const c_address = contractAddresses[chain]['pool'];
+    let web3 = new Web3(provider);
+    let contract = new web3.eth.Contract(abi, c_address);
+    contract.options.address = poolAddr;
+    const result = await contract.methods['getSwapFeePercentage']().call();
+    return web3.utils.fromWei(result)*100;
 }
 
 export const removePool = async (account, provider, poolAddr, amount, ratio, token1Addr, token2Addr, chain) => {
