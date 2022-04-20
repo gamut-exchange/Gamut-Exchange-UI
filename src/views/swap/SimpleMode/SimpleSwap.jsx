@@ -307,7 +307,7 @@ const SimpleSwap = ({dark}) => {
           if(suitableRouter.length !== 0) {
               if( Number(result) > Number(suitableRouter[1])) {
                 setMiddleToken(null);
-                getMiddleTokenSymbol('');
+                getMiddleTokenSymbol(null);
               }
               else {
                 setMiddleToken(suitableRouter[0]);
@@ -367,22 +367,26 @@ const SimpleSwap = ({dark}) => {
   }
 
   const getMiddleTokenSymbol = (tokens) => {
-    if(tokens.length == 2) {
-      const result1 = uniList[chain].filter(item => {
-        return item.address === tokens[0]['address'];
-      });
+    if(tokens) {
+        if(tokens.length == 2) {
+        const result1 = uniList[chain].filter(item => {
+          return item.address === tokens[0]['address'];
+        });
 
-      const result2 = uniList[chain].filter(item => {
-        return item.address === tokens[1]['address'];
-      });
+        const result2 = uniList[chain].filter(item => {
+          return item.address === tokens[1]['address'];
+        });
 
-      setMiddleTokenSymbol([result1[0].symbol, result2[0].symbol]);
+        setMiddleTokenSymbol([result1[0].symbol, result2[0].symbol]);
+      } else {
+        const result1 = uniList[chain].filter(item => {
+          return item.address === tokens[0]['address'];
+        });
+
+        setMiddleTokenSymbol([result1[0].symbol]);
+      }
     } else {
-      const result1 = uniList[chain].filter(item => {
-        return item.address === tokens[0]['address'];
-      });
-
-      setMiddleTokenSymbol([result1[0].symbol]);
+      setMiddleTokenSymbol(['', '']);
     }
   }
 

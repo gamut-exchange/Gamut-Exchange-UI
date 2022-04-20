@@ -143,7 +143,6 @@ export const joinPool = async (account, provider, token1Addr, token2Addr, amount
     const tokenAbi = erc20ABI[0];
     const c_address = contractAddresses[chain]['router'];
     let web3 = new Web3(provider);
-    debugger;
     const poolAddr = await getPoolAddress(provider, token1Addr, token2Addr, chain);
     if(poolAddr) {
 
