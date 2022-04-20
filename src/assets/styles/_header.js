@@ -140,12 +140,13 @@ const useStyles = makeStyles((theme) => ({
     },
 
     menuWrapper: {
-        backgroundColor:"white",
-        color: "#4b6998"
+        backgroundColor:"white!important",
+        color: "#4b6998!important"
     },
+
     darkMenuWrapper: {
-        backgroundColor:"white",
-        color: "white"
+        backgroundColor:"black!important",
+        color: "white!important"
     }
 }));
 export default useStyles;

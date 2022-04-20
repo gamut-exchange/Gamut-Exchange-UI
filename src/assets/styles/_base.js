@@ -175,8 +175,8 @@ const useStyles = makeStyles((theme) => ({
         maxWidth: "420px !important",
         minWidth: "360px !important",
         padding: theme.spacing(3, 3),
-        backgroundColor: "white",
-        color:"#4b6998",
+        backgroundColor: "white!important",
+        color:"#4b6998!important",
         width: "inherit",
         border: "1px solid gray",
 
@@ -237,8 +237,8 @@ const useStyles = makeStyles((theme) => ({
         maxWidth: "420px !important",
         minWidth: "360px !important",
         padding: theme.spacing(3, 3),
-        backgroundColor: "black",
-        color: "white",
+        backgroundColor: "black!important",
+        color: "white!important",
         width: "inherit",
         border: "1px solid gray",
 
