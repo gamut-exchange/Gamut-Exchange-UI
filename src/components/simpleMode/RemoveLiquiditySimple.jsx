@@ -145,6 +145,7 @@ const RemoveLiquiditySimple = ({dark}) => {
       const poolData = await getPoolData(provider, item['address'], chain);
       const weightA = fromWeiVal(provider, poolData['weights'][0]);
       setWeightA(weightA);
+      setScale((weightA*100).toPrecision(6));
       setTokenAAddr(poolData['tokens'][0]);
       setTokenBAddr(poolData['tokens'][1]);
       let amount = await getPoolBalance(account, provider, item['address'], chain);

@@ -240,7 +240,6 @@ const SimpleSwap = ({dark}) => {
           const poolDataA = await getPoolData(provider, poolAddressA, chain);
           const poolAddressB = await getPoolAddress(provider, middleAddress, outSToken['address'], chain);
           const poolDataB = await getPoolData(provider, poolAddressB, chain);
-          debugger;
           const middleOutput = await calculateSwap(inSToken['address'], poolDataA, val*(1-swapFee));
           const output = await calculateSwap(middleAddress, poolDataB, middleOutput*(1-swapFee));
           return output;

@@ -134,7 +134,6 @@ export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, middl
     ];
 
     let contract = new web3.eth.Contract(abi, cAddress);
-    debugger;
     let result = await contract.methods["batchSwap"](swaps, assets, funds, limits, deadline).send({from: account});       
 }
 
