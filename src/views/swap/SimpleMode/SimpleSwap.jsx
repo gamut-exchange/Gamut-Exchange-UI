@@ -440,12 +440,16 @@ const SimpleSwap = ({dark}) => {
   useEffect(() => {
     if(account && chain !== selected_chain) {
       setChain(selected_chain);
-      debugger;
-      setFilterData(uniList[selected_chain]);
-      selectToken(uniList[selected_chain][0], 0);
-      selectToken(uniList[selected_chain][1], 1);
     }
   }, [dispatch, selected_chain]);
+
+  useEffect(() => {
+    if(account) {
+      setFilterData(uniList[chain]);
+      selectToken(uniList[chain][0], 0);
+      selectToken(uniList[chain][1], 1);
+    }
+  }, [chain]);
 
   return (
     <div className="flex sm:flex-row flex-col items-center">
