@@ -279,9 +279,10 @@ const SimpleSwap = ({dark}) => {
               suitableRouter[1] = calculatedOutput;
           }
         } else {
-          if(Number(calculatedOutput) > Number(suitableRouter[1]))
+          if(Number(calculatedOutput) > Number(suitableRouter[1])) {
             suitableRouter[0] = [availableLists[i]];
             suitableRouter[1] = calculatedOutput;
+          }
         }
       }
 
@@ -294,9 +295,10 @@ const SimpleSwap = ({dark}) => {
               suitableRouter[1] = calculatedOutput;
           }
         } else {
-          if(Number(calculatedOutput) > Number(suitableRouter[1]))
+          if(Number(calculatedOutput) > Number(suitableRouter[1])) {
             suitableRouter[0] = allPairs[i];
             suitableRouter[1] = calculatedOutput;
+          }
         }
       }
 
@@ -304,6 +306,7 @@ const SimpleSwap = ({dark}) => {
           const poolAddress = await getPoolAddress(provider, inSToken['address'], outSToken['address'], chain);
           const poolData = await getPoolData(provider, poolAddress, chain);
           const result = await calculateSwap(inSToken['address'], poolData, value);
+          debugger;
           if(suitableRouter.length !== 0) {
               if( Number(result) > Number(suitableRouter[1])) {
                 setMiddleToken(null);
@@ -367,6 +370,7 @@ const SimpleSwap = ({dark}) => {
   }
 
   const getMiddleTokenSymbol = (tokens) => {
+    debugger;
     if(tokens) {
         if(tokens.length == 2) {
         const result1 = uniList[chain].filter(item => {
