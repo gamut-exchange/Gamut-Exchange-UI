@@ -168,6 +168,7 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
                     <TextField
                         inputProps={{
                             readOnly: true,
+                            style:{ color: '#4b6998', border:'1px solid gray' }
                         }}
                         value={
                             account
@@ -250,6 +251,7 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={item.title}
+                                    secondaryTypographyProps={{color:'#4b6998'}}
                                     secondary={
                                         activating
                                             ? "Initializing..."

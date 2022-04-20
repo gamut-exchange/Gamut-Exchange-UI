@@ -481,8 +481,8 @@ const SimpleSwap = ({dark}) => {
 
           <div className="flex justify-between mt-10">
             <p className="text-grey-dark">Slippage {valSlipage}%</p>
-            {middleToken && <p>{inToken.symbol} -> {middleTokenSymbol} -> {outToken.symbol}</p>}
-            {!middleToken && <p>{inToken.symbol} -> {outToken.symbol}</p>}
+            {middleToken && <p className="text-light-primary">{inToken.symbol} -> {middleTokenSymbol} -> {outToken.symbol}</p>}
+            {!middleToken && <p className="text-light-primary">{inToken.symbol} -> {outToken.symbol}</p>}
             <p className="text-light-primary">Fee: {fee} {inToken.symbol}</p>
           </div>
 
