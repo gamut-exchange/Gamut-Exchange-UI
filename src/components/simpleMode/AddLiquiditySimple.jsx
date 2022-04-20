@@ -355,7 +355,7 @@ const AddLiquiditySimple = ({dark}) => {
           <div className="flex">
             <button
               style={{ fontSize: 12, fontWeight: 400, minHeight: 32 }}
-              className="flex-1 btn-primary"
+              className="flex-1 btn-primary text-primary dark:text-black"
             >
               {sliderValue.toPrecision(4)}% {inToken['symbol']}
             </button>
@@ -366,9 +366,9 @@ const AddLiquiditySimple = ({dark}) => {
                 background: "#fafafa",
                 minHeight: 32,
               }}
-              className="flex-1 btn-primary "
+              className="flex-1 text-black"
             >
-              <span className="text-light-primary dark:text-grey-dark">
+              <span>
                 {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}
               </span>
             </button>

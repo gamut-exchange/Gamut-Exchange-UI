@@ -89,14 +89,14 @@ const SimpleSwap = ({dark}) => {
     try {
         const provider = await connector.getProvider();
         if(middleToken) {
-          const amountOut = await calcOutput(middleToken, provider);
+          const amountOut = await calcOutput(middleToken, provider, Number(event.target.value), inToken, outToken);
           // const slippage = await calcSlippage(inToken, poolData, event.target.value, amountOut);
           // setValSlipage('unknown');
           setValueEth(amountOut.toPrecision(6));
         } else {
           const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
           const poolData = await getPoolData(provider, poolAddress, chain);
-          const amountOut = await calculateSwap(inToken, poolData, value);
+          const amountOut = await calculateSwap(inToken, poolData, event.target.value);
           const slippage = await calcSlippage(inToken, poolData, event.target.value, amountOut);
           setValSlipage(slippage.toPrecision(2));
           setValueEth(amountOut.toPrecision(6));
@@ -234,13 +234,14 @@ const SimpleSwap = ({dark}) => {
     await selectToken(tempToken, 1);
   }
 
-  const calcOutput = async (middleAddress, provider, inSToken=inToken, outSToken=outToken) => {
+  const calcOutput = async (middleAddress, provider, val=value, inSToken=inToken, outSToken=outToken) => {
       try {
           const poolAddressA = await getPoolAddress(provider, inSToken['address'], middleAddress, chain);
           const poolDataA = await getPoolData(provider, poolAddressA, chain);
           const poolAddressB = await getPoolAddress(provider, middleAddress, outSToken['address'], chain);
           const poolDataB = await getPoolData(provider, poolAddressB, chain);
-          const middleOutput = await calculateSwap(inSToken['address'], poolDataA, value*(1-swapFee));
+          debugger;
+          const middleOutput = await calculateSwap(inSToken['address'], poolDataA, val*(1-swapFee));
           const output = await calculateSwap(middleAddress, poolDataB, middleOutput*(1-swapFee));
           return output;
       } catch (error) {
@@ -267,7 +268,7 @@ const SimpleSwap = ({dark}) => {
       let suitableRouter = [];
       const provider = await connector.getProvider();
       for(let i=0; i<availableLists.length; i++) {
-        const calculatedOutput = await calcOutput(availableLists[i]['address'], provider, inSToken, outSToken);
+        const calculatedOutput = await calcOutput(availableLists[i]['address'], provider, value, inSToken, outSToken);
         if(suitableRouter.length === 0) {
           if(Number(calculatedOutput) > 0) {
               suitableRouter[0] = availableLists[i]['address'];
@@ -372,7 +373,7 @@ const SimpleSwap = ({dark}) => {
         const provider = await connector.getProvider();
         setPoolAddress(poolAddress);
         if(middleToken) {
-          const amountOut = await calcOutput(middleToken, provider);
+          const amountOut = await calcOutput(middleToken, provider, value, inToken, outToken);
           setValueEth(amountOut.toPrecision(6));
         } else {
           const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
