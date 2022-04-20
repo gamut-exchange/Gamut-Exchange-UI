@@ -309,7 +309,7 @@ const Nav = ({ handleDark, dark }) => {
                     anchorEl={anchorEl}
                     open={menuOpen}
                     MenuListProps={{
-                      'aria-labelledby': 'basic-button',
+                      className='dark:bg-dark-primary bg-white-bg dark:text-white text-black pb-4'
                     }}
                   >
                     <MenuItem key="ropsten" onClick={() => handleChain('ropsten')} selected={selected_chain==="ropsten"}>Ropsten</MenuItem>

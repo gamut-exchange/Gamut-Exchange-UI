@@ -44,6 +44,9 @@ const SimpleSwap = () => {
   const [approval, setApproval] = useState(false);
   const [filterData, setFilterData] = useState(uniList[selected_chain]);
   const [limitedout, setLimitedout] = useState(false);
+  const [swapFee, setSwapFee] = useState(0);
+  const [middleToken, setMiddleToken] = useState(null);
+  const [middleTokenSymbol, setMiddleTokenSymbol] = useState('');
 
   const dispatch = useDispatch();
 
@@ -87,12 +90,19 @@ const SimpleSwap = () => {
     setValue(event.target.value);
     try {
         const provider = await connector.getProvider();
-        const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
-        const poolData = await getPoolData(provider, poolAddress, chain);
-        const amountOut = await calculateSwap(inToken, poolData, event.target.value);
-        const slippage = await calcSlippage(inToken, poolData, event.target.value, amountOut);
-        setValSlipage(slippage.toPrecision(2));
-        setValueEth(amountOut.toPrecision(6));
+        if(middleToken) {
+          const amountOut = await calcOutput(middleToken, provider);
+          // const slippage = await calcSlippage(inToken, poolData, event.target.value, amountOut);
+          // setValSlipage('unknown');
+          setValueEth(amountOut.toPrecision(6));
+        } else {
+          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
+          const poolData = await getPoolData(provider, poolAddress, chain);
+          const amountOut = await calculateSwap(inToken, poolData, value);
+          const slippage = await calcSlippage(inToken, poolData, event.target.value, amountOut);
+          setValSlipage(slippage.toPrecision(2));
+          setValueEth(amountOut.toPrecision(6));
+        }
         setFee((event.target.value * 0.001).toPrecision(2));
     } catch (error) {
 
@@ -183,7 +193,7 @@ const SimpleSwap = () => {
   const selectToken = async (token, selected) => {
     handleClose()
     var bal = 0;
-    
+    debugger;
     if(account) {
       const provider = await connector.getProvider();
       bal = await getTokenBalance(provider, token['address'], account);
@@ -192,9 +202,12 @@ const SimpleSwap = () => {
         let tempData = uniList[chain].filter((item) => {
           return item['address'] !== token['address']
         });
+        debugger;
         setFilterData(tempData);
         setInToken(token);
         checkApproved(token, value);
+
+        await findMiddleToken(token, outToken);
 
         let inLimBal = bal.replaceAll(',', '');
         let outLimBal = outBal.replaceAll(',', '');
@@ -211,6 +224,8 @@ const SimpleSwap = () => {
 
         setFilterData(tempData);
         setOutToken(token);
+
+        await findMiddleToken(inToken, token);
       }
     }
   }
@@ -221,14 +236,14 @@ const SimpleSwap = () => {
     await selectToken(tempToken, 1);
   }
 
-  const calcOutput = async (middleAddress, provider, swapFeePercent) => {
+  const calcOutput = async (middleAddress, provider, inSToken=inToken, outSToken=outToken) => {
       try {
-          const poolAddressA = await getPoolAddress(provider, inToken['address'], middleAddress, chain);
+          const poolAddressA = await getPoolAddress(provider, inSToken['address'], middleAddress, chain);
           const poolDataA = await getPoolData(provider, poolAddressA, chain);
-          const poolAddressB = await getPoolAddress(provider, middleAddress, outToken['address'], chain);
+          const poolAddressB = await getPoolAddress(provider, middleAddress, outSToken['address'], chain);
           const poolDataB = await getPoolData(provider, poolAddressB, chain);
-          const middleOutput = await calculateSwap(inToken['address'], poolDataA, value*(1-swapFeePercent));
-          const output = await calculateSwap(middleAddress, poolDataB, middleOutput*(1-swapFeePercent));
+          const middleOutput = await calculateSwap(inSToken['address'], poolDataA, value*(1-swapFee));
+          const output = await calculateSwap(middleAddress, poolDataB, middleOutput*(1-swapFee));
           return output;
       } catch (error) {
         return -1;
@@ -237,18 +252,24 @@ const SimpleSwap = () => {
 
   const executeSwap = async () => {
     if(account && inToken['address'] !== outToken['address']) {
-
-      const availableLists = uniList[chain].filter(item => {
-          return (item['address'] !== inToken['address'] && item['address'] !== outToken['address']);
-      });
-
+      const provider = await connector.getProvider();
       const limit = valueEth*0.99;
+      if(middleToken)
+        await batchSwapTokens(provider, inToken['address'], outToken['address'], middleToken, value*1, account, chain);
+      else
+        swapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit, chain);
+    }
+  }
+
+  const findMiddleToken = async (inSToken, outSToken) => {
+      const availableLists = uniList[chain].filter(item => {
+          return (item['address'] !== inSToken['address'] && item['address'] !== outSToken['address']);
+      });
 
       let suitableRouter = [];
       const provider = await connector.getProvider();
-      const swapFeePercent = await getSwapFeePercent(provider, poolList[chain][0]['address'], chain);
       for(let i=0; i<availableLists.length; i++) {
-        const calculatedOutput = await calcOutput(availableLists[i]['address'], provider, swapFeePercent);
+        const calculatedOutput = await calcOutput(availableLists[i]['address'], provider, inSToken, outSToken);
         if(suitableRouter.length === 0) {
           if(Number(calculatedOutput) > 0) {
               suitableRouter[0] = availableLists[i]['address'];
@@ -257,33 +278,36 @@ const SimpleSwap = () => {
         } else {
           if(Number(calculatedOutput) > Number(suitableRouter[1]))
             suitableRouter[0] = availableLists[i]['address'];
-            suitableRouter[1] = calculatedOutput; 
+            suitableRouter[1] = calculatedOutput;
         }
-
       }
 
       try {
-          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
+          const poolAddress = await getPoolAddress(provider, inSToken['address'], outSToken['address'], chain);
           const poolData = await getPoolData(provider, poolAddress, chain);
-          const result = await calculateSwap(inToken['address'], poolData, value);
+          const result = await calculateSwap(inSToken['address'], poolData, value);
           if(suitableRouter.length !== 0) {
               if( Number(result) > Number(suitableRouter[1])) {
-                swapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit, chain);
+                setMiddleToken(null);
+                getMiddleTokenSymbol('');
               }
               else {
-                await batchSwapTokens(provider, inToken['address'], outToken['address'], suitableRouter[0], value*1, account, chain);
+                setMiddleToken(suitableRouter[0]);
+                getMiddleTokenSymbol(suitableRouter[0]);
               }
           } else {
-            swapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit, chain);
+            setMiddleToken(suitableRouter[0]);
+            getMiddleTokenSymbol(suitableRouter[0]);
           }
-      } catch (error) {
-        if(suitableRouter.length !== 0)
-          await batchSwapTokens(provider, inToken['address'], outToken['address'], suitableRouter[0], value*1, account, chain);
-      }
 
-      // const provider = await connector.getProvider();
-      // await batchSwapTokens(provider, inToken['address'], outToken['address'], value*1, account, limit, chain);
-    }
+      } catch(error) {
+        if(suitableRouter.length !== 0) {
+          setMiddleToken(suitableRouter[0]);
+          getMiddleTokenSymbol(suitableRouter[0]);
+        } else {
+          console.log("Can't swap the tokens.");
+        }
+      }
   }
 
   const approveTk = async () => {
@@ -303,6 +327,14 @@ const SimpleSwap = () => {
   const setOutLimit = () => {
     // let val = outBal.replaceAll(',', '');
     // setValueEth(Number(val));
+  }
+
+  const getMiddleTokenSymbol = (addr) => {
+    const result = uniList[chain].filter(item => {
+      return item.address === addr;
+    });
+    debugger;
+    setMiddleTokenSymbol(result[0].symbol);
   }
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -328,6 +360,9 @@ const SimpleSwap = () => {
         setInBal(inBal);
         setOutBal(outBal);
         checkApproved(inToken, value);
+        const swapFeePercent = await getSwapFeePercent(provider, poolList[selected_chain][0]['address'], selected_chain);
+        setSwapFee(swapFeePercent);
+
       }
       getInfo();
     }
@@ -337,16 +372,21 @@ const SimpleSwap = () => {
     if(account && inToken !== outToken) {
       const getInfo = async () => {
         const provider = await connector.getProvider();
-        const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
-        const poolData = await getPoolData(provider, poolAddress, chain);
         setPoolAddress(poolAddress);
-        const amountOut = await calculateSwap(inToken, poolData, value);
-        setValueEth(amountOut.toPrecision(6));
+        if(middleToken) {
+          const amountOut = await calcOutput(middleToken, provider);
+          setValueEth(amountOut.toPrecision(6));
+        } else {
+          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
+          const poolData = await getPoolData(provider, poolAddress, chain);
+          const amountOut = await calculateSwap(inToken, poolData, value);
+          setValueEth(amountOut.toPrecision(6));
+        }
       }
 
       getInfo();
     }
-  }, [inToken, outToken]);
+  }, [inToken, outToken, middleToken]);
 
   useEffect(() => {
     if(account && chain !== selected_chain) {
@@ -443,6 +483,8 @@ const SimpleSwap = () => {
 
           <div className="flex justify-between mt-10">
             <p className="text-grey-dark">Slippage {valSlipage}%</p>
+            {middleToken && <p>{inToken.symbol} -> {middleTokenSymbol} -> {outToken.symbol}</p>}
+            {!middleToken && <p>{inToken.symbol} -> {outToken.symbol}</p>}
             <p className="text-light-primary">Fee: {fee} {inToken.symbol}</p>
           </div>
 

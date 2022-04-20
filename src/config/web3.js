@@ -110,6 +110,7 @@ export const swapTokens = async (provider, inTokenAddr, outTokenAddr, amount, ac
 }
 
 export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, middleTokenAddr, amount, account, chain) => {
+    debugger;
     const abi = routerABI[0];
     const cAddress = contractAddresses[chain]['router'];
     let web3 = new Web3(provider);
