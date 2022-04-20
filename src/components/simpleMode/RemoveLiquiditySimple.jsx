@@ -15,7 +15,7 @@ import TextField from "@mui/material/TextField";
 import { getPoolData, getPoolBalance, removePool, fromWeiVal, getPoolSupply } from "../../config/web3";
 import { poolList }  from "../../config/constants";
 
-const RemoveLiquiditySimple = () => {
+const RemoveLiquiditySimple = ({dark}) => {
   const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
   const [chain, setChain] = useState(selected_chain);
@@ -83,7 +83,6 @@ const RemoveLiquiditySimple = () => {
     flex-col
     absolute
     top-1/4 left-1/3
-    bg-white-bg
     p-6
     shadow-box overflow-y-scroll
     min-h-min
@@ -358,8 +357,9 @@ const RemoveLiquiditySimple = () => {
       <Modal
         open={open}
         onClose={handleClose}
+        className={dark?"dark":""}
       >
-        <StyledModal>
+        <StyledModal className="bg-white-bg  dark:bg-dark-primary">
           <h3 className="model-title mb-6">Remove Liquidity</h3>
           <TextField
             autoFocus={true}
@@ -368,10 +368,10 @@ const RemoveLiquiditySimple = () => {
             label="Search"
             InputProps={{
               type: "search",
-              style: {color: '#333'}
+              style: {color: (dark?'#bbb':'#333')}
             }}
             InputLabelProps={{
-              style: { color: '#333' },
+              style: {color: (dark?'#bbb':'#333')}
             }}
           />
           <hr className="my-6" />

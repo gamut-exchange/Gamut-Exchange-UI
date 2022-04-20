@@ -138,5 +138,14 @@ const useStyles = makeStyles((theme) => ({
             minWidth: "unset",
         },
     },
+
+    menuWrapper: {
+        backgroundColor:"white",
+        color: "#4b6998"
+    },
+    darkMenuWrapper: {
+        backgroundColor:"white",
+        color: "white"
+    }
 }));
 export default useStyles;

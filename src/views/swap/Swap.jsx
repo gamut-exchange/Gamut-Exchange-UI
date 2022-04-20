@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import AdvanceSwap from "./AdvanceMode/AdvanceSwap";
 import SimpleSwap from "./SimpleMode/SimpleSwap";
 
-const Swap = () => {
+const Swap = ({dark}) => {
 
   return (
     <>
@@ -11,7 +11,7 @@ const Swap = () => {
          
           <hr className="mb-10" />
           <div>
-            <SimpleSwap />
+            <SimpleSwap dark={dark} />
           </div>
         </div>
       </div>

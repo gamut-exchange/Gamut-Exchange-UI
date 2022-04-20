@@ -175,8 +175,10 @@ const useStyles = makeStyles((theme) => ({
         maxWidth: "420px !important",
         minWidth: "360px !important",
         padding: theme.spacing(3, 3),
+        backgroundColor: "white",
+        color:"#4b6998",
         width: "inherit",
-        border: "2px solid",
+        border: "1px solid gray",
 
         "& .action": {
             padding: theme.spacing(2, 2),
@@ -231,5 +233,67 @@ const useStyles = makeStyles((theme) => ({
             },
         },
     },
+    darkConnectWallet: {
+        maxWidth: "420px !important",
+        minWidth: "360px !important",
+        padding: theme.spacing(3, 3),
+        backgroundColor: "black",
+        color: "white",
+        width: "inherit",
+        border: "1px solid gray",
+
+        "& .action": {
+            padding: theme.spacing(2, 2),
+            paddingLeft: theme.spacing(3),
+            "& h2": {
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+            },
+            "& button": {
+                marginTop: 6,
+                marginBottom: 6,
+                padding: "0px",
+            },
+        },
+        "& .title": {
+            fontSize: 20,
+            textAlign: "center",
+            fontWeight: "bold",
+            marginLeft: 0,
+            margin: "auto",
+        },
+        "& .subtitle": {
+            fontWeight: 600,
+            textAlign: "center",
+            "& b": {
+                padding: theme.spacing(0, 2),
+            },
+        },
+        "& .wallet-list": {
+            padding: theme.spacing(4, 0),
+            "& .item": {
+                padding: theme.spacing(1, 4),
+                borderRadius: 16,
+                border: "none",
+                "& .symbol": {
+                    "& img": {
+                        width: 42,
+                        height: 42,
+                    },
+                },
+                "& .name": {
+                    "& > span": {
+                        fontWeight: 600,
+                    },
+                    "& > p": {
+                        fontWeight: 600,
+                    },
+                    padding: theme.spacing(0, 2),
+                },
+            },
+        },
+    }
 }));
 export default useStyles;

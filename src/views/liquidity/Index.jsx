@@ -5,7 +5,7 @@ import Liquidity from "./Liquidity";
 const Index = ({handleDark, dark}) => {
   return (
     <Layout handleDark={handleDark} dark={dark}>
-      <Liquidity />
+      <Liquidity dark={dark} />
     </Layout>
   );
 };

@@ -142,7 +142,7 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
               } w-full transition-all duration-700 ease-in-out`}
             onClose={handleCloseWalletList}
             classes={{
-                paper: classes.connectWallet,
+                paper: dark?classes.darkConnectWallet:classes.connectWallet,
             }}
             open={isOpen}
             fullWidth={true}

@@ -16,7 +16,7 @@ import TextField from "@mui/material/TextField";
 import { getTokenBalance, getPoolAddress, getPoolData, joinPool, tokenApproval, approveToken } from "../../config/web3";
 import { uniList }  from "../../config/constants";
 
-const AddLiquiditySimple = () => {
+const AddLiquiditySimple = ({dark}) => {
   const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
   const [chain, setChain] = useState(selected_chain);
@@ -45,7 +45,6 @@ const AddLiquiditySimple = () => {
     flex-col
     absolute
     top-1/4 left-1/3
-    bg-white-bg
     p-6
     shadow-box overflow-y-scroll
     min-h-min
@@ -459,8 +458,9 @@ const AddLiquiditySimple = () => {
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
+        className={dark?"dark":""}
       >
-        <StyledModal>
+        <StyledModal className="bg-white-bg  dark:bg-dark-primary">
           <h3 className="model-title mb-6">Select Token</h3>
           <TextField
             autoFocus={true}
@@ -469,10 +469,10 @@ const AddLiquiditySimple = () => {
             label="Search"
             InputProps={{
               type: "search",
-              style: {color: '#333'}
+              style: {color: (dark?'#bbb':'#333')}
             }}
             InputLabelProps={{
-              style: { color: '#333' },
+              style: {color: (dark?'#bbb':'#333')}
             }}
           />
           <hr className="my-6" />

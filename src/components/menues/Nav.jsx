@@ -47,13 +47,16 @@ const Nav = ({ handleDark, dark }) => {
     setAnchorEl(event.currentTarget);
   };
   const handleChain = async (chain) => {
+    handleClose();
     if(chain != '') {
       if(chainLabel !== chain) {
         setChainLabel(chain);
         deactivate();
       }
     }
-    
+  };
+
+  const handleClose = () => {
     setAnchorEl(null);
   };
 
@@ -157,6 +160,7 @@ const Nav = ({ handleDark, dark }) => {
             </button>
             <Button
               id="basic-button"
+              className="text-light-primary dark:text-grey-dark transition-all duration-300"
               aria-controls={menuOpen ? 'basic-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={menuOpen ? 'true' : undefined}
@@ -168,10 +172,7 @@ const Nav = ({ handleDark, dark }) => {
               id="basic-menu"
               anchorEl={anchorEl}
               open={menuOpen}
-              style={{borderRadius:'0px'}}
-              PopoverClasses={{
-                borderRadius:'0px'
-              }}
+              classes={{ paper: dark?classes.darkMenuWrapper:classes.menuWrapper }}
             >
               <MenuItem key="ropsten" onClick={() => handleChain('ropsten')}>Ropsten</MenuItem>
               <MenuItem key="fantom" onClick={() => handleChain('fantom')}>Fantom</MenuItem>
@@ -307,10 +308,9 @@ const Nav = ({ handleDark, dark }) => {
                   <Menu
                     id="basic-menu"
                     anchorEl={anchorEl}
+                    onClose={handleClose}
                     open={menuOpen}
-                    MenuListProps={{
-                      'class': 'dark:bg-dark-primary bg-white-bg dark:text-white text-black pb-4'
-                    }}
+                    classes={{ paper: dark?classes.darkMenuWrapper:classes.menuWrapper }}
                   >
                     <MenuItem key="ropsten" onClick={() => handleChain('ropsten')} selected={selected_chain==="ropsten"}>Ropsten</MenuItem>
                     <MenuItem key="fantom" onClick={() => handleChain('fantom')} selected={selected_chain==="fantom"}>Fantom</MenuItem>

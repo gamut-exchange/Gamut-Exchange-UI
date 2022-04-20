@@ -24,7 +24,7 @@ import {AreaChart, Area, XAxis, YAxis,
 import './SimpleSwap.css'
 
 
-const SimpleSwap = () => {
+const SimpleSwap = ({dark}) => {
   const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
   const [chain, setChain] = useState(selected_chain);
@@ -65,7 +65,6 @@ const SimpleSwap = () => {
     flex-col
     absolute
     top-1/4 left-1/3
-    bg-white-bg
     p-6
     shadow-box overflow-y-scroll
     min-h-min
@@ -77,7 +76,6 @@ const SimpleSwap = () => {
     setSelected(val);
     setOpen(true);
   };
-
   const handleClose = () => setOpen(false);
 
   const handleValue = async (event) => {
@@ -514,8 +512,9 @@ const SimpleSwap = () => {
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
+            className={dark?"dark":""}
           >
-            <StyledModal>
+            <StyledModal className="bg-white-bg  dark:bg-dark-primary">
               <h3 className="model-title mb-6">Select Token</h3>
               <TextField
                 autoFocus={true}
@@ -524,10 +523,10 @@ const SimpleSwap = () => {
                 label="Search"
                 InputProps={{
                   type: "search",
-                  style: {color: '#333'}
+                  style: {color: (dark?'#bbb':'#333')}
                 }}
                 InputLabelProps={{
-                  style: { color: '#333' },
+                  style: {color: (dark?'#bbb':'#333')}
                 }}
               />
               <hr className="my-6" />

@@ -32,7 +32,7 @@ TabPanel.propTypes = {
 };
 
 
-const Liquidity = () => {
+const Liquidity = ({dark}) => {
 
   const [tab, setTab] = useState(0);
 
@@ -54,10 +54,10 @@ const Liquidity = () => {
                   </Tabs>
                 </div>
                 <TabPanel value={tab} index={0}>
-                  <AddLiquiditySimple />
+                  <AddLiquiditySimple  dark={dark} />
                 </TabPanel>
                 <TabPanel value={tab} index={1}>
-                  <RemoveLiquiditySimple />
+                  <RemoveLiquiditySimple  dark={dark} />
                 </TabPanel>
               </div>
           </div>
