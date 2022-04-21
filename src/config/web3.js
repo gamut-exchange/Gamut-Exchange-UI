@@ -109,7 +109,7 @@ export const swapTokens = async (provider, inTokenAddr, outTokenAddr, amount, ac
     let result = await contract.methods["swap"]([ inTokenAddr, outTokenAddr, wei_amount ], [ account, account ], wei_limit, deadline).send({from: account});
 }
 
-export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, middleTokenAddr, amount, account, chain) => {
+export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, middleTokens, amount, account, chain) => {
     debugger;
     const abi = routerABI[0];
     const cAddress = contractAddresses[chain]['router'];
@@ -120,23 +120,48 @@ export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, middl
 
     const funds = [account, account];
 
-    const swaps = [
-        [0, 1, wei_amount],
-        [1, 2, web3.utils.toWei("0")]
-    ];
+    let swaps = [];
 
-    const assets = [inTokenAddr, middleTokenAddr, outTokenAddr];
+    if(middleTokens.length === 1)
+        swaps = [
+            [0, 1, wei_amount],
+            [1, 2, web3.utils.toWei("0")]
+        ];
+    else
+        swaps = [
+            [0, 1, wei_amount],
+            [1, 2, web3.utils.toWei("0")],
+            [2, 3, web3.utils.toWei("0")]
+        ];
 
-    const limits = [
-      wei_amount,
-      web3.utils.toWei("0"),
-      web3.utils.toWei("0"),
-    ];
+    let assets = [];
 
-    let contract = new web3.eth.Contract(abi, cAddress);
-    let result = await contract.methods["batchSwap"](swaps, assets, funds, limits, deadline).send({from: account});       
+    if(middleTokens.length === 1)
+        assets = [inTokenAddr, middleTokens[0]['address'], outTokenAddr];
+    else
+        assets = [inTokenAddr, middleTokens[0]['address'], middleTokens[1]['address'], outTokenAddr];
+
+    let limits = [];
+
+    if(middleTokens.length === 1)
+        limits = [
+          wei_amount,
+          web3.utils.toWei("0"),
+          web3.utils.toWei("0"),
+        ];
+    else
+        limits = [
+          wei_amount,
+          web3.utils.toWei("0"),
+          web3.utils.toWei("0"),
+          web3.utils.toWei("0"),
+        ];
+
+    if(middleTokens) {
+        const contract = new web3.eth.Contract(abi, cAddress);
+        await contract.methods["batchSwap"](swaps, assets, funds, limits, deadline).send({from: account});       
+    }
 }
-
 
 export const joinPool = async (account, provider, token1Addr, token2Addr, amount1, amount2, chain) => {
     const abi = routerABI[0];

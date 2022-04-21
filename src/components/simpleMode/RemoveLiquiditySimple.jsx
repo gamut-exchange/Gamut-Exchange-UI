@@ -18,7 +18,6 @@ import { poolList }  from "../../config/constants";
 const RemoveLiquiditySimple = ({dark}) => {
   const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
-  const [chain, setChain] = useState(selected_chain);
   const [open, setOpen] = useState(false);
   const [rOpen, setROpen] = useState(false);
   const [value, setValue] = useState(0);
@@ -142,13 +141,13 @@ const RemoveLiquiditySimple = ({dark}) => {
     if(account) {
       setSelectedItem(item);
       const provider = await connector.getProvider();
-      const poolData = await getPoolData(provider, item['address'], chain);
+      const poolData = await getPoolData(provider, item['address'], selected_chain);
       const weightA = fromWeiVal(provider, poolData['weights'][0]);
       setWeightA(weightA);
       setScale((weightA*100).toPrecision(6));
       setTokenAAddr(poolData['tokens'][0]);
       setTokenBAddr(poolData['tokens'][1]);
-      let amount = await getPoolBalance(account, provider, item['address'], chain);
+      let amount = await getPoolBalance(account, provider, item['address'], selected_chain);
       amount = Number(amount).toPrecision(6);
       setPoolAmount(amount);
       setValue((amount*lpPercentage/100).toPrecision(6));
@@ -164,14 +163,14 @@ const RemoveLiquiditySimple = ({dark}) => {
       let amount1 = value*weightA;
       let amount2 = value*(1-weightA);
       let ratio = (1-scale/100).toFixed(8);
-      await removePool(account, provider, selectedItem['address'], value, ratio, tokenAAddr, tokenBAddr, chain);
+      await removePool(account, provider, selectedItem['address'], value, ratio, tokenAAddr, tokenBAddr, selected_chain);
     }
   }
 
   const calculateOutput =  async (totalLkTk, inValue, item) => {
 
     const provider = await connector.getProvider();
-    const poolData = await getPoolData(provider, item['address'], chain);
+    const poolData = await getPoolData(provider, item['address'], selected_chain);
     let removeingPercentage = inValue/(Number(totalLkTk)+0.0000000001);
     let standardOutA = removeingPercentage * poolData.balances[0];
     let standardOutB = removeingPercentage * poolData.balances[1];
@@ -215,8 +214,8 @@ const RemoveLiquiditySimple = ({dark}) => {
       setPrice((poolData.balances[0]/poolData.weights[0])/(poolData.balances[1]/poolData.weights[1]));
       setTokenAAddr(poolData['tokens'][0]);
       setTokenBAddr(poolData['tokens'][1]);
-      let amount = await getPoolBalance(account, provider, poolList[selected_chain][0]['address'], chain);
-      let amount2 = await getPoolSupply(provider, poolList[selected_chain][0]['address'], chain);
+      let amount = await getPoolBalance(account, provider, poolList[selected_chain][0]['address'], selected_chain);
+      let amount2 = await getPoolSupply(provider, poolList[selected_chain][0]['address'], selected_chain);
       amount = Number(amount).toPrecision(6);
       setTotalLPTokens(amount2)
       setPoolAmount(amount);
@@ -230,8 +229,7 @@ const RemoveLiquiditySimple = ({dark}) => {
   }, []);
 
   useEffect(() => {
-    if(account && chain !== selected_chain) {
-      setChain(selected_chain);
+    if(account) {
       selectToken(poolList[selected_chain][0]);
     }
   }, [dispatch, selected_chain, account]);
@@ -266,7 +264,7 @@ const RemoveLiquiditySimple = ({dark}) => {
           <div className="flex">
             <button
               style={{ fontSize: 12, fontWeight: 400, minHeight: 32 }}
-              className="flex-1 btn-primary"
+              className="flex-1 btn-primary text-primary dark:text-black"
             >
               {Number(scale).toPrecision(4)}% {selectedItem['symbols'][0]}
             </button>
@@ -277,9 +275,9 @@ const RemoveLiquiditySimple = ({dark}) => {
                 background: "#fafafa",
                 minHeight: 32,
               }}
-              className="flex-1 btn-primary "
+              className="flex-1 text-black"
             >
-              <span className="text-light-primary dark:text-grey-dark">
+              <span>
                 {(100 - scale).toPrecision(4)}% {selectedItem['symbols'][1]}
               </span>
             </button>

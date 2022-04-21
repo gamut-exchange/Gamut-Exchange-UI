@@ -19,7 +19,6 @@ import { uniList }  from "../../config/constants";
 const AddLiquiditySimple = ({dark}) => {
   const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
-  const [chain, setChain] = useState(selected_chain);
   const [isExist, setIsExist] = useState(false);
   const [rOpen, setROpen] = useState(false);
   const [ratio, setRatio] = useState(1);
@@ -102,7 +101,7 @@ const AddLiquiditySimple = ({dark}) => {
     let search_qr = e.target.value;
     setQuery(search_qr);
     if(search_qr.length != 0) {
-      const filterDT = uniList[chain].filter((item) => {
+      const filterDT = uniList[selected_chain].filter((item) => {
         return item['symbol'].toLowerCase().indexOf(search_qr) != -1
       });
       setFilterData(filterDT);
@@ -119,7 +118,7 @@ const AddLiquiditySimple = ({dark}) => {
       bal = await getTokenBalance(provider, token['address'], account);
       if(selected == 0) {
         setInBal(bal);
-        let tempData = uniList[chain].filter((item) => {
+        let tempData = uniList[selected_chain].filter((item) => {
           return item['address'] !== token['address']
         });
         setFilterData(tempData);
@@ -127,8 +126,8 @@ const AddLiquiditySimple = ({dark}) => {
         checkApproved(token, outToken, value, valueEth);
 
         try {
-          const poolAddress = await getPoolAddress(provider, token['address'], outToken['address'], chain);
-          const poolData = await getPoolData(provider, poolAddress, chain);
+          const poolAddress = await getPoolAddress(provider, token['address'], outToken['address'], selected_chain);
+          const poolData = await getPoolData(provider, poolAddress, selected_chain);
           setIsExist(true);
           const sliderInit = await sliderInitVal(poolData, token);
           setSliderValue(sliderInit*100);
@@ -144,7 +143,7 @@ const AddLiquiditySimple = ({dark}) => {
           setLimitedout(true);
       } else if (selected == 1) {
         setOutBal(bal);
-        let tempData = uniList[chain].filter((item) => {
+        let tempData = uniList[selected_chain].filter((item) => {
           return item['address'] !== token['address']
         });
 
@@ -159,7 +158,7 @@ const AddLiquiditySimple = ({dark}) => {
         setOutToken(token);
         
         try {
-          const poolAddress = await getPoolAddress(provider, token['address'], outToken['address'], chain);
+          const poolAddress = await getPoolAddress(provider, token['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress);
           setIsExist(true);
           const sliderInit = await sliderInitVal(poolData, inToken);
@@ -204,8 +203,8 @@ const AddLiquiditySimple = ({dark}) => {
 
   const checkApproved = async (token1, token2, val1, val2) => {
       const provider = await connector.getProvider();
-      const approved1 = await tokenApproval(account, provider, token1['address'], chain);
-      const approved2 = await tokenApproval(account, provider, token2['address'], chain);
+      const approved1 = await tokenApproval(account, provider, token1['address'], selected_chain);
+      const approved2 = await tokenApproval(account, provider, token2['address'], selected_chain);
       setApproval(approved1*1 > val1*1 && approved2*1 > val2*1);
   }
 
@@ -236,15 +235,15 @@ const AddLiquiditySimple = ({dark}) => {
     if(inToken['address'] != outToken['address']) {
       const provider = await connector.getProvider();
       debugger;
-      await joinPool(account, provider, inToken['address'], outToken['address'], value, valueEth, chain);
+      await joinPool(account, provider, inToken['address'], outToken['address'], value, valueEth, selected_chain);
     }
   }
 
   const approveTK = async () => {
     if(account) {
       const provider = await connector.getProvider();
-      const approved1 = await approveToken(account, provider, inToken['address'], value, chain);
-      const approved2 = await approveToken(account, provider, outToken['address'], valueEth, chain);
+      const approved1 = await approveToken(account, provider, inToken['address'], value, selected_chain);
+      const approved2 = await approveToken(account, provider, outToken['address'], valueEth, selected_chain);
       setApproval(approved1*1 > value*1 && approved2*1 > valueEth*1);
     }
   }
@@ -278,7 +277,7 @@ const AddLiquiditySimple = ({dark}) => {
         setInBal(inBal);
         setOutBal(outBal);
         try {
-          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
+          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress, selected_chain);
           setIsExist(true);
           const sliderInit = await sliderInitVal(poolData, inToken);
@@ -300,8 +299,8 @@ const AddLiquiditySimple = ({dark}) => {
       const getInfo = async () => {
         try {
           const provider = await connector.getProvider();
-          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], chain);
-          const poolData = await getPoolData(provider, poolAddress, chain);
+          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
+          const poolData = await getPoolData(provider, poolAddress, selected_chain);
           setIsExist(true);
           setPoolAddress(poolAddress);
           await calculateRatio(inToken, poolData, value);
@@ -315,14 +314,12 @@ const AddLiquiditySimple = ({dark}) => {
   }, [inToken, outToken]);
 
   useEffect(() => {
-    if(account && chain !== selected_chain) {
-      setChain(selected_chain);
-      setInToken(uniList[selected_chain][0]);
-      setOutToken(uniList[selected_chain][1]);
+    if(account) {
+      setFilterData(uniList[selected_chain]);
       selectToken(uniList[selected_chain][0], 0);
       selectToken(uniList[selected_chain][1], 1);
     }
-  }, [dispatch, selected_chain, account]);
+  }, [dispatch, selected_chain]);
 
   return (
     <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
