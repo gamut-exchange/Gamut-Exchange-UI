@@ -32,7 +32,6 @@ const SimpleSwap = ({dark}) => {
   const [selected, setSelected] = React.useState(0);
   const [query, setQuery] = useState("");
   const [valueEth, setValueEth] = useState(0);
-  const [poolAddress, setPoolAddress] = useState('');
   const [inToken, setInToken] = useState(uniList[selected_chain][0]);
   const [outToken, setOutToken] = useState(uniList[selected_chain][1]);
   const [inBal, setInBal] = useState(0);
@@ -85,23 +84,7 @@ const SimpleSwap = ({dark}) => {
     else
       setLimitedout(true);
     setValue(event.target.value);
-    try {
-        const provider = await connector.getProvider();
-        if(middleToken) {
-          const amountOut = await calcOutput(middleToken, provider, Number(event.target.value), inToken, outToken);
-          setValueEth(amountOut.toPrecision(6));
-        } else {
-          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
-          const poolData = await getPoolData(provider, poolAddress, selected_chain);
-          const amountOut = await calculateSwap(inToken, poolData, event.target.value);
-          const slippage = await calcSlippage(inToken, poolData, event.target.value, amountOut);
-          setValSlipage(slippage.toPrecision(2));
-          setValueEth(amountOut.toPrecision(6));
-        }
-        setFee((event.target.value * 0.001).toPrecision(2));
-    } catch (error) {
-
-    }
+    setFee((event.target.value * 0.001).toPrecision(2));
     checkApproved(inToken, event.target.value);
   };
 
@@ -303,22 +286,27 @@ const SimpleSwap = ({dark}) => {
               if( Number(result) > Number(suitableRouter[1])) {
                 setMiddleToken(null);
                 getMiddleTokenSymbol(null);
+                return null;
               }
               else {
                 setMiddleToken(suitableRouter[0]);
                 getMiddleTokenSymbol(suitableRouter[0]);
+                return suitableRouter[0];
               }
           } else {
             setMiddleToken(suitableRouter[0]);
             getMiddleTokenSymbol(suitableRouter[0]);
+            return suitableRouter[0];
           }
 
       } catch(error) {
         if(suitableRouter.length !== 0) {
           setMiddleToken(suitableRouter[0]);
           getMiddleTokenSymbol(suitableRouter[0]);
+          return suitableRouter[0];
         } else {
           console.log("Can't swap the tokens.");
+          return null;
         }
       }
   }
@@ -415,33 +403,25 @@ const SimpleSwap = ({dark}) => {
 
   useEffect(() => {
     if(account && inToken !== outToken) {
-      const handleMiddleToken = async () => {
-        await findMiddleToken(inToken, outToken);
-      }
-
-      handleMiddleToken();
-    }
-  }, [inToken, outToken]);
-
-  useEffect(() => {
-    if(account && inToken !== outToken) {
       const getInfo = async () => {
         const provider = await connector.getProvider();
-        setPoolAddress(poolAddress);
-        if(middleToken) {
-          const amountOut = await calcOutput(middleToken, provider, value, inToken, outToken);
+        const midToken = await findMiddleToken(inToken, outToken);
+        if(midToken) {
+          const amountOut = await calcOutput(midToken, provider, value, inToken, outToken);
           setValueEth(amountOut.toPrecision(6));
         } else {
           const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress, selected_chain);
           const amountOut = await calculateSwap(inToken, poolData, value);
           setValueEth(amountOut.toPrecision(6));
+          const slippage = await calcSlippage(inToken, poolData, value, amountOut);
+          setValueEth(amountOut.toPrecision(6));
         }
       }
 
       getInfo();
     }
-  }, [inToken, outToken, middleToken]);
+  }, [inToken, outToken, value]);
 
   useEffect(() => {
     if(account) {

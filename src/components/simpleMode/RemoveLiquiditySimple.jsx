@@ -151,7 +151,9 @@ const RemoveLiquiditySimple = ({dark}) => {
       amount = Number(amount).toPrecision(6);
       setPoolAmount(amount);
       setValue((amount*lpPercentage/100).toPrecision(6));
-      await calculateOutput(totalLPTokens, amount*lpPercentage/100, item);
+      let totalLPAmount = await getPoolSupply(provider, item['address'], selected_chain);
+      setTotalLPTokens(totalLPAmount);
+      await calculateOutput(totalLPAmount, amount*lpPercentage/100, item);
     }
   };
 
@@ -217,7 +219,7 @@ const RemoveLiquiditySimple = ({dark}) => {
       let amount = await getPoolBalance(account, provider, poolList[selected_chain][0]['address'], selected_chain);
       let amount2 = await getPoolSupply(provider, poolList[selected_chain][0]['address'], selected_chain);
       amount = Number(amount).toPrecision(6);
-      setTotalLPTokens(amount2)
+      setTotalLPTokens(amount2);
       setPoolAmount(amount);
       setValue((amount*lpPercentage/100).toPrecision(6));
       setPoolBalanceA(poolData.balances[0])
