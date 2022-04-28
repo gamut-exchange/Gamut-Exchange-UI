@@ -32,11 +32,11 @@ export const uniList = {
 export const poolList = {
 	'ropsten': [
 		{value: "other", address:"0x4D72553001fE88371aEc189455E1Ed18849b8bA2", symbols:["BTC", "TETH"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe"]},
-		{value: "other", address:"0x97edF4e1Aad15Ab44E4194b6E271E49d3E2e36c8", symbols:["USDT", "TETH"], logoURLs:["https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV", "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe"]}
+		{value: "other", address:"0x97edF4e1Aad15Ab44E4194b6E271E49d3E2e36c8", symbols:["TETH", "USDT"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe", "https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV"]}
 	],
 	'fantom': [
-		{value: "btc-eth", address:"0x4D72553001fE88371aEc189455E1Ed18849b8bA2", symbols:["BTC", "ETH"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe"]},
-		{value: "usdc-btc", address:"0x97edF4e1Aad15Ab44E4194b6E271E49d3E2e36c8", symbols:["USDT", "BTC"], logoURLs:["https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV", "https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ"]},
+		{value: "btc-eth", address:"0x4D72553001fE88371aEc189455E1Ed18849b8bA2", symbols:["ETH", "BTC"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe", "https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ"]},
+		{value: "usdc-btc", address:"0x97edF4e1Aad15Ab44E4194b6E271E49d3E2e36c8", symbols:["BTC", "USDC"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", "https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV"]},
 		{value: "eth-dai", address:"0x758E5f4caeD36BF1d0Bb23C31387cfF11498D16D", symbols:["ETH", "DAI"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe", "https://gateway.pinata.cloud/ipfs/QmWe2fZa2d3zbaXkmHF8qAn5RL52V9EdwL3nRxLHwLyGPN"]},
 		{value: "usdc-dai", address:"0xC604a85346523d4e66aBF9c215CFfb13dd154286", symbols:["USDC", "DAI"], logoURLs:["https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV", "https://gateway.pinata.cloud/ipfs/QmWe2fZa2d3zbaXkmHF8qAn5RL52V9EdwL3nRxLHwLyGPN"]}
 	]
