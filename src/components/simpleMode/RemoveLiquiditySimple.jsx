@@ -195,8 +195,8 @@ const RemoveLiquiditySimple = ({dark}) => {
 
     let amount1 = outA;
     let amount2 = outB;
-    setOutTokenA(Number(amount1));
-    setOutTokenB(Number(amount2));
+    setOutTokenA(Number(amount2));
+    setOutTokenB(Number(amount1));
   }
 
   const setInLimit = () => {
