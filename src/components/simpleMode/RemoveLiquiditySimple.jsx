@@ -112,11 +112,13 @@ const RemoveLiquiditySimple = ({dark}) => {
   const handleScale = async (event, newValue) => {
     setScale(newValue);
     setWeightA(newValue/100);
-    await calculateOutput(totalLPTokens, value, selectedItem);
+    const val = (poolAmount*(newValue/100)).toPrecision(6);
+    await calculateOutput(totalLPTokens, val, selectedItem);
 
   }
 
   const handleSlider = async (event, newValue) => {
+    console.log(event.target.value);
     setLpPercentage(newValue);
     const val = (poolAmount*(newValue/100)).toPrecision(6);
     setValue(val);
@@ -170,7 +172,6 @@ const RemoveLiquiditySimple = ({dark}) => {
   }
 
   const calculateOutput =  async (totalLkTk, inValue, item) => {
-
     const provider = await connector.getProvider();
     const poolData = await getPoolData(provider, item['address'], selected_chain);
     let removeingPercentage = inValue/(Number(totalLkTk)+0.0000000001);
@@ -192,8 +193,8 @@ const RemoveLiquiditySimple = ({dark}) => {
       outB = standardOutB+extraB
     }
 
-    const amount1 = outA;
-    const amount2 = outB;
+    let amount1 = outA;
+    let amount2 = outB;
     setOutTokenA(Number(amount1));
     setOutTokenB(Number(amount2));
   }
