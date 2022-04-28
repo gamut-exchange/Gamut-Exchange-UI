@@ -112,13 +112,11 @@ const RemoveLiquiditySimple = ({dark}) => {
   const handleScale = async (event, newValue) => {
     setScale(newValue);
     setWeightA(newValue/100);
-    const val = (poolAmount*(newValue/100)).toPrecision(6);
-    await calculateOutput(totalLPTokens, val, selectedItem);
+    await calculateOutput(totalLPTokens, value, selectedItem);
 
   }
 
   const handleSlider = async (event, newValue) => {
-    console.log(event.target.value);
     setLpPercentage(newValue);
     const val = (poolAmount*(newValue/100)).toPrecision(6);
     setValue(val);
@@ -172,31 +170,35 @@ const RemoveLiquiditySimple = ({dark}) => {
   }
 
   const calculateOutput =  async (totalLkTk, inValue, item) => {
+
     const provider = await connector.getProvider();
     const poolData = await getPoolData(provider, item['address'], selected_chain);
     let removeingPercentage = inValue/(Number(totalLkTk)+0.0000000001);
-    let standardOutA = removeingPercentage * fromWeiVal(provider, poolData.balances[0]);
-    let standardOutB = removeingPercentage * fromWeiVal(provider, poolData.balances[1]);
+    let standardOutA = removeingPercentage * poolData.balances[0];
+    let standardOutB = removeingPercentage * poolData.balances[1];
     
-    let reqWeightA = (1-weightA);
-    let reqWeightB =  weightA;
+    let reqWeightA = (1-weightA) * (10**18);
+    let reqWeightB =  weightA * (10**18);
 
     let outB = 0 ;
     let outA = 0 ;
-    if (reqWeightB < Number(fromWeiVal(provider, poolData.weights[1]))){
-      outB =standardOutB/fromWeiVal(provider, poolData.weights[1])*reqWeightB
+    if (reqWeightB < Number(poolData.weights[1])){
+      outB =standardOutB/poolData.weights[1]*reqWeightB
       let extraA = calculateSwap(poolData.tokens[1], poolData, (standardOutB-outB)) * (10 ** 18)
       outA = standardOutA + extraA;
     } else {
-      outA = standardOutA/fromWeiVal(provider, poolData.weights[0])*reqWeightA
+      outA = standardOutA/poolData.weights[0]*reqWeightA
       let extraB = calculateSwap(poolData.tokens[0], poolData, (standardOutA - outA)) * (10 ** 18)
       outB = standardOutB+extraB
     }
 
-    let amount1 = outA;
-    let amount2 = outB;
-    setOutTokenA(Number(amount2));
-    setOutTokenB(Number(amount1));
+    const vaueA = outA.toLocaleString('fullwide', {useGrouping:false});
+    const vaueB = outB.toLocaleString('fullwide', {useGrouping:false});
+    debugger;
+    const amount1 = fromWeiVal(provider, vaueA);
+    const amount2 = fromWeiVal(provider, vaueB);
+    setOutTokenA(Number(amount1));
+    setOutTokenB(Number(amount2));
   }
 
   const setInLimit = () => {
@@ -233,6 +235,7 @@ const RemoveLiquiditySimple = ({dark}) => {
 
   useEffect(() => {
     if(account) {
+      setFilterData(poolList[[selected_chain]]);
       selectToken(poolList[selected_chain][0]);
     }
   }, [dispatch, selected_chain, account]);
