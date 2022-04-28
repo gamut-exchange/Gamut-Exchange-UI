@@ -13,7 +13,7 @@ import Modal from "@mui/material/Modal";
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { getTokenBalance, getPoolAddress, getPoolData, joinPool, tokenApproval, approveToken } from "../../config/web3";
+import { getTokenBalance, getPoolAddress, getPoolData, joinPool, tokenApproval, approveToken, poolApproval, approvePool } from "../../config/web3";
 import { uniList }  from "../../config/constants";
 
 const AddLiquiditySimple = ({dark}) => {
@@ -74,7 +74,7 @@ const AddLiquiditySimple = ({dark}) => {
       setLimitedout(true);
     if(inToken['address'] != outToken['address']) {
       setSliderValue(Number((ratio*value/(Number(event.target.value)+ratio*value)*100).toFixed(2)));
-      checkApproved(inToken, outToken, value, event.target.value);
+      checkApproved(inToken, outToken, poolAddress, value, event.target.value);
     }
   };
 
@@ -93,7 +93,7 @@ const AddLiquiditySimple = ({dark}) => {
       console.log(100-sliderValue)
       console.log(((ratio*event.target.value*(100-sliderValue))/(sliderValue)))
       setValueEth(valEth);
-      checkApproved(inToken, outToken, event.target.value, valEth);
+      checkApproved(inToken, outToken, poolAddress, event.target.value, valEth);
     }
   };
 
@@ -106,7 +106,7 @@ const AddLiquiditySimple = ({dark}) => {
       });
       setFilterData(filterDT);
     } else {
-      setFilterData(uniList);
+      setFilterData(uniList[selected_chain]);
     }
   }
 
@@ -123,11 +123,11 @@ const AddLiquiditySimple = ({dark}) => {
         });
         setFilterData(tempData);
         setInToken(token);
-        checkApproved(token, outToken, value, valueEth);
 
         try {
-          const poolAddress = await getPoolAddress(provider, token['address'], outToken['address'], selected_chain);
-          const poolData = await getPoolData(provider, poolAddress, selected_chain);
+          const poolAddr = await getPoolAddress(provider, token['address'], outToken['address'], selected_chain);
+          const poolData = await getPoolData(provider, poolAddr, selected_chain);
+          checkApproved(token, outToken, poolAddr, value, valueEth);
           setIsExist(true);
           const sliderInit = await sliderInitVal(poolData, token);
           setSliderValue(sliderInit*100);
@@ -158,16 +158,15 @@ const AddLiquiditySimple = ({dark}) => {
         setOutToken(token);
         
         try {
-          const poolAddress = await getPoolAddress(provider, token['address'], outToken['address'], selected_chain);
-          const poolData = await getPoolData(provider, poolAddress);
+          const poolAddr = await getPoolAddress(provider, token['address'], outToken['address'], selected_chain);
+          const poolData = await getPoolData(provider, poolAddr);
+          checkApproved(inToken, token, poolAddr, value, valueEth);
           setIsExist(true);
           const sliderInit = await sliderInitVal(poolData, inToken);
           setSliderValue(sliderInit*100);
         } catch(error) {
           setIsExist(false);
         }
-
-        checkApproved(inToken, token, value, valueEth);
       }
     }
   }
@@ -201,7 +200,7 @@ const AddLiquiditySimple = ({dark}) => {
 
   };
 
-  const checkApproved = async (token1, token2, val1, val2) => {
+  const checkApproved = async (token1, token2, poolAddr, val1, val2) => {
       const provider = await connector.getProvider();
       const approved1 = await tokenApproval(account, provider, token1['address'], selected_chain);
       const approved2 = await tokenApproval(account, provider, token2['address'], selected_chain);
@@ -234,7 +233,6 @@ const AddLiquiditySimple = ({dark}) => {
   const executeAddPool = async () => {
     if(inToken['address'] != outToken['address']) {
       const provider = await connector.getProvider();
-      debugger;
       await joinPool(account, provider, inToken['address'], outToken['address'], value, valueEth, selected_chain);
     }
   }
@@ -242,9 +240,9 @@ const AddLiquiditySimple = ({dark}) => {
   const approveTK = async () => {
     if(account) {
       const provider = await connector.getProvider();
-      const approved1 = await approveToken(account, provider, inToken['address'], value, selected_chain);
-      const approved2 = await approveToken(account, provider, outToken['address'], valueEth, selected_chain);
-      setApproval(approved1*1 > value*1 && approved2*1 > valueEth*1);
+      const approved1 = await approveToken(account, provider, inToken['address'], value*1.1, selected_chain);
+      const approved2 = await approveToken(account, provider, outToken['address'], valueEth*1.1, selected_chain);
+      setApproval(approved1 > value*1 && approved2 > valueEth*1);
     }
   }
 
@@ -285,7 +283,7 @@ const AddLiquiditySimple = ({dark}) => {
           setPoolAddress(poolAddress);
           setSliderValue(sliderInit*100);
           await calculateRatio(inToken, poolData, value);
-          checkApproved(inToken, outToken, value, valueEth);
+          checkApproved(inToken, outToken, poolAddress, value, valueEth);
         } catch (error) {
           setIsExist(false);
         }

@@ -174,26 +174,26 @@ const RemoveLiquiditySimple = ({dark}) => {
     const provider = await connector.getProvider();
     const poolData = await getPoolData(provider, item['address'], selected_chain);
     let removeingPercentage = inValue/(Number(totalLkTk)+0.0000000001);
-    let standardOutA = removeingPercentage * poolData.balances[0];
-    let standardOutB = removeingPercentage * poolData.balances[1];
+    let standardOutA = removeingPercentage * fromWeiVal(provider, poolData.balances[0]);
+    let standardOutB = removeingPercentage * fromWeiVal(provider, poolData.balances[1]);
     
-    let reqWeightA = (1-weightA) * (10**18);
-    let reqWeightB =  weightA * (10**18);
+    let reqWeightA = (1-weightA);
+    let reqWeightB =  weightA;
 
     let outB = 0 ;
     let outA = 0 ;
-    if (reqWeightB < Number(poolData.weights[1])){
-      outB =standardOutB/poolData.weights[1]*reqWeightB
+    if (reqWeightB < Number(fromWeiVal(provider, poolData.weights[1]))){
+      outB =standardOutB/fromWeiVal(provider, poolData.weights[1])*reqWeightB
       let extraA = calculateSwap(poolData.tokens[1], poolData, (standardOutB-outB)) * (10 ** 18)
       outA = standardOutA + extraA;
     } else {
-      outA = standardOutA/poolData.weights[0]*reqWeightA
+      outA = standardOutA/fromWeiVal(provider, poolData.weights[0])*reqWeightA
       let extraB = calculateSwap(poolData.tokens[0], poolData, (standardOutA - outA)) * (10 ** 18)
       outB = standardOutB+extraB
     }
 
-    const amount1 = fromWeiVal(provider, outA.toString());
-    const amount2 = fromWeiVal(provider, outB.toString());
+    const amount1 = outA;
+    const amount2 = outB;
     setOutTokenA(Number(amount1));
     setOutTokenB(Number(amount2));
   }
