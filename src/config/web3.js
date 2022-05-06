@@ -269,7 +269,6 @@ export const removePool = async (account, provider, poolAddr, amount, ratio, tok
 export const requestToken = async (account, provider, token, chain) => {
     const abi = faucetABI[0];
     const faucet_addr = contractAddresses[chain][token];
-    debugger;
     let web3 = new Web3(provider);
 
     let contract = new web3.eth.Contract(abi, faucet_addr);
