@@ -67,7 +67,6 @@ const Nav = ({ handleDark, dark }) => {
   const handleWrongChain = async () => {
     let current_chainId = await window.ethereum.request({ method: 'eth_chainId' });
     current_chainId = Number(current_chainId);
-    debugger;
     if((chainLabel === "ropsten" && current_chainId === 3) || (chainLabel === "fantom" && current_chainId === 4002)) {
       setWrongChain(false);
       dispatch({

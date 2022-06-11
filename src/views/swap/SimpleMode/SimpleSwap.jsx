@@ -114,7 +114,7 @@ const SimpleSwap = ({dark}) => {
     let weight_from;
     let weight_to;
     
-    if (inToken['address'] == poolData.tokens[0]){
+    if (inToken.toLowerCase() == poolData.tokens[0].toLowerCase()){
         balance_from = poolData.balances[0];
         balance_to = poolData.balances[1];
         weight_from = poolData.weights[0];
@@ -127,7 +127,6 @@ const SimpleSwap = ({dark}) => {
         weight_to = poolData.weights[0];
     }
 
-    
     let bIn = ammount / (10 ** 18);
     let pbA = balance_to / (10 ** 18);
     let pbB = balance_from / (10 ** 18);
@@ -136,7 +135,7 @@ const SimpleSwap = ({dark}) => {
 
     let exp = (wB - wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn))) / (wA + wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn)));
     let bOut = pbA * (1 - (pbB / (pbB + bIn)) ** exp);
-    
+    debugger;
     return bOut;
   }
 
@@ -294,9 +293,9 @@ const SimpleSwap = ({dark}) => {
                 return suitableRouter[0];
               }
           } else {
-            setMiddleToken(suitableRouter[0]);
-            getMiddleTokenSymbol(suitableRouter[0]);
-            return suitableRouter[0];
+            setMiddleToken(null);
+            getMiddleTokenSymbol(null);
+            return null;
           }
 
       } catch(error) {
@@ -412,7 +411,7 @@ const SimpleSwap = ({dark}) => {
         } else {
           const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress, selected_chain);
-          const amountOut = await calculateSwap(inToken, poolData, value);
+          const amountOut = await calculateSwap(inToken['address'], poolData, value);
           setValueEth(amountOut.toPrecision(6));
           const slippage = await calcSlippage(inToken, poolData, value, amountOut);
           setValueEth(amountOut.toPrecision(6));
