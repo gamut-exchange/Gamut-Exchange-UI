@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {useDispatch, useSelector} from 'react-redux';
 import { useWeb3React } from "@web3-react/core";
 import MenuItem from "@mui/material/MenuItem";
@@ -12,15 +12,31 @@ import Slider from "@mui/material/Slider";
 import Modal from "@mui/material/Modal";
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
+import { AiOutlineLineChart } from "react-icons/ai";
 import TextField from "@mui/material/TextField";
+import { useWeightsData } from '../../config/chartData'
 import { getTokenBalance, getPoolAddress, getPoolData, joinPool, tokenApproval, approveToken, poolApproval, approvePool } from "../../config/web3";
 import { uniList }  from "../../config/constants";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Brush,
+  AreaChart,
+  Area,
+  ResponsiveContainer,
+} from 'recharts';
 
 const AddLiquiditySimple = ({dark}) => {
   const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
   const [isExist, setIsExist] = useState(false);
   const [rOpen, setROpen] = useState(false);
+  const [chartOpen, setChartOpen] = useState(false);
   const [ratio, setRatio] = useState(1);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -36,8 +52,10 @@ const AddLiquiditySimple = ({dark}) => {
   const [approval, setApproval] = useState(false);
   const [filterData, setFilterData] = useState(uniList[selected_chain]);
   const [limitedout, setLimitedout] = useState(false);
-
+  
   const dispatch = useDispatch();
+
+  const weightData = useWeightsData(poolAddress.toLowerCase());
 
   const StyledModal = tw.div`
     flex
@@ -135,8 +153,8 @@ const AddLiquiditySimple = ({dark}) => {
           setIsExist(false);
         }
 
-        let inLimBal = bal.replaceAll(',', '');
-        let outLimBal = outBal.replaceAll(',', '');
+        let inLimBal = (bal)?bal.replaceAll(',', ''):0;
+        let outLimBal = (outBal)?outBal.replaceAll(',', ''):0;
         if(Number(value) <= Number(inLimBal) && Number(valueEth) <= Number(outLimBal))
           setLimitedout(false);
         else
@@ -147,8 +165,8 @@ const AddLiquiditySimple = ({dark}) => {
           return item['address'] !== token['address']
         });
 
-        let inLimBal = inBal.replaceAll(',', '');
-        let outLimBal = bal.replaceAll(',', '');
+        let inLimBal = (inBal)?inBal.replaceAll(',', ''):0;
+        let outLimBal = (bal)?bal.replaceAll(',', ''):0;
         if(Number(value) <= Number(inLimBal) && Number(valueEth) <= Number(outLimBal))
           setLimitedout(false);
         else
@@ -247,8 +265,8 @@ const AddLiquiditySimple = ({dark}) => {
   }
 
   const setInLimit = () => {
-    let val1 = inBal.replaceAll(',', '');
-    let val2 = outBal.replaceAll(',', '');
+    let val1 = (inBal)?inBal.replaceAll(',', ''):0;
+    let val2 = (outBal)?outBal.replaceAll(',', ''):0;
     setValue(Number(val1));
     if(valueEth < val2)
       setLimitedout(false);
@@ -265,6 +283,48 @@ const AddLiquiditySimple = ({dark}) => {
     else
       setLimitedout(true);
   }
+
+  const CustomTooltip0 = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      var eventTime = new Date(payload[0].payload['timestamp']*1000);
+      var year = eventTime.getUTCFullYear()
+      var month = ((eventTime.getUTCMonth()+1)<10)?"0"+(eventTime.getUTCMonth()+1):(eventTime.getUTCMonth()+1);
+      var day = (eventTime.getUTCDate()<10)?"0"+eventTime.getUTCDate():eventTime.getUTCDate()
+      var hour = (eventTime.getUTCHours()<10)?"0"+eventTime.getUTCHours():eventTime.getUTCHours()
+      var min = (eventTime.getUTCMinutes()<10)?"0"+eventTime.getUTCMinutes():eventTime.getUTCMinutes()
+      var sec = (eventTime.getUTCSeconds()<10)?"0"+eventTime.getUTCSeconds():eventTime.getUTCSeconds()
+      eventTime =  year+"/"+month+"/"+ day + " " + hour + ":" + min + ":" + sec
+      return (
+        <div className="custom-tooltip" style={{backgroundColor:'white', padding:5}}>
+          <p className="label fw-bold">{eventTime}</p>
+          <p className="label">{payload[0].payload['token0']} : {payload[0].payload['weight0']}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const CustomTooltip1 = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      var eventTime = new Date(payload[0].payload['timestamp']*1000);
+      var year = eventTime.getUTCFullYear()
+      var month = ((eventTime.getUTCMonth()+1)<10)?"0"+(eventTime.getUTCMonth()+1):(eventTime.getUTCMonth()+1);
+      var day = (eventTime.getUTCDate()<10)?"0"+eventTime.getUTCDate():eventTime.getUTCDate()
+      var hour = (eventTime.getUTCHours()<10)?"0"+eventTime.getUTCHours():eventTime.getUTCHours()
+      var min = (eventTime.getUTCMinutes()<10)?"0"+eventTime.getUTCMinutes():eventTime.getUTCMinutes()
+      var sec = (eventTime.getUTCSeconds()<10)?"0"+eventTime.getUTCSeconds():eventTime.getUTCSeconds()
+      eventTime =  year+"/"+month+"/"+ day + " " + hour + ":" + min + ":" + sec
+      return (
+        <div className="custom-tooltip" style={{backgroundColor:'white', padding:5}}>
+          <p className="label fw-bold">{eventTime}</p>
+          <p className="label">{payload[0].payload['token1']} : {payload[0].payload['weight1']}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   useEffect(() => {
     if (account) {
@@ -308,6 +368,8 @@ const AddLiquiditySimple = ({dark}) => {
       }
 
       getInfo();
+    } else {
+      setPoolAddress("")
     }
   }, [inToken, outToken]);
 
@@ -319,172 +381,253 @@ const AddLiquiditySimple = ({dark}) => {
     }
   }, [dispatch, selected_chain]);
 
+  const formattedWeightsData = useMemo(() => {
+    if (weightData && weightData.weights) {
+      return weightData.weights.map((item, index) => {
+        var tempArr = {};
+        tempArr['name'] = index;
+        tempArr['weight0'] = Number(item.weight0).toFixed(2);
+        tempArr['weight1'] = Number(item.weight1).toFixed(2);
+        tempArr['token0'] = item.token0.symbol;
+        tempArr['token1'] = item.token1.symbol;
+        tempArr['timestamp'] = item.timestamp;
+        return tempArr;
+      })
+    } else {
+      return []
+    }
+  }, [weightData])
+
   return (
-    <div className="bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
-      <h3 className="model-title mb-4">Add Liquidity </h3>
-      <div className=" flex justify-between">
-        <p className="capitalize text-grey-dark">Ratio {sliderValue.toPrecision(4)}% {inToken['symbol']} - {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}</p>
-        <button
-          onClick={() => setROpen(!rOpen)}
-          className="capitalize text-light-primary dark:text-grey-dark"
-        >
-          Change Ratio %
-        </button>
-      </div>
-      {rOpen && (
-        <div className="my-4">
-          <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
-            Change Ratio
-          </div>
-          <Slider
-            size="small"
-            value={sliderValue}
-            onChange={handleSlider}
-            step={0.01}
-            min={0.1}
-            max={99.9}
-            aria-label="Small"
-            disabled={!isExist}
-            valueLabelDisplay="auto"
-          />
-          <div className="flex">
-            <button
-              style={{ fontSize: 12, fontWeight: 400, minHeight: 32 }}
-              className="flex-1 btn-primary text-primary dark:text-black"
-            >
-              {sliderValue.toPrecision(4)}% {inToken['symbol']}
-            </button>
-            <button
-              style={{
-                fontSize: 12,
-                fontWeight: 400,
-                background: "#fafafa",
-                minHeight: 32,
-              }}
-              className="flex-1 text-black"
-            >
-              <span>
-                {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}
-              </span>
-            </button>
-          </div>
+    <div className="items-center">
+      <div className="d-flex flex-col">
+        <div className="flex gap-x-8 justify-end mb-5">
+          <button
+            onClick={() => setChartOpen(!chartOpen)}
+            className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg"
+          >
+            <p className="capitalize"> Chart</p>
+            <span className="text-3xl">
+              <AiOutlineLineChart />
+            </span>
+          </button>
         </div>
-      )}
-
-      <hr className="my-4" />
-
-      <div className="w-full flex flex-col gap-y-6">
-        <div>
-          <h3 className="input-lable mb-4">Input</h3>
-          <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+        <div className="flex flex-row items-center">
+          {(chartOpen && account && formattedWeightsData) && (
             <div className="flex-1">
-              <Button variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
-                { inToken['symbol'] }
-              </Button>
+                {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token0']}</b> weight</h3>}
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart
+                    width={500}
+                    height={200}
+                    data={formattedWeightsData}
+                    syncId="anyId"
+                    margin={{
+                      top: 10,
+                      right: 30,
+                      left: 0,
+                      bottom: 0,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]}/>
+                    <Tooltip  content={<CustomTooltip0 />} />
+                    <Line type="monotone" dataKey="weight0" stroke="#8884d8" fill="#8884d8" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+                {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token1']}</b> weight</h3>}
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart
+                    width={500}
+                    height={200}
+                    data={formattedWeightsData}
+                    syncId="anyId"
+                    margin={{
+                      top: 10,
+                      right: 30,
+                      left: 0,
+                      bottom: 0,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]} />
+                    <Tooltip  content={<CustomTooltip1 />} />
+                    <Line type="monotone" dataKey="weight1" stroke="#82ca9d" fill="#82ca9d" strokeWidth={2} />
+                    <Brush />
+                  </LineChart>
+                </ResponsiveContainer>
             </div>
-            <div className="text-right flex-1">
-              <form>
-                <input
-                  type="number"
-                  value={value}
-                  min={0}
-                  onChange={handleValue}
-                  className="input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
-                  disabled={!isExist}
-                ></input>
-              </form>
-              <p className="text-base text-grey-dark"  onClick={setInLimit}>Balance: {inBal}</p>
-            </div>
+          )}
+          <div className="max-w-2xl mx-auto flex-1 bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
+          <h3 className="model-title mb-4">Add Liquidity </h3>
+          <div className=" flex justify-between">
+            <p className="capitalize text-grey-dark">Ratio {sliderValue.toPrecision(4)}% {inToken['symbol']} - {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}</p>
+            <button
+              onClick={() => setROpen(!rOpen)}
+              className="capitalize text-light-primary dark:text-grey-dark"
+            >
+              Change Ratio %
+            </button>
           </div>
-        </div>
+          {rOpen && (
+            <div className="my-4">
+              <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
+                Change Ratio
+              </div>
+              <Slider
+                size="small"
+                value={sliderValue}
+                onChange={handleSlider}
+                step={0.01}
+                min={0.1}
+                max={99.9}
+                aria-label="Small"
+                disabled={!isExist}
+                valueLabelDisplay="auto"
+              />
+              <div className="flex">
+                <button
+                  style={{ fontSize: 12, fontWeight: 400, minHeight: 32 }}
+                  className="flex-1 btn-primary text-primary dark:text-black"
+                >
+                  {sliderValue.toPrecision(4)}% {inToken['symbol']}
+                </button>
+                <button
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 400,
+                    background: "#fafafa",
+                    minHeight: 32,
+                  }}
+                  className="flex-1 text-black"
+                >
+                  <span>
+                    {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
 
-        <div className="w-full flex justify-center items-center text-light-primary text-2xl dark:text-grey-dark">
-          <BsPlus />
-        </div>
+          <hr className="my-4" />
 
-        <div>
-          <h3 className="input-lable mb-4">Output</h3>
-          <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center  rounded-sm p-2 sm:p-4 bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+          <div className="w-full flex flex-col gap-y-6">
             <div>
-              <Button variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
-                { outToken['symbol'] }
-              </Button>
+              <h3 className="input-lable mb-4">Input</h3>
+              <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                <div className="flex-1">
+                  <Button variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                    { inToken['symbol'] }
+                  </Button>
+                </div>
+                <div className="text-right flex-1">
+                  <form>
+                    <input
+                      type="number"
+                      value={value}
+                      min={0}
+                      onChange={handleValue}
+                      className="input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
+                      disabled={!isExist}
+                    ></input>
+                  </form>
+                  <p className="text-base text-grey-dark"  onClick={setInLimit}>Balance: {inBal}</p>
+                </div>
+              </div>
             </div>
-            <div className="text-right">
-              <form>
-                <input
-                  type="number"
-                  value={valueEth}
-                  onChange={handleValueEth}
-                  min={0}
-                  className="input-value text-right max-w-[300px] sm:max-w-none w-full bg-transparent focus:outline-none"
-                  disabled={!isExist}
-                ></input>
-              </form>
-              <p className="text-base text-grey-dark" onClick={setOutLimit}>Balance: {outBal}</p>
+
+            <div className="w-full flex justify-center items-center text-light-primary text-2xl dark:text-grey-dark">
+              <BsPlus />
+            </div>
+
+            <div>
+              <h3 className="input-lable mb-4">Output</h3>
+              <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center  rounded-sm p-2 sm:p-4 bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                <div>
+                  <Button variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
+                    { outToken['symbol'] }
+                  </Button>
+                </div>
+                <div className="text-right">
+                  <form>
+                    <input
+                      type="number"
+                      value={valueEth}
+                      onChange={handleValueEth}
+                      min={0}
+                      className="input-value text-right max-w-[300px] sm:max-w-none w-full bg-transparent focus:outline-none"
+                      disabled={!isExist}
+                    ></input>
+                  </form>
+                  <p className="text-base text-grey-dark" onClick={setOutLimit}>Balance: {outBal}</p>
+                </div>
+              </div>
             </div>
           </div>
+
+          <div className="mt-20 flex">
+          {!approval && isExist &&
+            <button
+              onClick={approveTK}
+              style={{ minHeight: 57,  }}
+              className={"btn-primary font-bold w-full dark:text-black flex-1 mr-2"}
+            >
+              {" "}
+              Approval{" "}
+            </button>
+          }
+            <button
+              onClick={executeAddPool}
+              style={{ minHeight: 57 }}
+              className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
+              disabled={limitedout || !isExist}
+            >
+              {" "}
+              {!isExist?"No Pool Exist":(limitedout?"Not Enough Token":"Confirm")}
+            </button>
+          </div>
+          <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            className={dark?"dark":""}
+          >
+            <StyledModal className="bg-white-bg  dark:bg-dark-primary">
+              <h3 className="model-title mb-6">Select Token</h3>
+              <TextField
+                autoFocus={true}
+                value={query}
+                onChange={filterToken}
+                label="Search"
+                InputProps={{
+                  type: "search",
+                  style: {color: (dark?'#bbb':'#333')}
+                }}
+                InputLabelProps={{
+                  style: {color: (dark?'#bbb':'#333')}
+                }}
+              />
+              <hr className="my-6" />
+              <ul className="flex flex-col gap-y-6">
+                {filterData.map((item) => {
+                  return (
+                    <li key={item['address']} className="flex gap-x-1" onClick={() => selectToken(item, selected)}>
+                      <div className="relative flex">
+                        <img src={item['logoURL']} alt="" />
+                      </div>
+                      <p className="text-light-primary text-lg">{item['symbol']}</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </StyledModal>
+          </Modal>
+        </div>
         </div>
       </div>
-
-      <div className="mt-20 flex">
-      {!approval && isExist &&
-        <button
-          onClick={approveTK}
-          style={{ minHeight: 57,  }}
-          className={"btn-primary font-bold w-full dark:text-black flex-1 mr-2"}
-        >
-          {" "}
-          Approval{" "}
-        </button>
-      }
-        <button
-          onClick={executeAddPool}
-          style={{ minHeight: 57 }}
-          className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
-          disabled={limitedout || !isExist}
-        >
-          {" "}
-          {!isExist?"No Pool Exist":(limitedout?"Not Enough Token":"Confirm")}
-        </button>
-      </div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        className={dark?"dark":""}
-      >
-        <StyledModal className="bg-white-bg  dark:bg-dark-primary">
-          <h3 className="model-title mb-6">Select Token</h3>
-          <TextField
-            autoFocus={true}
-            value={query}
-            onChange={filterToken}
-            label="Search"
-            InputProps={{
-              type: "search",
-              style: {color: (dark?'#bbb':'#333')}
-            }}
-            InputLabelProps={{
-              style: {color: (dark?'#bbb':'#333')}
-            }}
-          />
-          <hr className="my-6" />
-          <ul className="flex flex-col gap-y-6">
-            {filterData.map((item) => {
-              return (
-                <li key={item['address']} className="flex gap-x-1" onClick={() => selectToken(item, selected)}>
-                  <div className="relative flex">
-                    <img src={item['logoURL']} alt="" />
-                  </div>
-                  <p className="text-light-primary text-lg">{item['symbol']}</p>
-                </li>
-              );
-            })}
-          </ul>
-        </StyledModal>
-      </Modal>
     </div>
   );
 };

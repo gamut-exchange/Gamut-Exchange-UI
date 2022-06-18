@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {useDispatch, useSelector} from 'react-redux';
 import { useWeb3React } from "@web3-react/core";
 import MenuItem from "@mui/material/MenuItem";
@@ -12,14 +12,25 @@ import Modal from "@mui/material/Modal";
 import tw, { styled } from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-// import tw from "twin.macro";
+import { useTokenPricesData } from '../../../config/chartData'
 import { AiOutlineArrowDown, AiOutlineLineChart } from "react-icons/ai";
 import { ImLoop } from "react-icons/im";
 import { getTokenBalance, getPoolAddress, getPoolData, swapTokens, batchSwapTokens, tokenApproval, approveToken, getSwapFeePercent } from "../../../config/web3";
 import { uniList }  from "../../../config/constants";
 import { poolList }  from "../../../config/constants";
-import {AreaChart, Area, XAxis, YAxis, 
-    CartesianGrid, Tooltip} from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Brush,
+  AreaChart,
+  Area,
+  ResponsiveContainer,
+} from 'recharts';
 
 import './SimpleSwap.css'
 
@@ -32,6 +43,7 @@ const SimpleSwap = ({dark}) => {
   const [selected, setSelected] = React.useState(0);
   const [query, setQuery] = useState("");
   const [valueEth, setValueEth] = useState(0);
+  const [poolAddress, setPoolAddress] = useState([])
   const [inToken, setInToken] = useState(uniList[selected_chain][0]);
   const [outToken, setOutToken] = useState(uniList[selected_chain][1]);
   const [inBal, setInBal] = useState(0);
@@ -58,6 +70,7 @@ const SimpleSwap = ({dark}) => {
         {name:"6", x:0.64, y:0.36}
     ];
 
+  const pricesData = useTokenPricesData(poolAddress);
   const StyledModal = tw.div`
     flex
     flex-col
@@ -84,10 +97,10 @@ const SimpleSwap = ({dark}) => {
     else
       setLimitedout(true);
     setValue(event.target.value);
-    setFee((event.target.value * 0.001).toPrecision(2));
+    setFee((event.target.value * swapFee).toPrecision(2));
     checkApproved(inToken, event.target.value);
   };
-
+  
   const filterToken = (e) => {
     let search_qr = e.target.value;
     setQuery(search_qr);
@@ -134,8 +147,7 @@ const SimpleSwap = ({dark}) => {
     let wB = weight_from / (10 ** 18);
 
     let exp = (wB - wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn))) / (wA + wB * (1 - pbB / (pbB + bIn)) / (1 + pbB / (pbB + bIn)));
-    let bOut = pbA * (1 - (pbB / (pbB + bIn)) ** exp);
-    debugger;
+    let bOut = pbA * (1 - (pbB / (pbB + bIn)) ** exp);    
     return bOut;
   }
 
@@ -220,7 +232,9 @@ const SimpleSwap = ({dark}) => {
             const poolAddressB = await getPoolAddress(provider, middleTokens[0]['address'], outSToken['address'], selected_chain);
             const poolDataB = await getPoolData(provider, poolAddressB, selected_chain);
             const middleOutput = await calculateSwap(inSToken['address'], poolDataA, val*(1-swapFee));
+            console.log(middleOutput)
             const output = await calculateSwap(middleTokens[0]['address'], poolDataB, middleOutput*(1-swapFee));
+            console.log(output)
             return output;
           } else {
             const poolAddressA = await getPoolAddress(provider, inSToken['address'], middleTokens[0]['address'], selected_chain);
@@ -369,20 +383,6 @@ const SimpleSwap = ({dark}) => {
     }
   }
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="custom-tooltip" style={{backgroundColor:'white', padding:5}}>
-          <p className="label fw-bold">Number: {label}</p>
-          <p className="label">widgetA : {payload[0]['value']}</p>
-          <p className="label">widgetB : {payload[1]['value']}</p>
-        </div>
-      );
-    }
-
-    return null;
-  };
-
   useEffect(() => {
     if(account) {
       const getInfo = async () => {
@@ -393,8 +393,7 @@ const SimpleSwap = ({dark}) => {
         setOutBal(outBal);
         checkApproved(inToken, value);
         const swapFeePercent = await getSwapFeePercent(provider, poolList[selected_chain][0]['address'], selected_chain);
-        setSwapFee(swapFeePercent);
-
+        setSwapFee(swapFeePercent*0.01);
       }
       getInfo();
     }
@@ -408,6 +407,16 @@ const SimpleSwap = ({dark}) => {
         if(midToken) {
           const amountOut = await calcOutput(midToken, provider, value, inToken, outToken);
           setValueEth(amountOut.toPrecision(6));
+          if(midToken.length == 1) {
+            const poolAddress1 = await getPoolAddress(provider, inToken['address'], midToken[0]['address'], selected_chain);
+            const poolAddress2 = await getPoolAddress(provider, midToken[0]['address'], outToken['address'], selected_chain);
+            setPoolAddress([poolAddress1.toLowerCase(), poolAddress2.toLowerCase()])
+          } else {
+            const poolAddress1 = await getPoolAddress(provider, inToken['address'], midToken[0]['address'], selected_chain);
+            const poolAddress2 = await getPoolAddress(provider, midToken[0]['address'], midToken[1]['address'], selected_chain);
+            const poolAddress3 = await getPoolAddress(provider, midToken[1]['address'], outToken['address'], selected_chain);
+            setPoolAddress([poolAddress1.toLowerCase(), poolAddress2.toLowerCase(), poolAddress3.toLowerCase()])
+          }
         } else {
           const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress, selected_chain);
@@ -415,10 +424,13 @@ const SimpleSwap = ({dark}) => {
           setValueEth(amountOut.toPrecision(6));
           const slippage = await calcSlippage(inToken, poolData, value, amountOut);
           setValueEth(amountOut.toPrecision(6));
+          setPoolAddress([poolAddress.toLowerCase()]);
         }
       }
 
       getInfo();
+    } else {
+      setPoolAddress([])
     }
   }, [inToken, outToken, value]);
 
@@ -430,20 +442,147 @@ const SimpleSwap = ({dark}) => {
     }
   }, [dispatch, selected_chain]);
 
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      var eventTime = new Date(payload[0].payload['timestamp']*1000);
+      var year = eventTime.getUTCFullYear()
+      var month = ((eventTime.getUTCMonth()+1)<10)?"0"+(eventTime.getUTCMonth()+1):(eventTime.getUTCMonth()+1);
+      var day = (eventTime.getUTCDate()<10)?"0"+eventTime.getUTCDate():eventTime.getUTCDate()
+      var hour = (eventTime.getUTCHours()<10)?"0"+eventTime.getUTCHours():eventTime.getUTCHours()
+      var min = (eventTime.getUTCMinutes()<10)?"0"+eventTime.getUTCMinutes():eventTime.getUTCMinutes()
+      var sec = (eventTime.getUTCSeconds()<10)?"0"+eventTime.getUTCSeconds():eventTime.getUTCSeconds()
+      eventTime =  year+"/"+month+"/"+ day + " " + hour + ":" + min + ":" + sec
+      return (
+        <div className="custom-tooltip" style={{backgroundColor:'white', padding:5}}>
+          <p className="label fw-bold">{eventTime}</p>
+          <p className="label">1 {inToken['symbol']} = {payload[0].payload['value']} {outToken['symbol']}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const formattedPricesData = useMemo(() => {
+    if (pricesData && pricesData.prices) {
+      var result = [];
+      const poolTokenPrices = pricesData.prices;
+      if(poolAddress.length === 1) {
+        poolTokenPrices.map((item, index) => {
+          if(item.token0.symbol === inToken['symbol']) {
+            if(Number(item.token0Price) > 0.1)
+              result.push({name:index, timestamp:item.timestamp, value:Number(item.token0Price).toFixed(2)*1})
+            else if(Number(item.token0Price) > 0.001)
+              result.push({name:index, timestamp:item.timestamp, value:Number(item.token0Price).toFixed(4)*1})
+            else if(Number(item.token0Price) > 0.00001)
+              result.push({name:index, timestamp:item.timestamp, value:Number(item.token0Price).toFixed(6)*1})
+            else
+              result.push({name:index, timestamp:item.timestamp, value:Number(item.token0Price).toFixed(8)*1})
+          }
+          else {
+            if(Number(item.token1Price) > 0.1)
+              result.push({name:index, timestamp:item.timestamp, value:Number(item.token1Price).toFixed(2)*1})
+            else if(Number(item.token1Price) > 0.001)
+              result.push({name:index, timestamp:item.timestamp, value:Number(item.token1Price).toFixed(4)*1})
+            else if(Number(item.token1Price) > 0.00001)
+              result.push({name:index, timestamp:item.timestamp, value:Number(item.token1Price).toFixed(6)*1})
+            else
+              result.push({name:index, timestamp:item.timestamp, value:Number(item.token1Price).toFixed(8)*1})
+          }
+        })
+      } else if(poolAddress.length === 2) {
+        for(var i=1; i<poolTokenPrices.length; i++) {
+          if(poolTokenPrices[i].pool.id === poolAddress[0]) {
+            for(var j=i-1; j>=0; j--)
+              if(poolTokenPrices[j].pool.id === poolAddress[1]) {
+                var tempPrice = (poolTokenPrices[i].token0.symbol === inToken['symbol'])?poolTokenPrices[i].token0Price:poolTokenPrices[i].token1Price;
+                var lastPrice = (poolTokenPrices[j].token0.symbol === outToken['symbol'])?tempPrice*poolTokenPrices[j].token0Price:tempPrice*poolTokenPrices[j].token1Price;
+                if(Number(lastPrice) > 0.1)
+                  result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(2)*1})
+                else if(Number(lastPrice) > 0.001)
+                  result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(4)*1})
+                else if(Number(lastPrice) > 0.00001)
+                  result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(6)*1})
+                else
+                  result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(8)*1})
+                break;
+              }
+          }
+        }
+      } else if(poolAddress.length === 3) {
+        for(var i=2; i<poolTokenPrices.length; i++) {
+          if(poolTokenPrices[i].pool.id === poolAddress[0]) {
+            var tempArr = []
+            for(var j=i-1; j>=0; j--)
+              if(poolTokenPrices[j].pool.id === poolAddress[1] || poolTokenPrices[j].pool.id === poolAddress[2]) {
+                if(tempArr.length === 0)
+                  tempArr.push(poolTokenPrices[j])
+                else if(tempArr[0].pool.id !== poolTokenPrices[j].pool.id) {
+                  if(poolTokenPrices[j].pool.id === poolAddress[1]) {
+                    var tempPrice1 = (poolTokenPrices[i].token0.symbol === inToken['symbol'])?poolTokenPrices[i].token0Price:poolTokenPrices[i].token1Price;
+                    var tempPrice2 = (poolTokenPrices[j].token0.symbol === poolTokenPrices[i].token0.symbol || poolTokenPrices[j].token0.symbol === poolTokenPrices[i].token1.symbol)?poolTokenPrices[j].token0Price*tempPrice1:poolTokenPrices[j].token1Price*tempPrice1;
+                    var lastPrice = (tempArr[0].token0.symbol === outToken['symbol'])?tempPrice2*tempArr[0].token0Price:tempPrice2*tempArr[0].token1Price;
+                    if(Number(lastPrice) > 0.1)
+                      result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(2)*1})
+                    else if(Number(lastPrice) > 0.001)
+                      result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(4)*1})
+                    else if(Number(lastPrice) > 0.00001)
+                      result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(6)*1})
+                    else
+                      result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(8)*1})
+                    break;
+                  } else {
+                    var tempPrice1 = (poolTokenPrices[i].token0.symbol === inToken['symbol'])?poolTokenPrices[i].token0Price:poolTokenPrices[i].token1Price;
+                    var tempPrice2 = (tempArr[0].token0.symbol === poolTokenPrices[i].token0.symbol || tempArr[0].token0.symbol === poolTokenPrices[i].token1.symbol)?tempArr[0].token0Price*tempPrice1:tempArr[0].token1Price*tempPrice1;
+                    var lastPrice = (poolTokenPrices[j].token0.symbol === outToken['symbol'])?tempPrice2*poolTokenPrices[j].token0Price:tempPrice2*poolTokenPrices[j].token1Price;
+                    if(Number(lastPrice) > 0.1)
+                      result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(2)*1})
+                    else if(Number(lastPrice) > 0.001)
+                      result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(4)*1})
+                    else if(Number(lastPrice) > 0.00001)
+                      result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(6)*1})
+                    else
+                      result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(8)*1})
+                    break;
+                  }
+                }
+              }
+          }
+        }
+      }
+      return result;
+      
+    } else {
+      return []
+    }
+  }, [pricesData])
+
   return (
     <div className="flex sm:flex-row flex-col items-center">
       {chartOpen && (
         <div className="flex-1">
-          <AreaChart width={500} height={500} data={chartData}>
-            <CartesianGrid/>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip  content={<CustomTooltip />} />
-            <Area dataKey="x" stackId="1" 
-                stroke="green" fill="green" />
-            <Area dataKey="y" stackId="1" 
-                stroke="blue" fill="blue" />
-          </AreaChart>
+          {formattedPricesData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{inToken['symbol']}/{outToken['symbol']}</b> Price Chart</h3>}
+          <ResponsiveContainer width="100%" height={500}>
+            <LineChart
+              width={500}
+              height={200}
+              data={formattedPricesData}
+              syncId="anyId"
+              margin={{
+                top: 10,
+                right: 30,
+                left: 0,
+                bottom: 0,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip  content={<CustomTooltip />} />
+              <Line type="monotone" dataKey="value" stroke="#82ca9d" fill="#82ca9d" strokeWidth={2} />
+              <Brush />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       )}
 
@@ -476,6 +615,7 @@ const SimpleSwap = ({dark}) => {
                       value={value}
                       min={0}
                       onChange={handleValue}
+                      onKeyUp={handleValue}
                       className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
                     ></input>
                   </form>

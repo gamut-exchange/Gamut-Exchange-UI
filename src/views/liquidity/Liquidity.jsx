@@ -46,8 +46,8 @@ const Liquidity = ({dark}) => {
         <div className="main-container">
           
 
-            <div className="max-w-2xl mx-auto py-8">
-                <div className="flex justify-between mb-10">
+            <div className="mx-auto py-8">
+                <div className="flex justify-between">
                   <Tabs value={tab} onChange={handleTab}>
                     <Tab label="Add Lp" style={{color:'cornflowerblue'}} className="text-dark-primary dark:text-gray-300" />
                     <Tab label="Remove lp" style={{color:'cornflowerblue'}} className="text-dark-primary dark:text-gray-300" />
