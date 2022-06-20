@@ -635,7 +635,7 @@ const SimpleSwap = ({dark}) => {
                 <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                   <div className="flex flex-row w-full">
                     <div className="w-full">
-                      <Button id="address_out" variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" style={{ width:'25px' }} />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                      <Button id="address_out" variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" style={{ width:'25px' }} />} style={{padding:"8px", fontSize:"12px"}} onClick={() =>handleOpen(0)}>
                        {outToken['symbol']}
                       </Button>
                     </div>
