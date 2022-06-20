@@ -73,7 +73,9 @@ const AddLiquiditySimple = ({dark}) => {
   const handleSlider = (event, newValue) => {
     setSliderValue(newValue);
     if(inToken['address'] != outToken['address']) {
-      setValueEth(((ratio*(1-newValue/100)*value)/(newValue/100)).toFixed(4));
+      let valEth = ((ratio*(1-newValue/100)*value)/(newValue/100)).toFixed(4);
+      valEth = (valEth*1===0)?0:valEth;
+      setValueEth(valEth);
     }
   };
   const handleOpen = (val) => {
@@ -83,19 +85,19 @@ const AddLiquiditySimple = ({dark}) => {
   };
   const handleClose = () => setOpen(false);
 
-  const handleValueEth = (event) => {
-    setValueEth(event.target.value);
-    let inLimBal = inBal.replaceAll(',', '');
-    let outLimBal = outBal.replaceAll(',', '');
-    if(Number(event.target.value) <= Number(outLimBal) && Number(value) <= Number(inLimBal))
-      setLimitedout(false);
-    else
-      setLimitedout(true);
-    if(inToken['address'] != outToken['address']) {
-      setSliderValue(Number((ratio*value/(Number(event.target.value)+ratio*value)*100).toFixed(2)));
-      checkApproved(inToken, outToken, poolAddress, value, event.target.value);
-    }
-  };
+  // const handleValueEth = (event) => {
+  //   setValueEth(event.target.value);
+  //   let inLimBal = inBal.replaceAll(',', '');
+  //   let outLimBal = outBal.replaceAll(',', '');
+  //   if(Number(event.target.value) <= Number(outLimBal) && Number(value) <= Number(inLimBal))
+  //     setLimitedout(false);
+  //   else
+  //     setLimitedout(true);
+  //   if(inToken['address'] != outToken['address']) {
+  //     setSliderValue(Number((ratio*value/(Number(event.target.value)+ratio*value)*100).toFixed(2)));
+  //     checkApproved(inToken, outToken, poolAddress, value, event.target.value);
+  //   }
+  // };
 
   const handleValue = async (event) => {
     setValue(event.target.value);
@@ -107,6 +109,7 @@ const AddLiquiditySimple = ({dark}) => {
       setLimitedout(true);
     if(inToken['address'] != outToken['address']) {
       let valEth = ((event.target.value*(ratio)*(100-sliderValue))/(sliderValue)).toFixed(4);
+      valEth = (valEth*1===0)?0:valEth
       setValueEth(valEth);
       checkApproved(inToken, outToken, poolAddress, event.target.value, valEth);
     }
@@ -240,7 +243,9 @@ const AddLiquiditySimple = ({dark}) => {
     let some = (price*input*weight_to)/weight_from;
 
     setRatio(price);
-    setValueEth(((price*input*weight_to)/weight_from).toFixed(4));
+    let valEth = ((price*input*weight_to)/weight_from).toFixed(4);
+    valEth = (valEth*1===0)?0:valEth;
+    setValueEth(valEth);
   }
 
   const executeAddPool = async () => {
@@ -272,7 +277,8 @@ const AddLiquiditySimple = ({dark}) => {
   const setOutLimit = () => {
     let val1 = outBal.replaceAll(',', '');
     let val2 = inBal.replaceAll(',', '');
-    setValueEth(Number(val1));
+    let valEth = (val1*1 === 0)?0:val1;
+    setValueEth(valEth);
     if(valueEth < val2)
       setLimitedout(false);
     else
@@ -398,7 +404,7 @@ const AddLiquiditySimple = ({dark}) => {
       <div className="flex gap-x-8 justify-end mb-5">
         <button
           onClick={() => setChartOpen(!chartOpen)}
-          className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg"
+          className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg mt-2"
         >
           <p className="capitalize"> Chart</p>
           <span className="text-3xl">
@@ -410,7 +416,7 @@ const AddLiquiditySimple = ({dark}) => {
         {(chartOpen && account && formattedWeightsData) && (
           <div className="flex-1 w-full mb-4">
               {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token0']}</b> weight</h3>}
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="99%" height={250}>
                 <LineChart
                   width={500}
                   height={200}
@@ -431,7 +437,7 @@ const AddLiquiditySimple = ({dark}) => {
                 </LineChart>
               </ResponsiveContainer>
               {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token1']}</b> weight</h3>}
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="99%" height={250}>
                 <LineChart
                   width={500}
                   height={200}
@@ -456,20 +462,17 @@ const AddLiquiditySimple = ({dark}) => {
         )}
         <div className="max-w-2xl mx-auto flex-1 bg-white-bg dark:bg-dark-primary rounded shadow-box border sm:p-6 p-4 border-grey-dark">
           <h3 className="model-title mb-4">Add Liquidity </h3>
-          <div className=" flex justify-between">
+          <div className="flex flex-col sm:flex-row sm:justify-between">
             <p className="capitalize text-grey-dark mr-1">Ratio {sliderValue.toPrecision(4)}% {inToken['symbol']} - {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}</p>
             <button
               onClick={() => setROpen(!rOpen)}
-              className="capitalize text-light-primary dark:text-grey-dark"
+              className="capitalize text-light-primary dark:text-grey-dark sm:text-right text-left"
             >
               Change Ratio %
             </button>
           </div>
           {rOpen && (
             <div className="my-4">
-              <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
-                Change Ratio
-              </div>
               <Slider
                 size="small"
                 value={sliderValue}
@@ -510,23 +513,23 @@ const AddLiquiditySimple = ({dark}) => {
           <div className="w-full flex flex-col gap-y-6">
             <div>
               <h3 className="input-lable mb-4">Input</h3>
-              <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
-                <div className="flex-1">
-                  <Button variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
-                    { inToken['symbol'] }
-                  </Button>
+              <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                <div className="flex flex-row w-full">
+                  <div className="w-full">
+                    <Button variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                      { inToken['symbol'] }
+                    </Button>
+                  </div>
+                  <input
+                    type="number"
+                    value={value}
+                    min={0}
+                    onChange={handleValue}
+                    className="input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
+                    disabled={!isExist}
+                  ></input>
                 </div>
                 <div className="text-right flex-1">
-                  <form>
-                    <input
-                      type="number"
-                      value={value}
-                      min={0}
-                      onChange={handleValue}
-                      className="input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
-                      disabled={!isExist}
-                    ></input>
-                  </form>
                   <p className="text-base text-grey-dark"  onClick={setInLimit}>Balance: {inBal}</p>
                 </div>
               </div>
@@ -538,24 +541,23 @@ const AddLiquiditySimple = ({dark}) => {
 
             <div>
               <h3 className="input-lable mb-4">Output</h3>
-              <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center  rounded-sm p-2 sm:p-4 bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
-                <div>
-                  <Button variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
-                    { outToken['symbol'] }
-                  </Button>
+              <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                <div className="flex flex-row w-full">
+                  <div className="w-full">
+                    <Button variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                      { outToken['symbol'] }
+                    </Button>
+                  </div>
+                  <input
+                    type="number"
+                    value={valueEth}
+                    min={0}
+                    className="input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
+                    disabled
+                  ></input>
                 </div>
-                <div className="text-right">
-                  <form>
-                    <input
-                      type="number"
-                      value={valueEth}
-                      onChange={handleValueEth}
-                      min={0}
-                      className="input-value text-right max-w-[300px] sm:max-w-none w-full bg-transparent focus:outline-none"
-                      disabled={!isExist}
-                    ></input>
-                  </form>
-                  <p className="text-base text-grey-dark" onClick={setOutLimit}>Balance: {outBal}</p>
+                <div className="text-right flex-1">
+                  <p className="text-base text-grey-dark"  onClick={setInLimit}>Balance: {outBal}</p>
                 </div>
               </div>
             </div>

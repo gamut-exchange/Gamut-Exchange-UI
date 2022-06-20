@@ -305,7 +305,7 @@ const RemoveLiquiditySimple = ({dark}) => {
         tempArr['token1'] = item.token1.symbol;
         tempArr['timestamp'] = item.timestamp;
         return tempArr;
-      })
+      });
     } else {
       return []
     }
@@ -316,7 +316,7 @@ const RemoveLiquiditySimple = ({dark}) => {
       <div className="flex gap-x-8 justify-end mb-5">
         <button
           onClick={() => setChartOpen(!chartOpen)}
-          className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg"
+          className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg mt-2"
         >
           <p className="capitalize"> Chart</p>
           <span className="text-3xl">
@@ -328,7 +328,7 @@ const RemoveLiquiditySimple = ({dark}) => {
         {(chartOpen && account && formattedWeightsData) && (
           <div className="flex-1 w-full mb-4">
               {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token0']}</b> weight</h3>}
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="99%" height={250}>
                 <LineChart
                   width={500}
                   height={200}
@@ -349,7 +349,7 @@ const RemoveLiquiditySimple = ({dark}) => {
                 </LineChart>
               </ResponsiveContainer>
               {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token1']}</b> weight</h3>}
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="99%" height={250}>
                 <LineChart
                   width={500}
                   height={200}
@@ -374,20 +374,17 @@ const RemoveLiquiditySimple = ({dark}) => {
         )}
         <div className="max-w-2xl mx-auto flex-1 bg-white-bg dark:bg-dark-primary rounded shadow-box border sm:p-6 p-4 border-grey-dark">
           <h3 className="model-title mb-4">Remove Liquidity </h3>
-          <div className=" flex justify-between">
+          <div className="flex flex-col sm:flex-row sm:justify-between">
             <p className="capitalize text-grey-dark mr-1">Ratio {Number(scale).toPrecision(4)}% {selectedItem['symbols'][0]} - {(100 - scale).toPrecision(4)}% {selectedItem['symbols'][1]}</p>
             <button
               onClick={() => setROpen(!rOpen)}
-              className="capitalize text-light-primary dark:text-grey-dark"
+              className="capitalize text-light-primary dark:text-grey-dark sm:text-right text-left"
             >
               Change Ratio %
             </button>
           </div>
           {rOpen && (
             <div className="my-4">
-              <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
-                Change Ratio
-              </div>
               <Slider
                 size="small"
                 value={scale}
@@ -424,30 +421,28 @@ const RemoveLiquiditySimple = ({dark}) => {
           <hr className="my-4" />
           <div className="w-full flex flex-col gap-y-6">
             <div>
-              <div className="flex justify-between sm:flex-row flex-col gap-y-8 items-center p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
-                <div className="flex-1 w-full">
-                <Button variant="outlined" startIcon={<div style={{float:'left'}}>
-                  <img src={selectedItem['logoURLs'][0]} alt="" style={{ float:'left', width:'25px' }} />
-                  <img src={selectedItem['logoURLs'][1]} alt="" style={{float:'left', marginLeft:-5, width:'25px' }} />
-                  </div>} style={{padding:'10px 15px', minWidth:'180px'}} onClick={handleOpen} css={[tw`bg-white dark:bg-black`]}>
-                  {selectedItem['symbols'][0]} - {selectedItem['symbols'][1]} LP
-                </Button>
-                </div>
-                <div className="sm:text-right text-left flex-1 w-full">
-                  {" "}
-                  <form>
-                    <input
+              <div className="flex justify-between flex-col gap-y-2 items-center p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                <div className="flex flex-row w-full">
+                  <div className="w-full">
+                    <Button variant="outlined" startIcon={<div style={{float:'left'}}>
+                      <img src={selectedItem['logoURLs'][0]} alt="" style={{ float:'left', width:'25px' }} />
+                      <img src={selectedItem['logoURLs'][1]} alt="" style={{float:'left', marginLeft:-5, width:'25px' }} />
+                      </div>} onClick={handleOpen} style={{padding:"8px", fontSize:"12px"}} className="bg-white dark:bg-black w-36 sm:w-48">
+                      {selectedItem['symbols'][0]} - {selectedItem['symbols'][1]} LP
+                    </Button>
+                  </div>
+                  <input
                       type="number"
                       value={value}
                       min={0}
                       onChange={handleValue}
-                      className="input-value text-right bg-transparent focus:outline-none"
+                      className="text-right input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
                     />
-                  </form>
+                </div>
+                <div className="text-right flex-1 w-full">
                   <p className="text-base text-grey-dark" onClick={setInLimit}>LP Balance: {poolAmount}</p>
                 </div>
               </div>
-
               <div className="my-4">
                 <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
                   LP Amount

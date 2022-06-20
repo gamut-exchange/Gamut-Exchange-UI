@@ -252,6 +252,12 @@ const Nav = ({ handleDark, dark }) => {
                   >
                     Liquidity
                   </Link>
+                  <Link
+                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
+                    to='/faucet'
+                  >
+                    Faucet
+                  </Link>
                   <Button
                     id="basic-button"
                     aria-controls={menuOpen ? 'basic-menu' : undefined}

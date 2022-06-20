@@ -317,7 +317,6 @@ const SimpleSwap = ({dark}) => {
           getMiddleTokenSymbol(suitableRouter[0]);
           return suitableRouter[0];
         } else {
-          console.log("Can't swap the tokens.");
           return null;
         }
       }
@@ -404,8 +403,9 @@ const SimpleSwap = ({dark}) => {
         const provider = await connector.getProvider();
         const midToken = await findMiddleToken(inToken, outToken);
         if(midToken) {
-          const amountOut = await calcOutput(midToken, provider, value, inToken, outToken);
-          setValueEth(amountOut.toPrecision(6));
+          let amountOut = await calcOutput(midToken, provider, value, inToken, outToken);
+          amountOut = (amountOut*1 === 0)?0:amountOut.toPrecision(6);
+          setValueEth(amountOut);
           if(midToken.length == 1) {
             const poolAddress1 = await getPoolAddress(provider, inToken['address'], midToken[0]['address'], selected_chain);
             const poolAddress2 = await getPoolAddress(provider, midToken[0]['address'], outToken['address'], selected_chain);
@@ -419,10 +419,10 @@ const SimpleSwap = ({dark}) => {
         } else {
           const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress, selected_chain);
-          const amountOut = await calculateSwap(inToken['address'], poolData, value);
-          setValueEth(amountOut.toPrecision(6));
+          let amountOut = await calculateSwap(inToken['address'], poolData, value);
+          amountOut = (amountOut*1 === 0)?0:amountOut.toPrecision(6);
+          setValueEth(amountOut);
           const slippage = await calcSlippage(inToken, poolData, value, amountOut);
-          setValueEth(amountOut.toPrecision(6));
           setPoolAddress([poolAddress.toLowerCase()]);
         }
       }
@@ -602,15 +602,14 @@ const SimpleSwap = ({dark}) => {
             <div className="w-full flex flex-col gap-y-6">
               <div>
                 <h3 className="input-lable mb-4">Input</h3>
-                <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
-                  <div>
-                    <Button id="address_in" variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
-                     {inToken['symbol']}
-                    </Button>
-                  </div>
-                  <div className="text-right">
-                    <form>
-                      <input
+                <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                  <div className="flex flex-row w-full">
+                    <div className="w-full">
+                      <Button id="address_in" variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                       {inToken['symbol']}
+                      </Button>
+                    </div>
+                    <input
                         type="number"
                         value={value}
                         min={0}
@@ -618,7 +617,8 @@ const SimpleSwap = ({dark}) => {
                         onKeyUp={handleValue}
                         className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
                       ></input>
-                    </form>
+                  </div>
+                  <div className="text-right flex-1 w-full">
                     <p className="text-base text-grey-dark" onClick={setInLimit}>
                       Balance: {inBal}
                     </p>
@@ -632,21 +632,20 @@ const SimpleSwap = ({dark}) => {
 
               <div>
                 <h3 className="input-lable mb-4">Output</h3>
-                <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
-                  <div>
-                    <Button id="address_out" variant="outlined" startIcon={<img src={outToken['logoURL']} alt="abc" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
-                      {outToken['symbol']}
-                    </Button>
-                  </div>
-                  <div className="text-right">
-                    <form>
-                      <input
+                <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                  <div className="flex flex-row w-full">
+                    <div className="w-full">
+                      <Button id="address_out" variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                       {outToken['symbol']}
+                      </Button>
+                    </div>
+                    <input
                         type="number"
                         value={valueEth}
-                        disabled
-                        className="input-value w-full text-right bg-transparent focus:outline-none"
+                        className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
                       ></input>
-                    </form>
+                  </div>
+                  <div className="text-right flex-1 w-full">
                     <p className="text-base text-grey-dark">
                       Balance: {outBal}
                     </p>

@@ -17,7 +17,7 @@
 } */
 
 .main-container {
-  @apply max-w-container px-5 m-auto w-full;
+  @apply max-w-container px-2 sm:px-5 m-auto w-full;
 }
 .btn-primary {
   @apply bg-light-primary text-lg text-white capitalize flex justify-center items-center dark:bg-grey-dark;
@@ -42,7 +42,7 @@
 }
 
 .input-value {
-  @apply text-light-primary font-normal text-[22px] sm:text-30 dark:text-grey-dark;
+  @apply text-light-primary font-normal text-[18px] sm:text-30 dark:text-grey-dark;
 }
 .input-lable {
   @apply text-light-primary dark:text-grey-dark text-lg font-bold;
@@ -58,4 +58,11 @@
 }
 .open {
   @apply max-h-700 transition-all duration-1000 ease-in-out overflow-hidden;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
