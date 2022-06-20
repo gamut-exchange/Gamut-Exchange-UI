@@ -32,7 +32,6 @@ const Nav = ({ handleDark, dark }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const selected_chain = useSelector((state) => state.selectedChain);
   const [chainLabel, setChainLabel] = useState(selected_chain);
-  const [connectedWallet, setConnectedWallet] = useState(cWallet);
   const [wrongChain, setWrongChain] = useState(true);
 
 
@@ -177,7 +176,7 @@ const Nav = ({ handleDark, dark }) => {
                                   className="btn-primary dark:text-dark-primary w-full"
                                   style={{borderRadius:'0px', minHeight:44, fontSize:18}}
                                   startIcon={
-                                      connectedWallet && <img width={22} src={connectedWallet.logo} alt={connectedWallet.name} />
+                                      cWallet && <img width={22} src={cWallet.logo} alt={cWallet.name} />
                                   }
                                   onClick={() => {
                                       setOpenWalletList(true);
@@ -298,7 +297,7 @@ const Nav = ({ handleDark, dark }) => {
                                       className="btn-primary dark:text-dark-primary w-full"
                                       style={{borderRadius:'0px', minHeight:44, fontSize:14}}
                                       startIcon={
-                                          connectedWallet && <img width={22} src={connectedWallet.logo} alt={connectedWallet.name} />
+                                          cWallet && <img width={22} src={cWallet.logo} alt={cWallet.name} />
                                       }
                                       onClick={() => {
                                           setOpenWalletList(true);

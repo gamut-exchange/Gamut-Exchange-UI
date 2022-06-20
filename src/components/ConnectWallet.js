@@ -51,7 +51,6 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
         useWeb3React();
     const cWallet = ConnectedWallet();
 
-
     // const injected = (chain==="ropsten")?injected1:injected2;
     const walletconnect = (chain==="ropsten")?walletconnect1:walletconnect2;
     const Wallets = (chain==="ropsten")?Wallets1:Wallets2;
