@@ -416,7 +416,7 @@ const AddLiquiditySimple = ({dark}) => {
         {(chartOpen && account && formattedWeightsData) && (
           <div className="flex-1 w-full mb-4">
               {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token0']}</b> weight</h3>}
-              <ResponsiveContainer width="99%" height={250}>
+              <ResponsiveContainer width="95%" height={250}>
                 <LineChart
                   width={500}
                   height={200}
@@ -437,7 +437,7 @@ const AddLiquiditySimple = ({dark}) => {
                 </LineChart>
               </ResponsiveContainer>
               {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token1']}</b> weight</h3>}
-              <ResponsiveContainer width="99%" height={250}>
+              <ResponsiveContainer width="95%" height={250}>
                 <LineChart
                   width={500}
                   height={200}
@@ -529,7 +529,7 @@ const AddLiquiditySimple = ({dark}) => {
                     disabled={!isExist}
                   ></input>
                 </div>
-                <div className="text-right flex-1">
+                <div className="text-right w-full flex-1">
                   <p className="text-base text-grey-dark"  onClick={setInLimit}>Balance: {inBal}</p>
                 </div>
               </div>
@@ -556,7 +556,7 @@ const AddLiquiditySimple = ({dark}) => {
                     disabled
                   ></input>
                 </div>
-                <div className="text-right flex-1">
+                <div className="text-right w-full flex-1">
                   <p className="text-base text-grey-dark"  onClick={setInLimit}>Balance: {outBal}</p>
                 </div>
               </div>
