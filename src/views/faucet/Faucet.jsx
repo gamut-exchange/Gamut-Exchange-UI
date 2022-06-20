@@ -65,7 +65,6 @@ const Faucet = () => {
 
   const requestTToken = async () => {
     const provider = await connector.getProvider();
-    debugger;
     await requestToken(account, provider, selectedToken['symbol'].toLowerCase(), chain);
     const fau_allowed = await allowedToWithdraw(account, provider, selectedToken['symbol'].toLowerCase(), chain);
     setAllowed(fau_allowed);

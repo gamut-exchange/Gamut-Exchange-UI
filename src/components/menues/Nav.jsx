@@ -112,30 +112,6 @@ const Nav = ({ handleDark, dark }) => {
                     Liquidity
                   </Link>
                 </li>
-                {/* <li>
-                  <Link
-                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
-                    to='/mine'
-                  >
-                    Liquidity Mining
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
-                    to='/lock'
-                  >
-                    Gnt Lock
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
-                    to='/lp_tokens'
-                  >
-                    LP Tokens
-                  </Link>
-                </li> */}
               </ul>
             </div>
           </div>
@@ -277,30 +253,13 @@ const Nav = ({ handleDark, dark }) => {
                   >
                     Liquidity
                   </Link>
-                  <Link
-                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
-                    to='/mine'
-                  >
-                    Liquidity Mining
-                  </Link>
-                  <Link
-                    className="text-light-primary dark:text-grey-dark transition-all duration-300"
-                    to='/lock'
-                  >
-                    Gnt Lock
-                  </Link>
-                  <Link
-                      className="text-light-primary dark:text-grey-dark transition-all duration-300"
-                      to='/lp_tokens'
-                    >
-                      LP Tokens
-                  </Link>
                   <Button
                     id="basic-button"
                     aria-controls={menuOpen ? 'basic-menu' : undefined}
                     aria-haspopup="true"
                     aria-expanded={menuOpen ? 'true' : undefined}
                     onClick={handleClick}
+                    style={{padding:"20px 0px 0px"}}
                   >
                     {chainLabel}
                   </Button>
@@ -316,56 +275,56 @@ const Nav = ({ handleDark, dark }) => {
                   </Menu>
                   <Box className={classes.actionGroup}>
                     <Box className={classes.connectWallet}>
-                        {(() => {
-                            if (wrongChain) {
-                                return (
-                                    <Button
-                                        variant="contained"
-                                        className="btn-primary dark:text-dark-primary w-full"
-                                        style={{borderRadius:'0px', minHeight:44, fontSize:18}}
-                                        onClick={() => {
-                                            setOpenWalletList(true);
-                                        }}
-                                       
-                                    >
-                                        Wrong Chain
-                                    </Button>
-                                )
-                            } else {
-                              if(account)
-                                return (
-                                    <Button
-                                        variant="contained"
-                                        className="btn-primary dark:text-dark-primary w-full"
-                                        style={{borderRadius:'0px', minHeight:44, fontSize:18}}
-                                        startIcon={
-                                            connectedWallet && <img width={22} src={connectedWallet.logo} alt={connectedWallet.name} />
-                                        }
-                                        onClick={() => {
-                                            setOpenWalletList(true);
-                                        }}
-                                        className={isMobile ? classes.hide : ""}
-                                    >
-                                        {`${account.substring(0, 8)} ... ${account.substring(account.length - 4)}`}
-                                    </Button>
-                                )
-                              else
-                                return (
-                                    <Button
-                                        variant="contained"
-                                        className="btn-primary dark:text-dark-primary w-full"
-                                        style={{borderRadius:'0px', minHeight:44, fontSize:18}}
-                                        onClick={() => {
-                                            setOpenWalletList(true);
-                                        }}
-                                       
-                                    >
-                                        Connect Wallet
-                                    </Button>
-                                )
-                            }
-                        })()}
-                    </Box>
+                      {(() => {
+                          if (wrongChain) {
+                              return (
+                                  <Button
+                                      variant="contained"
+                                      className="btn-primary dark:text-dark-primary w-full"
+                                      style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                                      onClick={() => {
+                                          setOpenWalletList(true);
+                                      }}
+                                     
+                                  >
+                                      Wrong Chain
+                                  </Button>
+                              )
+                          } else {
+                            if(account)
+                              return (
+                                  <Button
+                                      variant="contained"
+                                      className="btn-primary dark:text-dark-primary w-full"
+                                      style={{borderRadius:'0px', minHeight:44, fontSize:14}}
+                                      startIcon={
+                                          connectedWallet && <img width={22} src={connectedWallet.logo} alt={connectedWallet.name} />
+                                      }
+                                      onClick={() => {
+                                          setOpenWalletList(true);
+                                      }}
+                                      className={isMobile ? classes.show : ""}
+                                  >
+                                      {`${account.substring(0, 8)} ... ${account.substring(account.length - 4)}`}
+                                  </Button>
+                              )
+                            else
+                              return (
+                                  <Button
+                                      variant="contained"
+                                      className="btn-primary dark:text-dark-primary w-full"
+                                      style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                                      onClick={() => {
+                                          setOpenWalletList(true);
+                                      }}
+                                     
+                                  >
+                                      Connect Wallet
+                                  </Button>
+                              )
+                          }
+                      })()}
+                  </Box>
                   </Box>
                 </div>
               </div>

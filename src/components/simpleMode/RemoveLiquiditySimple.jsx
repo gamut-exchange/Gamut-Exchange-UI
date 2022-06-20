@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {useDispatch, useSelector} from 'react-redux';
 import { useWeb3React } from "@web3-react/core";
 import MenuItem from "@mui/material/MenuItem";
@@ -11,15 +11,31 @@ import Modal from "@mui/material/Modal";
 import Button from '@mui/material/Button';
 import tw from "twin.macro";
 import Autocomplete from "@mui/material/Autocomplete";
+import { AiOutlineLineChart } from "react-icons/ai";
 import TextField from "@mui/material/TextField";
+import { useWeightsData } from '../../config/chartData'
 import { getPoolData, getPoolBalance, removePool, fromWeiVal, getPoolSupply } from "../../config/web3";
 import { poolList }  from "../../config/constants";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Brush,
+  AreaChart,
+  Area,
+  ResponsiveContainer,
+} from 'recharts';
 
 const RemoveLiquiditySimple = ({dark}) => {
   const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
   const [open, setOpen] = useState(false);
   const [rOpen, setROpen] = useState(false);
+  const [chartOpen, setChartOpen] = useState(false);
   const [value, setValue] = useState(0);
   const [weightA, setWeightA] = useState(0.5);
   const [price, setPrice] = useState(0);
@@ -41,11 +57,10 @@ const RemoveLiquiditySimple = ({dark}) => {
   const [limitedout, setLimitedout] = useState(false);
 
   const dispatch = useDispatch();
+  const weightData = useWeightsData(selectedItem['address'].toLowerCase());
 
   const calculateSwap = (inToken, poolData, input) => {
-
-    let ammount = input;
-    
+    let ammount = input;  
     let balance_from;
     let balance_to;
     let weight_from;
@@ -80,13 +95,14 @@ const RemoveLiquiditySimple = ({dark}) => {
   const StyledModal = tw.div`
     flex
     flex-col
-    absolute
-    top-1/4 left-1/3
+    relative
+    m-auto
+    top-1/4
     p-6
     shadow-box overflow-y-scroll
     min-h-min
     transform -translate-x-1/2 -translate-y-1/2
-    w-1/3
+    sm:w-1/3 w-11/12
   `;
 
   const handleOpen = () =>  {
@@ -158,9 +174,7 @@ const RemoveLiquiditySimple = ({dark}) => {
   };
 
   const executeRemovePool = async () => {
-    if(Number(value) <= 0 || Number(value) > poolAmount) {
-      console.log('Wrong amount!');
-    } else {
+    if(!(Number(value) <= 0 || Number(value) > poolAmount)) {
       const provider = await connector.getProvider();
       let amount1 = value*weightA;
       let amount2 = value*(1-weightA);
@@ -170,7 +184,6 @@ const RemoveLiquiditySimple = ({dark}) => {
   }
 
   const calculateOutput =  async (totalLkTk, inValue, item) => {
-
     const provider = await connector.getProvider();
     const poolData = await getPoolData(provider, item['address'], selected_chain);
     let removeingPercentage = inValue/(Number(totalLkTk)+0.0000000001);
@@ -194,7 +207,6 @@ const RemoveLiquiditySimple = ({dark}) => {
 
     const vaueA = outA.toLocaleString('fullwide', {useGrouping:false});
     const vaueB = outB.toLocaleString('fullwide', {useGrouping:false});
-    debugger;
     const amount1 = fromWeiVal(provider, vaueA);
     const amount2 = fromWeiVal(provider, vaueB);
     setOutTokenA(Number(amount1));
@@ -240,161 +252,285 @@ const RemoveLiquiditySimple = ({dark}) => {
     }
   }, [dispatch, selected_chain, account]);
 
+  const CustomTooltip0 = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      var eventTime = new Date(payload[0].payload['timestamp']*1000);
+      var year = eventTime.getUTCFullYear()
+      var month = ((eventTime.getUTCMonth()+1)<10)?"0"+(eventTime.getUTCMonth()+1):(eventTime.getUTCMonth()+1);
+      var day = (eventTime.getUTCDate()<10)?"0"+eventTime.getUTCDate():eventTime.getUTCDate()
+      var hour = (eventTime.getUTCHours()<10)?"0"+eventTime.getUTCHours():eventTime.getUTCHours()
+      var min = (eventTime.getUTCMinutes()<10)?"0"+eventTime.getUTCMinutes():eventTime.getUTCMinutes()
+      var sec = (eventTime.getUTCSeconds()<10)?"0"+eventTime.getUTCSeconds():eventTime.getUTCSeconds()
+      eventTime =  year+"/"+month+"/"+ day + " " + hour + ":" + min + ":" + sec
+      return (
+        <div className="custom-tooltip" style={{backgroundColor:'white', padding:5}}>
+          <p className="label fw-bold">{eventTime}</p>
+          <p className="label">{payload[0].payload['token0']} : {payload[0].payload['weight0']}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const CustomTooltip1 = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      var eventTime = new Date(payload[0].payload['timestamp']*1000);
+      var year = eventTime.getUTCFullYear()
+      var month = ((eventTime.getUTCMonth()+1)<10)?"0"+(eventTime.getUTCMonth()+1):(eventTime.getUTCMonth()+1);
+      var day = (eventTime.getUTCDate()<10)?"0"+eventTime.getUTCDate():eventTime.getUTCDate()
+      var hour = (eventTime.getUTCHours()<10)?"0"+eventTime.getUTCHours():eventTime.getUTCHours()
+      var min = (eventTime.getUTCMinutes()<10)?"0"+eventTime.getUTCMinutes():eventTime.getUTCMinutes()
+      var sec = (eventTime.getUTCSeconds()<10)?"0"+eventTime.getUTCSeconds():eventTime.getUTCSeconds()
+      eventTime =  year+"/"+month+"/"+ day + " " + hour + ":" + min + ":" + sec
+      return (
+        <div className="custom-tooltip" style={{backgroundColor:'white', padding:5}}>
+          <p className="label fw-bold">{eventTime}</p>
+          <p className="label">{payload[0].payload['token1']} : {payload[0].payload['weight1']}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const formattedWeightsData = useMemo(() => {
+    if (weightData && weightData.weights) {
+      return weightData.weights.map((item, index) => {
+        var tempArr = {};
+        tempArr['name'] = index;
+        tempArr['weight0'] = Number(item.weight0).toFixed(2);
+        tempArr['weight1'] = Number(item.weight1).toFixed(2);
+        tempArr['token0'] = item.token0.symbol;
+        tempArr['token1'] = item.token1.symbol;
+        tempArr['timestamp'] = item.timestamp;
+        return tempArr;
+      })
+    } else {
+      return []
+    }
+  }, [weightData])
+
   return (
-    <div className="max-w-2xl mx-auto mt-10 bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
-      <h3 className="model-title mb-4">Remove Liquidity </h3>
-      <div className=" flex justify-between">
-        <p className="capitalize text-grey-dark">Ratio {Number(scale).toPrecision(4)}% {selectedItem['symbols'][0]} - {(100 - scale).toPrecision(4)}% {selectedItem['symbols'][1]}</p>
+    <div className="d-flex flex-col">
+      <div className="flex gap-x-8 justify-end mb-5">
         <button
-          onClick={() => setROpen(!rOpen)}
-          className="capitalize text-light-primary dark:text-grey-dark"
+          onClick={() => setChartOpen(!chartOpen)}
+          className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg"
         >
-          Change Ratio %
+          <p className="capitalize"> Chart</p>
+          <span className="text-3xl">
+            <AiOutlineLineChart />
+          </span>
         </button>
       </div>
-      {rOpen && (
-        <div className="my-4">
-          <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
-            Change Ratio
+      <div className="flex sm:flex-row flex-col items-center">
+        {(chartOpen && account && formattedWeightsData) && (
+          <div className="flex-1 w-full mb-4">
+              {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token0']}</b> weight</h3>}
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart
+                  width={500}
+                  height={200}
+                  data={formattedWeightsData}
+                  syncId="anyId"
+                  margin={{
+                    top: 10,
+                    right: 30,
+                    left: 0,
+                    bottom: 0,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]}/>
+                  <Tooltip  content={<CustomTooltip0 />} />
+                  <Line type="monotone" dataKey="weight0" stroke="#8884d8" fill="#8884d8" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+              {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token1']}</b> weight</h3>}
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart
+                  width={500}
+                  height={200}
+                  data={formattedWeightsData}
+                  syncId="anyId"
+                  margin={{
+                    top: 10,
+                    right: 30,
+                    left: 0,
+                    bottom: 0,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]} />
+                  <Tooltip  content={<CustomTooltip1 />} />
+                  <Line type="monotone" dataKey="weight1" stroke="#82ca9d" fill="#82ca9d" strokeWidth={2} />
+                  <Brush />
+                </LineChart>
+              </ResponsiveContainer>
           </div>
-          <Slider
-            size="small"
-            value={scale}
-            onChange={handleScale}
-            step={0.01}
-            min={0.1}
-            max={99.9}
-            aria-label="Small"
-            valueLabelDisplay="auto"
-          />
-          <div className="flex">
+        )}
+        <div className="max-w-2xl mx-auto flex-1 bg-white-bg dark:bg-dark-primary rounded shadow-box border sm:p-6 p-4 border-grey-dark">
+          <h3 className="model-title mb-4">Remove Liquidity </h3>
+          <div className=" flex justify-between">
+            <p className="capitalize text-grey-dark mr-1">Ratio {Number(scale).toPrecision(4)}% {selectedItem['symbols'][0]} - {(100 - scale).toPrecision(4)}% {selectedItem['symbols'][1]}</p>
             <button
-              style={{ fontSize: 12, fontWeight: 400, minHeight: 32 }}
-              className="flex-1 btn-primary text-primary dark:text-black"
+              onClick={() => setROpen(!rOpen)}
+              className="capitalize text-light-primary dark:text-grey-dark"
             >
-              {Number(scale).toPrecision(4)}% {selectedItem['symbols'][0]}
-            </button>
-            <button
-              style={{
-                fontSize: 12,
-                fontWeight: 400,
-                background: "#fafafa",
-                minHeight: 32,
-              }}
-              className="flex-1 text-black"
-            >
-              <span>
-                {(100 - scale).toPrecision(4)}% {selectedItem['symbols'][1]}
-              </span>
+              Change Ratio %
             </button>
           </div>
-        </div>
-      )}
-      <hr className="my-4" />
-      <div className="w-full flex flex-col gap-y-6">
-        <div>
-          <div className="flex justify-between sm:flex-row flex-col gap-y-8 items-center p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
-            <div className="flex-1 w-full">
-            <Button variant="outlined" startIcon={<div style={{float:'left'}}><img src={selectedItem['logoURLs'][0]} alt="" style={{ float:'left' }} /><img src={selectedItem['logoURLs'][1]} alt="" style={{float:'left', marginLeft:-5}} /></div>} style={{padding:'10px 15px'}} onClick={handleOpen} css={[tw`bg-white dark:bg-black`]}>
-              {selectedItem['symbols'][0]} - {selectedItem['symbols'][1]} LP
-            </Button>
+          {rOpen && (
+            <div className="my-4">
+              <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
+                Change Ratio
+              </div>
+              <Slider
+                size="small"
+                value={scale}
+                onChange={handleScale}
+                step={0.01}
+                min={0.1}
+                max={99.9}
+                aria-label="Small"
+                valueLabelDisplay="auto"
+              />
+              <div className="flex">
+                <button
+                  style={{ fontSize: 12, fontWeight: 400, minHeight: 32 }}
+                  className="flex-1 btn-primary text-primary dark:text-black"
+                >
+                  {Number(scale).toPrecision(4)}% {selectedItem['symbols'][0]}
+                </button>
+                <button
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 400,
+                    background: "#fafafa",
+                    minHeight: 32,
+                  }}
+                  className="flex-1 text-black"
+                >
+                  <span>
+                    {(100 - scale).toPrecision(4)}% {selectedItem['symbols'][1]}
+                  </span>
+                </button>
+              </div>
             </div>
-            <div className="sm:text-right text-left flex-1 w-full">
-              {" "}
-              <form>
-                <input
-                  type="number"
-                  value={value}
-                  min={0}
-                  onChange={handleValue}
-                  className="input-value text-right bg-transparent focus:outline-none"
+          )}
+          <hr className="my-4" />
+          <div className="w-full flex flex-col gap-y-6">
+            <div>
+              <div className="flex justify-between sm:flex-row flex-col gap-y-8 items-center p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                <div className="flex-1 w-full">
+                <Button variant="outlined" startIcon={<div style={{float:'left'}}>
+                  <img src={selectedItem['logoURLs'][0]} alt="" style={{ float:'left', width:'25px' }} />
+                  <img src={selectedItem['logoURLs'][1]} alt="" style={{float:'left', marginLeft:-5, width:'25px' }} />
+                  </div>} style={{padding:'10px 15px', minWidth:'180px'}} onClick={handleOpen} css={[tw`bg-white dark:bg-black`]}>
+                  {selectedItem['symbols'][0]} - {selectedItem['symbols'][1]} LP
+                </Button>
+                </div>
+                <div className="sm:text-right text-left flex-1 w-full">
+                  {" "}
+                  <form>
+                    <input
+                      type="number"
+                      value={value}
+                      min={0}
+                      onChange={handleValue}
+                      className="input-value text-right bg-transparent focus:outline-none"
+                    />
+                  </form>
+                  <p className="text-base text-grey-dark" onClick={setInLimit}>LP Balance: {poolAmount}</p>
+                </div>
+              </div>
+
+              <div className="my-4">
+                <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
+                  LP Amount
+                </div>
+                <Slider
+                  size="small"
+                  value={lpPercentage}
+                  step={0.01}
+                  aria-label="Small"
+                  valueLabelDisplay="auto"
+                  onChange={handleSlider}
                 />
-              </form>
-              <p className="text-base text-grey-dark" onClick={setInLimit}>LP Balance: {poolAmount}</p>
+              </div>
             </div>
           </div>
 
-          <div className="my-4">
-            <div className="text-light-primary mb-5 dark:text-grey-dark text-base capitalize ">
-              LP Amount
+          <hr className="mb-4" />
+          <div className="flex flex-col gap-y-4 mb-4">
+            <div className="flex">
+              <div className="text-base w-1/2 md:w-2/5 text-grey-dark">
+                Recieve {selectedItem['symbols'][0]}
+              </div>
+              <div className="text-base text-light-primary dark:text-grey-dark flex-1">
+                {(outTokenB).toPrecision(6)}
+              </div>
             </div>
-            <Slider
-              size="small"
-              value={lpPercentage}
-              step={0.01}
-              aria-label="Small"
-              valueLabelDisplay="auto"
-              onChange={handleSlider}
-            />
+            <div className="flex">
+              <div className="text-base w-1/2 md:w-2/5 text-grey-dark">
+                Recieve {selectedItem['symbols'][1]}
+              </div>
+              <div className="text-base text-light-primary dark:text-grey-dark flex-1">
+              {(outTokenA).toPrecision(6)}
+              </div>
+            </div>
           </div>
+          <div className="">
+            <button
+              onClick={executeRemovePool}
+              style={{ minHeight: 57 }}
+              className="btn-primary rounded-sm font-bold w-full dark:text-black"
+              disabled={limitedout}
+            >
+              {limitedout?"Not Enough Token":"Confirm"}
+            </button>
+          </div>
+          <Modal
+            open={open}
+            onClose={handleClose}
+            className={dark?"dark":""}
+          >
+            <StyledModal className="bg-white-bg  dark:bg-dark-primary w-full">
+              <h3 className="model-title mb-6">Remove Liquidity</h3>
+              <TextField
+                autoFocus={true}
+                value={query}
+                onChange={filterLP}
+                label="Search"
+                InputProps={{
+                  type: "search",
+                  style: {color: (dark?'#bbb':'#333')}
+                }}
+                InputLabelProps={{
+                  style: {color: (dark?'#bbb':'#333')}
+                }}
+              />
+              <hr className="my-6" />
+              <ul className="flex flex-col gap-y-6">
+                {filterData.map((item) => {
+                  return (
+                    <li key={item['address']} className="flex gap-x-1" onClick={() => selectToken(item)}>
+                      <div className="relative flex">
+                        <img src={item['logoURLs'][0]} alt="" />
+                        <img className="z-10 relative right-2" src={item['logoURLs'][1]} alt="" />
+                      </div>
+                      <p className="text-light-primary text-lg">{item['symbols'][0]} - {item['symbols'][1]} LP Token</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </StyledModal>
+          </Modal>
         </div>
       </div>
-
-      <hr className="mb-4" />
-      <div className="flex flex-col gap-y-4 mb-4">
-        <div className="flex">
-          <div className="text-base w-1/2 md:w-2/5 text-grey-dark">
-            Recieve {selectedItem['symbols'][0]}
-          </div>
-          <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-            {(outTokenB).toPrecision(6)}
-          </div>
-        </div>
-        <div className="flex">
-          <div className="text-base w-1/2 md:w-2/5 text-grey-dark">
-            Recieve {selectedItem['symbols'][1]}
-          </div>
-          <div className="text-base text-light-primary dark:text-grey-dark flex-1">
-          {(outTokenA).toPrecision(6)}
-          </div>
-        </div>
-      </div>
-      <div className="">
-        <button
-          onClick={executeRemovePool}
-          style={{ minHeight: 57 }}
-          className="btn-primary rounded-sm font-bold w-full dark:text-black"
-          disabled={limitedout}
-        >
-          {limitedout?"Not Enough Token":"Confirm"}
-        </button>
-      </div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        className={dark?"dark":""}
-      >
-        <StyledModal className="bg-white-bg  dark:bg-dark-primary">
-          <h3 className="model-title mb-6">Remove Liquidity</h3>
-          <TextField
-            autoFocus={true}
-            value={query}
-            onChange={filterLP}
-            label="Search"
-            InputProps={{
-              type: "search",
-              style: {color: (dark?'#bbb':'#333')}
-            }}
-            InputLabelProps={{
-              style: {color: (dark?'#bbb':'#333')}
-            }}
-          />
-          <hr className="my-6" />
-          <ul className="flex flex-col gap-y-6">
-            {filterData.map((item) => {
-              return (
-                <li key={item['address']} className="flex gap-x-1" onClick={() => selectToken(item)}>
-                  <div className="relative flex">
-                    <img src={item['logoURLs'][0]} alt="" />
-                    <img className="z-10 relative right-2" src={item['logoURLs'][1]} alt="" />
-                  </div>
-                  <p className="text-light-primary text-lg">{item['symbols'][0]} - {item['symbols'][1]} LP Token</p>
-                </li>
-              );
-            })}
-          </ul>
-        </StyledModal>
-      </Modal>
     </div>
   );
 

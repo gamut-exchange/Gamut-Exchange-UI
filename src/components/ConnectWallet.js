@@ -117,7 +117,6 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
     useEffect(() => {
         const initialData = async () => {
             const logURI = (uri) => {
-                console.log("WalletConnect URI", uri);
             };
             walletconnect.on(URI_AVAILABLE, logURI);
             return () => {

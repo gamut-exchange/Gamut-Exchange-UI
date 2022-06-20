@@ -23,7 +23,7 @@
   @apply bg-light-primary text-lg text-white capitalize flex justify-center items-center dark:bg-grey-dark;
 }
 .header-title {
-  @apply text-light-primary text-center font-bold md:text-70 text-50 dark:text-grey-dark;
+  @apply text-light-primary text-center font-bold md:text-70 text-30 dark:text-grey-dark;
 }
 .title-secondary {
   @apply text-light-primary md:text-left text-center dark:text-grey-dark text-38 font-bold;

@@ -19,7 +19,7 @@ const Header = () => {
             <h1 className="header-title text-center">
               Compounding Yield Optimizer
             </h1>
-            <p className="text-grey-dark text-center text-30 md:text-32">
+            <p className="text-grey-dark text-center text-22 md:text-32">
               Allowing users to reap more crypto
             </p>
           </div>

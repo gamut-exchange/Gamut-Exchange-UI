@@ -60,13 +60,14 @@ const AddLiquiditySimple = ({dark}) => {
   const StyledModal = tw.div`
     flex
     flex-col
-    absolute
-    top-1/4 left-1/3
+    relative
+    m-auto
+    top-1/4
     p-6
     shadow-box overflow-y-scroll
     min-h-min
     transform -translate-x-1/2 -translate-y-1/2
-    w-1/3
+    sm:w-1/3 w-11/12
   `;
 
   const handleSlider = (event, newValue) => {
@@ -106,10 +107,6 @@ const AddLiquiditySimple = ({dark}) => {
       setLimitedout(true);
     if(inToken['address'] != outToken['address']) {
       let valEth = ((event.target.value*(ratio)*(100-sliderValue))/(sliderValue)).toFixed(4);
-      console.log(ratio)
-      console.log(sliderValue)
-      console.log(100-sliderValue)
-      console.log(((ratio*event.target.value*(100-sliderValue))/(sliderValue)))
       setValueEth(valEth);
       checkApproved(inToken, outToken, poolAddress, event.target.value, valEth);
     }
@@ -210,8 +207,6 @@ const AddLiquiditySimple = ({dark}) => {
     }
 
     let pricePool = (balance_from/weight_from) / (balance_to/weight_to);
-
-    console.log(pricePool);
     let x = weight_from / (10 **18) ;
 
     return x;
@@ -399,71 +394,70 @@ const AddLiquiditySimple = ({dark}) => {
   }, [weightData])
 
   return (
-    <div className="items-center">
-      <div className="d-flex flex-col">
-        <div className="flex gap-x-8 justify-end mb-5">
-          <button
-            onClick={() => setChartOpen(!chartOpen)}
-            className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg"
-          >
-            <p className="capitalize"> Chart</p>
-            <span className="text-3xl">
-              <AiOutlineLineChart />
-            </span>
-          </button>
-        </div>
-        <div className="flex flex-row items-center">
-          {(chartOpen && account && formattedWeightsData) && (
-            <div className="flex-1">
-                {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token0']}</b> weight</h3>}
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart
-                    width={500}
-                    height={200}
-                    data={formattedWeightsData}
-                    syncId="anyId"
-                    margin={{
-                      top: 10,
-                      right: 30,
-                      left: 0,
-                      bottom: 0,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]}/>
-                    <Tooltip  content={<CustomTooltip0 />} />
-                    <Line type="monotone" dataKey="weight0" stroke="#8884d8" fill="#8884d8" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-                {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token1']}</b> weight</h3>}
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart
-                    width={500}
-                    height={200}
-                    data={formattedWeightsData}
-                    syncId="anyId"
-                    margin={{
-                      top: 10,
-                      right: 30,
-                      left: 0,
-                      bottom: 0,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]} />
-                    <Tooltip  content={<CustomTooltip1 />} />
-                    <Line type="monotone" dataKey="weight1" stroke="#82ca9d" fill="#82ca9d" strokeWidth={2} />
-                    <Brush />
-                  </LineChart>
-                </ResponsiveContainer>
-            </div>
-          )}
-          <div className="max-w-2xl mx-auto flex-1 bg-white-bg dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
+    <div className="d-flex flex-col">
+      <div className="flex gap-x-8 justify-end mb-5">
+        <button
+          onClick={() => setChartOpen(!chartOpen)}
+          className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg"
+        >
+          <p className="capitalize"> Chart</p>
+          <span className="text-3xl">
+            <AiOutlineLineChart />
+          </span>
+        </button>
+      </div>
+      <div className="flex sm:flex-row flex-col items-center">
+        {(chartOpen && account && formattedWeightsData) && (
+          <div className="flex-1 w-full mb-4">
+              {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token0']}</b> weight</h3>}
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart
+                  width={500}
+                  height={200}
+                  data={formattedWeightsData}
+                  syncId="anyId"
+                  margin={{
+                    top: 10,
+                    right: 30,
+                    left: 0,
+                    bottom: 0,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]}/>
+                  <Tooltip  content={<CustomTooltip0 />} />
+                  <Line type="monotone" dataKey="weight0" stroke="#8884d8" fill="#8884d8" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+              {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token1']}</b> weight</h3>}
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart
+                  width={500}
+                  height={200}
+                  data={formattedWeightsData}
+                  syncId="anyId"
+                  margin={{
+                    top: 10,
+                    right: 30,
+                    left: 0,
+                    bottom: 0,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]} />
+                  <Tooltip  content={<CustomTooltip1 />} />
+                  <Line type="monotone" dataKey="weight1" stroke="#82ca9d" fill="#82ca9d" strokeWidth={2} />
+                  <Brush />
+                </LineChart>
+              </ResponsiveContainer>
+          </div>
+        )}
+        <div className="max-w-2xl mx-auto flex-1 bg-white-bg dark:bg-dark-primary rounded shadow-box border sm:p-6 p-4 border-grey-dark">
           <h3 className="model-title mb-4">Add Liquidity </h3>
           <div className=" flex justify-between">
-            <p className="capitalize text-grey-dark">Ratio {sliderValue.toPrecision(4)}% {inToken['symbol']} - {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}</p>
+            <p className="capitalize text-grey-dark mr-1">Ratio {sliderValue.toPrecision(4)}% {inToken['symbol']} - {(100 - sliderValue).toPrecision(4)}% {outToken['symbol']}</p>
             <button
               onClick={() => setROpen(!rOpen)}
               className="capitalize text-light-primary dark:text-grey-dark"
@@ -625,7 +619,6 @@ const AddLiquiditySimple = ({dark}) => {
               </ul>
             </StyledModal>
           </Modal>
-        </div>
         </div>
       </div>
     </div>

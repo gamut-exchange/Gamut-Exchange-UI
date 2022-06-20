@@ -74,13 +74,14 @@ const SimpleSwap = ({dark}) => {
   const StyledModal = tw.div`
     flex
     flex-col
-    absolute
-    top-1/4 left-1/3
+    relative
+    m-auto
+    top-1/4
     p-6
     shadow-box overflow-y-scroll
     min-h-min
     transform -translate-x-1/2 -translate-y-1/2
-    w-1/3
+    sm:w-1/3 w-11/12
   `;
 
   const handleOpen = (val) => {
@@ -232,9 +233,7 @@ const SimpleSwap = ({dark}) => {
             const poolAddressB = await getPoolAddress(provider, middleTokens[0]['address'], outSToken['address'], selected_chain);
             const poolDataB = await getPoolData(provider, poolAddressB, selected_chain);
             const middleOutput = await calculateSwap(inSToken['address'], poolDataA, val*(1-swapFee));
-            console.log(middleOutput)
             const output = await calculateSwap(middleTokens[0]['address'], poolDataB, middleOutput*(1-swapFee));
-            console.log(output)
             return output;
           } else {
             const poolAddressA = await getPoolAddress(provider, inSToken['address'], middleTokens[0]['address'], selected_chain);
@@ -496,7 +495,7 @@ const SimpleSwap = ({dark}) => {
             for(var j=i-1; j>=0; j--)
               if(poolTokenPrices[j].pool.id === poolAddress[1]) {
                 var tempPrice = (poolTokenPrices[i].token0.symbol === inToken['symbol'])?poolTokenPrices[i].token0Price:poolTokenPrices[i].token1Price;
-                var lastPrice = (poolTokenPrices[j].token0.symbol === outToken['symbol'])?tempPrice*poolTokenPrices[j].token0Price:tempPrice*poolTokenPrices[j].token1Price;
+                var lastPrice = (poolTokenPrices[j].token0.symbol === outToken['symbol'])?tempPrice*poolTokenPrices[j].token1Price:tempPrice*poolTokenPrices[j].token0Price;
                 if(Number(lastPrice) > 0.1)
                   result.push({name:i, timestamp:poolTokenPrices[i].timestamp, value:Number(lastPrice).toFixed(2)*1})
                 else if(Number(lastPrice) > 0.001)
@@ -558,170 +557,172 @@ const SimpleSwap = ({dark}) => {
   }, [pricesData])
 
   return (
-    <div className="flex sm:flex-row flex-col items-center">
-      {chartOpen && (
-        <div className="flex-1">
-          {formattedPricesData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{inToken['symbol']}/{outToken['symbol']}</b> Price Chart</h3>}
-          <ResponsiveContainer width="100%" height={500}>
-            <LineChart
-              width={500}
-              height={200}
-              data={formattedPricesData}
-              syncId="anyId"
-              margin={{
-                top: 10,
-                right: 30,
-                left: 0,
-                bottom: 0,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip  content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="value" stroke="#82ca9d" fill="#82ca9d" strokeWidth={2} />
-              <Brush />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+    <div className="flex flex-col">
+      <div className="flex gap-x-8 justify-end mb-5">
+        <button
+          onClick={() => setChartOpen(!chartOpen)}
+          className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg"
+        >
+          <p className="capitalize"> Chart</p>
+          <span className="text-3xl">
+            <AiOutlineLineChart />
+          </span>
+        </button>
+      </div>
+      <div className="flex sm:flex-row flex-col items-center">
+        {chartOpen && (
+          <div className="flex-1 w-full mb-4">
+            {formattedPricesData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{inToken['symbol']}/{outToken['symbol']}</b> Price Chart</h3>}
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart
+                width={500}
+                height={200}
+                data={formattedPricesData}
+                syncId="anyId"
+                margin={{
+                  top: 10,
+                  right: 30,
+                  left: 0,
+                  bottom: 0,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip  content={<CustomTooltip />} />
+                <Line type="monotone" dataKey="value" stroke="#82ca9d" fill="#82ca9d" strokeWidth={2} />
+                <Brush />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
-      <div className="max-w-2xl mx-auto pb-16 flex-1">
-        <div className="flex gap-x-8 justify-end mb-5">
-          <button
-            onClick={() => setChartOpen(!chartOpen)}
-            className="flex text-light-primary gap-x-3 dark:text-grey-dark text-lg"
-          >
-            <p className="capitalize"> Chart</p>
-            <span className="text-3xl">
-              <AiOutlineLineChart />
-            </span>
-          </button>
-        </div>
-        <div className="bg-white-bg  dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
-          <div className="w-full flex flex-col gap-y-6">
-            <div>
-              <h3 className="input-lable mb-4">Input</h3>
-              <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
-                <div>
-                  <Button id="address_in" variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
-                   {inToken['symbol']}
-                  </Button>
+        <div className="max-w-2xl mx-auto pb-16 flex-1">
+          <div className="bg-white-bg  dark:bg-dark-primary py-6 rounded shadow-box border p-6 border-grey-dark ">
+            <div className="w-full flex flex-col gap-y-6">
+              <div>
+                <h3 className="input-lable mb-4">Input</h3>
+                <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                  <div>
+                    <Button id="address_in" variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                     {inToken['symbol']}
+                    </Button>
+                  </div>
+                  <div className="text-right">
+                    <form>
+                      <input
+                        type="number"
+                        value={value}
+                        min={0}
+                        onChange={handleValue}
+                        onKeyUp={handleValue}
+                        className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
+                      ></input>
+                    </form>
+                    <p className="text-base text-grey-dark" onClick={setInLimit}>
+                      Balance: {inBal}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <form>
-                    <input
-                      type="number"
-                      value={value}
-                      min={0}
-                      onChange={handleValue}
-                      onKeyUp={handleValue}
-                      className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
-                    ></input>
-                  </form>
-                  <p className="text-base text-grey-dark" onClick={setInLimit}>
-                    Balance: {inBal}
-                  </p>
+              </div>
+
+              <div className="w-full flex justify-center items-center text-light-primary text-2xl dark:text-grey-dark">
+                <AiOutlineArrowDown onClick={reverseToken} />
+              </div>
+
+              <div>
+                <h3 className="input-lable mb-4">Output</h3>
+                <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
+                  <div>
+                    <Button id="address_out" variant="outlined" startIcon={<img src={outToken['logoURL']} alt="abc" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
+                      {outToken['symbol']}
+                    </Button>
+                  </div>
+                  <div className="text-right">
+                    <form>
+                      <input
+                        type="number"
+                        value={valueEth}
+                        disabled
+                        className="input-value w-full text-right bg-transparent focus:outline-none"
+                      ></input>
+                    </form>
+                    <p className="text-base text-grey-dark">
+                      Balance: {outBal}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="w-full flex justify-center items-center text-light-primary text-2xl dark:text-grey-dark">
-              <AiOutlineArrowDown onClick={reverseToken} />
+            <div className="flex justify-between mt-10">
+              <p className="text-grey-dark">Slippage {valSlipage}%</p>
+              {(middleToken && middleToken.length == 2) && <p className="text-light-primary">{inToken.symbol} -> {middleTokenSymbol[0]} -> {middleTokenSymbol[1]} -> {outToken.symbol}</p>}
+              {(middleToken && middleToken.length == 1) && <p className="text-light-primary">{inToken.symbol} -> {middleTokenSymbol[0]} -> {outToken.symbol}</p>}
+              {!middleToken && <p className="text-light-primary">{inToken.symbol} -> {outToken.symbol}</p>}
+              <p className="text-light-primary">Fee: {fee} {inToken.symbol}</p>
             </div>
 
-            <div>
-              <h3 className="input-lable mb-4">Output</h3>
-              <div className="flex flex-wrap sm:flex-row flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
-                <div>
-                  <Button id="address_out" variant="outlined" startIcon={<img src={outToken['logoURL']} alt="abc" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(1)}>
-                    {outToken['symbol']}
-                  </Button>
-                </div>
-                <div className="text-right">
-                  <form>
-                    <input
-                      type="number"
-                      value={valueEth}
-                      disabled
-                      className="input-value w-full text-right bg-transparent focus:outline-none"
-                    ></input>
-                  </form>
-                  <p className="text-base text-grey-dark">
-                    Balance: {outBal}
-                  </p>
-                </div>
-              </div>
+            <div className="mt-20 flex">
+            {!approval &&
+              <button
+                onClick={approveTk}
+                style={{ minHeight: 57,  }}
+                className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 mr-2"}
+              >
+                {" "}
+                Approval{" "}
+              </button>
+            }
+              <button
+                onClick={executeSwap}
+                style={{ minHeight: 57 }}
+                className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
+                disabled={limitedout}
+              >
+                {" "}
+                {limitedout?"Not Enough Token":"Confirm"}
+              </button>
             </div>
-          </div>
-
-          <div className="flex justify-between mt-10">
-            <p className="text-grey-dark">Slippage {valSlipage}%</p>
-            {(middleToken && middleToken.length == 2) && <p className="text-light-primary">{inToken.symbol} -> {middleTokenSymbol[0]} -> {middleTokenSymbol[1]} -> {outToken.symbol}</p>}
-            {(middleToken && middleToken.length == 1) && <p className="text-light-primary">{inToken.symbol} -> {middleTokenSymbol[0]} -> {outToken.symbol}</p>}
-            {!middleToken && <p className="text-light-primary">{inToken.symbol} -> {outToken.symbol}</p>}
-            <p className="text-light-primary">Fee: {fee} {inToken.symbol}</p>
-          </div>
-
-          <div className="mt-20 flex">
-          {!approval &&
-            <button
-              onClick={approveTk}
-              style={{ minHeight: 57,  }}
-              className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 mr-2"}
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+              className={dark?"dark":""}
             >
-              {" "}
-              Approval{" "}
-            </button>
-          }
-            <button
-              onClick={executeSwap}
-              style={{ minHeight: 57 }}
-              className={approval?"btn-primary font-bold w-full dark:text-black flex-1":"btn-primary font-bold w-full dark:text-black flex-1 ml-2"}
-              disabled={limitedout}
-            >
-              {" "}
-              {limitedout?"Not Enough Token":"Confirm"}
-            </button>
+              <StyledModal className="bg-white-bg  dark:bg-dark-primary">
+                <h3 className="model-title mb-6">Select Token</h3>
+                <TextField
+                  autoFocus={true}
+                  value={query}
+                  onChange={filterToken}
+                  label="Search"
+                  InputProps={{
+                    type: "search",
+                    style: {color: (dark?'#bbb':'#333')}
+                  }}
+                  InputLabelProps={{
+                    style: {color: (dark?'#bbb':'#333')}
+                  }}
+                />
+                <hr className="my-6" />
+                <ul className="flex flex-col gap-y-2">
+                  {filterData.map((item) => {
+                    const { address, logoURL, symbol} = item;
+                    return (
+                      <li key={address} className="flex gap-x-1 thelist"  onClick={() => selectToken(item, selected)}>
+                        <div className="relative flex">
+                          <img src={logoURL} alt="" />
+                        </div>
+                        <p className="text-light-primary text-lg">{symbol}</p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </StyledModal>
+            </Modal>
           </div>
-          <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-            className={dark?"dark":""}
-          >
-            <StyledModal className="bg-white-bg  dark:bg-dark-primary">
-              <h3 className="model-title mb-6">Select Token</h3>
-              <TextField
-                autoFocus={true}
-                value={query}
-                onChange={filterToken}
-                label="Search"
-                InputProps={{
-                  type: "search",
-                  style: {color: (dark?'#bbb':'#333')}
-                }}
-                InputLabelProps={{
-                  style: {color: (dark?'#bbb':'#333')}
-                }}
-              />
-              <hr className="my-6" />
-              <ul className="flex flex-col gap-y-2">
-                {filterData.map((item) => {
-                  const { address, logoURL, symbol} = item;
-                  return (
-                    <li key={address} className="flex gap-x-1 thelist"  onClick={() => selectToken(item, selected)}>
-                      <div className="relative flex">
-                        <img src={logoURL} alt="" />
-                      </div>
-                      <p className="text-light-primary text-lg">{symbol}</p>
-                    </li>
-                  );
-                })}
-              </ul>
-            </StyledModal>
-          </Modal>
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ import { contractAddresses } from "./constants";
 
 export const getTokenBalance = async (provider, tokenAddr, account) => {
     const abi = erc20ABI[0];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     let contract = new web3.eth.Contract(abi, tokenAddr);
     let bal = await contract.methods["balanceOf"](account).call();
     let result = Number(web3.utils.fromWei(bal)).toFixed(2);
@@ -23,7 +23,7 @@ export const getTokenBalance = async (provider, tokenAddr, account) => {
 export const getPoolAddress = async (provider, token1Addr, token2Addr, chain) => {
     const abi = hedgeFactoryABI[0];
     const c_address = contractAddresses[chain]['hedgeFactory'];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     let contract = new web3.eth.Contract(abi, c_address);
     let result = await contract.methods["getPool"](token1Addr, token2Addr).call();
     return result;
@@ -32,7 +32,7 @@ export const getPoolAddress = async (provider, token1Addr, token2Addr, chain) =>
 export const getPoolData = async (provider, poolAddress, chain) => {
     const abi = poolABI[0];
     const c_address = contractAddresses[chain]['pool'];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     let contract = new web3.eth.Contract(abi, c_address);
     contract.options.address = poolAddress;
     let result1 = await contract.methods["getPoolTokensAndBalances"]().call();
@@ -46,7 +46,7 @@ export const tokenApproval = async (account, provider, tokenAddr, chain) => {
     const tokenAbi = erc20ABI[0];
     const decimals = 18;
     const c_address = contractAddresses[chain]['router'];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     let contract = new web3.eth.Contract(routerAbi, c_address);
     let tokenContract = new web3.eth.Contract(tokenAbi, tokenAddr);
     // const owner = await contract.methods['owner']().call();
@@ -58,7 +58,7 @@ export const tokenApproval = async (account, provider, tokenAddr, chain) => {
 export const approveToken = async (account, provider, tokenAddr, value, chain) => {
     const c_address = contractAddresses[chain]['router'];
     const tokenAbi = erc20ABI[0];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     let token_contract = new web3.eth.Contract(tokenAbi, tokenAddr);
     await token_contract.methods['increaseAllowance'](c_address, web3.utils.toWei(value.toString())).send({from: account});
     const result = await tokenApproval(account, provider, tokenAddr, chain);
@@ -70,7 +70,7 @@ export const poolApproval = async (account, provider, poolAddr, chain) => {
     const c_address = contractAddresses[chain]['router'];
     const pc_address = contractAddresses[chain]['pool'];
 
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
 
     let poolContract = new web3.eth.Contract(poolAbi, pc_address);
     poolContract.options.address = poolAddr;
@@ -85,7 +85,7 @@ export const approvePool = async (account, provider, poolAddr, amount1, amount2,
     const c_address = contractAddresses[chain]['router'];
     const pc_address = contractAddresses[chain]['pool'];
 
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     // let contract = new web3.eth.Contract(routerAbi, c_address);
     let poolContract = new web3.eth.Contract(poolAbi, pc_address);
     poolContract.options.address = poolAddr;
@@ -99,7 +99,7 @@ export const approvePool = async (account, provider, poolAddr, amount1, amount2,
 export const swapTokens = async (provider, inTokenAddr, outTokenAddr, amount, account, limit, chain) => {
     const abi = routerABI[0];
     const c_address = contractAddresses[chain]['router'];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
 
     const wei_amount = web3.utils.toWei(amount.toString());
     const wei_limit = web3.utils.toWei(limit.toString());
@@ -112,7 +112,7 @@ export const swapTokens = async (provider, inTokenAddr, outTokenAddr, amount, ac
 export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, middleTokens, amount, account, chain) => {
     const abi = routerABI[0];
     const cAddress = contractAddresses[chain]['router'];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
 
     const wei_amount = web3.utils.toWei(amount.toString());
     let deadline = (new Date()).getTime()+900000;
@@ -165,12 +165,11 @@ export const batchSwapTokens = async (provider, inTokenAddr, outTokenAddr, middl
 export const joinPool = async (account, provider, token1Addr, token2Addr, amount1, amount2, chain) => {
     const abi = routerABI[0];
     const c_address = contractAddresses[chain]['router'];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     const poolAddr = await getPoolAddress(provider, token1Addr, token2Addr, chain);
 
     if(poolAddr) {
         const poolData = await getPoolData(provider, poolAddr, chain);
-        debugger;
         let tokenA = '';
         let tokenB = '';
         let amountA = 0;
@@ -191,7 +190,6 @@ export const joinPool = async (account, provider, token1Addr, token2Addr, amount
         const inMaxAmount = web3.utils.toWei((amountA*1.2).toString());
         const outAmount = web3.utils.toWei(amountB.toString());
         const outMaxAmount = web3.utils.toWei((amountB*1.2).toString());
-        debugger;
         const initUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256[]", "uint256"],
           [
@@ -210,15 +208,13 @@ export const joinPool = async (account, provider, token1Addr, token2Addr, amount
         // await token2_contract.methods['increaseAllowance'](c_address, outAmount).send({from: account});
         let contract = new web3.eth.Contract(abi, c_address);
         let result = await contract.methods['joinPool'](account, [[tokenA, tokenB],[inMaxAmount, outMaxAmount], initUserData]).send({from: account});
-        
-        console.log(result);
     }
 }
 
 export const getPoolBalance = async (account, provider, poolAddr, chain) => {
     const abi = poolABI[0];
     const c_address = contractAddresses[chain]['pool'];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     let contract = new web3.eth.Contract(abi, c_address);
     contract.options.address = poolAddr;
     const result = await contract.methods['balanceOf'](account).call();
@@ -228,7 +224,7 @@ export const getPoolBalance = async (account, provider, poolAddr, chain) => {
 export const getPoolSupply = async (provider, poolAddr, chain) => {
     const abi = poolABI[0];
     const c_address = contractAddresses[chain]['pool'];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     let contract = new web3.eth.Contract(abi, c_address);
     contract.options.address = poolAddr;
     const result = await contract.methods['totalSupply']().call();
@@ -238,7 +234,8 @@ export const getPoolSupply = async (provider, poolAddr, chain) => {
 export const getSwapFeePercent = async (provider, poolAddr, chain) => {
     const abi = poolABI[0];
     const c_address = contractAddresses[chain]['pool'];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
+    provider.enable()
     let contract = new web3.eth.Contract(abi, c_address);
     contract.options.address = poolAddr;
     const result = await contract.methods['getSwapFeePercentage']().call();
@@ -251,11 +248,10 @@ export const removePool = async (account, provider, poolAddr, amount, ratio, tok
     const tokenAbi = erc20ABI[0];
     const poolAbi = poolABI[0];
     const c_address = contractAddresses[chain]['router'];
-    let web3 = new Web3(provider);
-
+    let web3 = new Web3(window.ethereum);
+    provider.enable()
     const totalAmount = web3.utils.toWei(amount.toString());
     const tokenRatio = web3.utils.toWei(ratio.toString());
-    console.log(tokenRatio);
 
     const initUserData = ethers.utils.defaultAbiCoder.encode(
       ["uint256", "uint256"],
@@ -269,7 +265,7 @@ export const removePool = async (account, provider, poolAddr, amount, ratio, tok
 export const requestToken = async (account, provider, token, chain) => {
     const abi = faucetABI[0];
     const faucet_addr = contractAddresses[chain][token];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
 
     let contract = new web3.eth.Contract(abi, faucet_addr);
     await contract.methods['requestTokens']().send({from: account});
@@ -278,7 +274,7 @@ export const requestToken = async (account, provider, token, chain) => {
 export const allowedToWithdraw = async (account, provider, token, chain) => {
     const abi = faucetABI[0];
     const faucet_addr = contractAddresses[chain][token];
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
 
     let contract = new web3.eth.Contract(abi, faucet_addr);
     let allowed = contract.methods['allowedToWithdraw'](account).call();
@@ -286,6 +282,6 @@ export const allowedToWithdraw = async (account, provider, token, chain) => {
 }
 
 export const fromWeiVal = (provider, val) => {
-    let web3 = new Web3(provider);
+    let web3 = new Web3(window.ethereum);
     return web3.utils.fromWei(val);
 }

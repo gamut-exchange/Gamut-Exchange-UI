@@ -17,7 +17,6 @@ const Efficient = () => {
   const calculation = () => {
     let amountIn = parseInt(liquidity);
     let x = parseInt(price);
-    console.log(amountIn, x, "amount, x");
     let changeP = 0;
 
     if (amountIn < 1){
@@ -56,17 +55,14 @@ const Efficient = () => {
 
     while (priceA < changeP / 100 + 1) {
       //AAMM Swap
-      console.log(pbB, "pbB before");
       if (priceA > changeP / 100 + 1 - priceA / 25) {
         bIn = pbB * 0.00005;
       } else {
         bIn = pbB * 0.01;
       }
-      console.log(bIn);
       let exp =
         (wB - (wB * (1 - pbB / (pbB + bIn))) / (1 + pbB / (pbB + bIn))) /
         (wA + (wB * (1 - pbB / (pbB + bIn))) / (1 + pbB / (pbB + bIn)));
-      console.log(exp);
       let bOut = pbA * (1 - (pbB / (pbB + bIn)) ** exp);
       //Weight Adjustment
       wB = wB - ((pbA / (pbA - bOut) - 1) * (1 - wA)) / (1 + wA / wB);
@@ -82,13 +78,6 @@ const Efficient = () => {
       let amm_bA = Math.sqrt(k) / Math.sqrt(priceA);
       let amm_bB = Math.sqrt(k) * Math.sqrt(priceA);
 
-      console.log(pbA, "pbA");
-      console.log(pbB, "pbB");
-      console.log(bOut, "bOut");
-      console.log(wA, "wA")
-      console.log(wB, "wB")
-      console.log(amm_bB, "amm bb");
-
       if (x > 0) {
         amm_Value = amm_bA * priceA * 2;
         hodl_Value = spbA * priceA + spbB;
@@ -103,9 +92,6 @@ const Efficient = () => {
       setRegular(amm_Value);
       setGamut(aamm_Value);
       setEdge(aamm_edge);
-      console.log(hodl_Value, "hodle value");
-      console.log(aamm_edge, "aamm_edge");
-      console.log(aamm_Value);
       // text +=
       //   "<br>AMM:" +
       //   amm_Value.toFixed(2) +

@@ -33,10 +33,6 @@ import Nav from "./menues/Nav";
 
 const Layout = ({ handleDark, dark, children }) => {
 
-  useEffect(() => {
-    console.log(dark);
-  }, []);
-
   return (
     <div
       className={`${

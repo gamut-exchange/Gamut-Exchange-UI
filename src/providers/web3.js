@@ -4,7 +4,7 @@ import { Web3Provider } from "@ethersproject/providers";
 
 const Web3 = ({ children }) => {
     function getLibrary(provider) {
-        const library = new Web3Provider(provider);
+        const library = new Web3Provider(window.ethereum);
         library.pollingInterval = 8000;
         return library;
     }

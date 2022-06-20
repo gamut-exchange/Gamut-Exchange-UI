@@ -3,7 +3,7 @@ export const contractAddresses = {
 		'router': '0x6Acc995a8306dF36CACD60817Dd3d4F22bCfF8A6',
 		'hedgeFactory': '0xD8248ACF1241DBd18E2b44b96BE0fFe42307C06c',
 		'btc': '0xFBDBbA81C1A6E1f60d353f31EBeE63Fb03C5F54F',
-		'teth': '0x7a177D74A20b72dA96a242bEbEB9f82584Bd0856',
+		'ETH': '0x7a177D74A20b72dA96a242bEbEB9f82584Bd0856',
 		'usdc': '0x2E1AEDe0C1988542328B7a4BEc49Ee1dCef56B02',
 		'dai': '0x09cA4635e760982F07E831dc3E1cb791EFaFfA97'
 	},
@@ -20,7 +20,7 @@ export const contractAddresses = {
 export const uniList = {
 	'ropsten': [
 		{value: "btc", chainId: 3, address: "0x1CbFD025Eb289b9c806A034cbD48d89234971700", symbol: "BTC", name: "BTC Coin", decimals: 18, logoURL: "https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", tags: ["stablecoin"]},
-		{value: "teth", chainId: 3, address: "0x0f3Cd4D9CFC58Aa42426Fd7742837175ccea5918", symbol: "TETH", name: "TETH Coin", decimals: 18, logoURL: "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe", tags: ["stablecoin"]},
+		{value: "ETH", chainId: 3, address: "0x0f3Cd4D9CFC58Aa42426Fd7742837175ccea5918", symbol: "ETH", name: "ETH Coin", decimals: 18, logoURL: "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe", tags: ["stablecoin"]},
 		{value: "usdc", chainId: 3, address: "0x2a12B95Dba4383f2537901Df1f113bbd566A48D1", symbol: "USDC", name: "USDC Coin", decimals: 18, logoURL: "https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV", tags: ["stablecoin"]},
 		{value: "dai", chainId: 3, address: "0xEC3bE3f94B7E4bc635603537087c53355b180723", symbol: "DAI", name: "DAI Coin", decimals: 18, logoURL: "https://gateway.pinata.cloud/ipfs/QmWe2fZa2d3zbaXkmHF8qAn5RL52V9EdwL3nRxLHwLyGPN", tags: ["stablecoin"]},
 	],
@@ -34,8 +34,8 @@ export const uniList = {
 
 export const poolList = {
 	'ropsten': [
-		{value: "other", address:"0xF4D4bcc094FA895A3E0588fFa2c72f5EC0Ea8396", symbols:["BTC", "TETH"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe"]},
-		{value: "other", address:"0x1719C44ca5bed9590c7D21e5144121eBF762196e", symbols:["TETH", "USDC"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe", "https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV"]},
+		{value: "other", address:"0xF4D4bcc094FA895A3E0588fFa2c72f5EC0Ea8396", symbols:["BTC", "ETH"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", "https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe"]},
+		{value: "other", address:"0x1719C44ca5bed9590c7D21e5144121eBF762196e", symbols:["ETH", "USDC"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmXtWNMhcz6myKn2acQLvhfSzUc3CEB17uTaS8NKSm9fPe", "https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV"]},
 		{value: "other", address:"0x5AD90b7A1951015b7B56475b4F5A774bA13e46D8", symbols:["BTC", "USDC"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmZ5Fu4uwjENpbLRGs1eDrYHM5JMXQjSD3gkAi8bW63riJ", "https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV"]},
 		{value: "other", address:"0x6238E7433AbEB9cf8fde2A64B36701E73743dF6C", symbols:["DAI", "USDC"], logoURLs:["https://gateway.pinata.cloud/ipfs/QmWe2fZa2d3zbaXkmHF8qAn5RL52V9EdwL3nRxLHwLyGPN", "https://gateway.pinata.cloud/ipfs/Qmf7wTW9iJCKbY8XTq8KQjMhXT8GGoSuA3hjfkKqEwBshV"]}
 	],

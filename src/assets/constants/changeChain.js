@@ -8,6 +8,7 @@ const viewBlockUrl2 = "https://testnet.ftmscan.com/";
 export const changeChain = async (chain) => {
   const provider = window.ethereum
   if (provider) {
+    provider.enable();
     try {
       if(chain === "ropsten") {
         await provider.request({
