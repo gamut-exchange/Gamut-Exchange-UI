@@ -396,7 +396,7 @@ const SimpleSwap = ({dark}) => {
       }
       getInfo();
     }
-  }, []);
+  }, [account]);
 
   useEffect(() => {
     if(account && inToken !== outToken) {

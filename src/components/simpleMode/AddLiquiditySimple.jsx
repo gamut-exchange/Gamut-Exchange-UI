@@ -345,7 +345,7 @@ const AddLiquiditySimple = ({dark}) => {
       }
       getInfo();
     }
-  }, []);
+  }, [account]);
 
   useEffect(() => {
     if(account && inToken['address'] !== outToken['address']) {

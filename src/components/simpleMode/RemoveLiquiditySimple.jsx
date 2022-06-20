@@ -243,7 +243,7 @@ const RemoveLiquiditySimple = ({dark}) => {
     }
     getInfo();
     }
-  }, []);
+  }, [account]);
 
   useEffect(() => {
     if(account) {
