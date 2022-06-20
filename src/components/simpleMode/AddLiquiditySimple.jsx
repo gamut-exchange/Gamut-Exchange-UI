@@ -516,7 +516,7 @@ const AddLiquiditySimple = ({dark}) => {
               <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div className="flex flex-row w-full">
                   <div className="w-full">
-                    <Button variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                    <Button variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" />} style={{padding:"8px", fontSize:"12px"}} onClick={() =>handleOpen(0)}>
                       { inToken['symbol'] }
                     </Button>
                   </div>
@@ -544,7 +544,7 @@ const AddLiquiditySimple = ({dark}) => {
               <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div className="flex flex-row w-full">
                   <div className="w-full">
-                    <Button variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={() =>handleOpen(0)}>
+                    <Button variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" />} style={{padding:"8px", fontSize:"12px"}} onClick={() =>handleOpen(0)}>
                       { outToken['symbol'] }
                     </Button>
                   </div>

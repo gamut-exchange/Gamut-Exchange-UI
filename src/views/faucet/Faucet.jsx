@@ -24,14 +24,14 @@ const Faucet = () => {
   const StyledModal = tw.div`
     flex
     flex-col
-    absolute
-    top-1/4 left-1/3
-    bg-white-bg
+    relative
+    m-auto
+    top-1/4
     p-6
     shadow-box overflow-y-scroll
     min-h-min
     transform -translate-x-1/2 -translate-y-1/2
-    w-1/3
+    sm:w-1/3 w-11/12
   `;
 
   const handleOpen = () => setOpen(true);
