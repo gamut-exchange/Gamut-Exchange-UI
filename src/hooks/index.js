@@ -17,7 +17,7 @@ export function useEagerConnect() {
                     setTried(true);
                 });
             } else {
-                setTried(true);
+                setTried(false);
             }
         });
     }, [activate]); // intentionally only running on mount (make sure it's only mounted once :))
@@ -39,6 +39,7 @@ export function useInactiveListener(suppress = false) {
 
     useEffect(() => {
         const { ethereum } = window;
+        console.log(suppress)
         if (ethereum && ethereum.on && !active && !error && !suppress) {
             const handleChainChanged = (chainId) => {
                 console.log("chainChanged", chainId);
@@ -52,14 +53,14 @@ export function useInactiveListener(suppress = false) {
                 }
             };
 
-            const handleNetworkChanged = (networkId) => {
-                console.log("networkChanged", networkId);
-                activate(injected);
-            };
+            // const handleNetworkChanged = (networkId) => {
+            //     console.log("networkChanged", networkId);
+            //     activate(injected);
+            // };
 
             ethereum.on("chainChanged", handleChainChanged);
             ethereum.on("accountsChanged", handleAccountsChanged);
-            ethereum.on("networkChanged", handleNetworkChanged);
+            // ethereum.on("networkChanged", handleNetworkChanged);
 
             return () => {
                 if (ethereum.removeListener) {
@@ -68,10 +69,10 @@ export function useInactiveListener(suppress = false) {
                         "accountsChanged",
                         handleAccountsChanged
                     );
-                    ethereum.removeListener(
-                        "networkChanged",
-                        handleNetworkChanged
-                    );
+                    // ethereum.removeListener(
+                    //     "networkChanged",
+                    //     handleNetworkChanged
+                    // );
                 }
             };
         }
