@@ -246,7 +246,6 @@ const RemoveLiquiditySimple = ({dark}) => {
   }, [account]);
 
   useEffect(() => {
-    console.log(selected_chain);
     setFilterData(poolList[[selected_chain]]);
     selectToken(poolList[selected_chain][0]);
   }, [dispatch, selected_chain, account]);
