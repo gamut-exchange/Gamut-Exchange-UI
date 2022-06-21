@@ -67,10 +67,17 @@ const Nav = ({ handleDark, dark }) => {
   const maybeFixMetamaskConnection = async () => {
     // Reloads the page after n seconds if Metamask is installed but not initialized
     const waitSeconds = 2;
-    if (typeof window !== "undefined" && typeof window.ethereum !== 'undefined' &&  !window.ethereum._state.initialized) {
-      while(!window.ethereum._state.initialized) {
-        await new Promise(resolve => setTimeout(resolve, waitSeconds * 1000)); 
-        window.location.reload();
+    if(!window.ethereum) {
+      window.addEventListener('ethereum#initialized', handleEthereum, {
+          once: true,
+      });
+      setTimeout(maybeFixMetamaskConnection, 3000);
+    } else {
+      if (typeof window !== "undefined" && typeof window.ethereum !== 'undefined' &&  !window.ethereum._state.initialized) {
+        while(!window.ethereum._state.initialized) {
+          await new Promise(resolve => setTimeout(resolve, waitSeconds * 1000)); 
+          window.location.reload();
+        }
       }
     }
   }
