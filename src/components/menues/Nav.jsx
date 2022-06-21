@@ -83,23 +83,18 @@ const Nav = ({ handleDark, dark }) => {
   }
 
   const handleWrongChain = async () => {
-      await maybeFixMetamaskConnection();
-      let current_chainId = await window.ethereum.request({ method: 'eth_chainId' });
-      current_chainId = Number(current_chainId);
-      // console.log(current_chainId);
-      if((chainLabel === "ropsten" && current_chainId === 3) || (chainLabel === "fantom" && current_chainId === 4002)) {
-        setWrongChain(false);
-        dispatch({
-            type:SELECT_CHAIN,
-            payload: chainLabel
-        });
-      } else {
-        setWrongChain(true);
-        dispatch({
-            type:SELECT_CHAIN,
-            payload: chainLabel
-        });
-      }
+    let current_chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    current_chainId = Number(current_chainId);
+    if((chainLabel === "ropsten" && current_chainId === 3) || (chainLabel === "fantom" && current_chainId === 4002)) {
+      setWrongChain(false);
+      dispatch({
+          type:SELECT_CHAIN,
+          payload: chainLabel
+      });
+    }
+    else {
+      setWrongChain(true);
+    }
   }
 
   useEffect(() => {
