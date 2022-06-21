@@ -83,7 +83,7 @@ const Nav = ({ handleDark, dark }) => {
   }
 
   const handleWrongChain = async () => {
-      // await maybeFixMetamaskConnection();
+      await maybeFixMetamaskConnection();
       let current_chainId = await window.ethereum.request({ method: 'eth_chainId' });
       current_chainId = Number(current_chainId);
       // console.log(current_chainId);
@@ -104,7 +104,7 @@ const Nav = ({ handleDark, dark }) => {
 
   useEffect(() => {
     handleWrongChain();
-  }, [dispatch, chainLabel, activate, deactivate, setChainLabel, active, window.ethereum]);
+  }, [dispatch, chainLabel, activate, deactivate, setChainLabel, active]);
 
   return (
     <div
