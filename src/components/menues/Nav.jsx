@@ -68,7 +68,7 @@ const Nav = ({ handleDark, dark }) => {
     // Reloads the page after n seconds if Metamask is installed but not initialized
     const waitSeconds = 2;
     if(!window.ethereum) {
-      window.addEventListener('ethereum#initialized', handleEthereum, {
+      window.addEventListener('ethereum#initialized', maybeFixMetamaskConnection, {
           once: true,
       });
       setTimeout(maybeFixMetamaskConnection, 3000);
@@ -83,7 +83,7 @@ const Nav = ({ handleDark, dark }) => {
   }
 
   const handleWrongChain = async () => {
-      // await maybeFixMetamaskConnection();
+      await maybeFixMetamaskConnection();
       let current_chainId = await window.ethereum.request({ method: 'eth_chainId' });
       current_chainId = Number(current_chainId);
       // console.log(current_chainId);
