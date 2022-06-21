@@ -154,8 +154,8 @@ const RemoveLiquiditySimple = ({dark}) => {
 
   const selectToken = async (item) => {
     handleClose();
+    setSelectedItem(item);
     if(account) {
-      setSelectedItem(item);
       const provider = await connector.getProvider();
       const poolData = await getPoolData(provider, item['address'], selected_chain);
       const weightA = fromWeiVal(provider, poolData['weights'][0]);
@@ -246,10 +246,9 @@ const RemoveLiquiditySimple = ({dark}) => {
   }, [account]);
 
   useEffect(() => {
-    if(account) {
-      setFilterData(poolList[[selected_chain]]);
-      selectToken(poolList[selected_chain][0]);
-    }
+    console.log(selected_chain);
+    setFilterData(poolList[[selected_chain]]);
+    selectToken(poolList[selected_chain][0]);
   }, [dispatch, selected_chain, account]);
 
   const CustomTooltip0 = ({ active, payload, label }) => {
@@ -325,7 +324,7 @@ const RemoveLiquiditySimple = ({dark}) => {
         </button>
       </div>
       <div className="flex sm:flex-row flex-col items-center">
-        {(chartOpen && account && formattedWeightsData) && (
+        {(chartOpen && formattedWeightsData) && (
           <div className="flex-1 w-full mb-4">
               {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token0']}</b> weight</h3>}
               <ResponsiveContainer width="95%" height={250}>
@@ -424,10 +423,10 @@ const RemoveLiquiditySimple = ({dark}) => {
               <div className="flex justify-between flex-col gap-y-2 items-center p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div className="flex flex-row w-full">
                   <div className="w-full">
-                    <Button variant="outlined" startIcon={<div style={{float:'left'}}>
-                      <img src={selectedItem['logoURLs'][0]} alt="" style={{ float:'left', width:'25px' }} />
-                      <img src={selectedItem['logoURLs'][1]} alt="" style={{float:'left', marginLeft:-5, width:'25px' }} />
-                      </div>} onClick={handleOpen} style={{padding:"10px 15px"}} className="bg-white dark:bg-black w-36 sm:w-48">
+                    <Button variant="outlined" startIcon={<div style={{float:'left'}} >
+                      <img src={selectedItem['logoURLs'][0]} alt="" style={{ float:'left' }}  className="w-5 sm:w-8" />
+                      <img src={selectedItem['logoURLs'][1]} alt="" style={{float:'left', marginLeft:-5 }}  className="w-5 sm:w-8" />
+                      </div>} onClick={handleOpen} style={{padding:"8px", fontSize:"13px"}} className="bg-white dark:bg-black w-36 sm:w-48">
                       {selectedItem['symbols'][0]} - {selectedItem['symbols'][1]} LP
                     </Button>
                   </div>
@@ -485,7 +484,7 @@ const RemoveLiquiditySimple = ({dark}) => {
               className="btn-primary rounded-sm font-bold w-full dark:text-black"
               disabled={limitedout}
             >
-              {limitedout?"Not Enough Token":"Confirm"}
+              {account?(limitedout?"Not Enough Token":"Confirm"):"Connect To Wallet"}
             </button>
           </div>
           <Modal

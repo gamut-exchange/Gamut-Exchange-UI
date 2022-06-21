@@ -183,6 +183,15 @@ const SimpleSwap = ({dark}) => {
   const selectToken = async (token, selected) => {
     handleClose();
     var bal = 0;
+    if(selected === 0) {
+      if(token['address'] !== inToken['address']) {
+          setInToken(token);
+      }
+    } else if(selected == 1) {
+      if(token['address'] !== outToken['address']) {
+        setOutToken(token);
+      }
+    }
     if(account) {
       const provider = await connector.getProvider();
       bal = await getTokenBalance(provider, token['address'], account);
@@ -193,10 +202,6 @@ const SimpleSwap = ({dark}) => {
         });
         setFilterData(tempData);
         checkApproved(token, value);
-
-        if(token['address'] !== inToken['address']) {
-          setInToken(token);
-        }
 
         let inLimBal = (bal.toString()).replaceAll(',', '');
         let outLimBal = (outBal.toString()).replaceAll(',', '');
@@ -212,9 +217,6 @@ const SimpleSwap = ({dark}) => {
         });
 
         setFilterData(tempData);
-        if(token['address'] !== outToken['address']) {
-          setOutToken(token);
-        }
       }
     }
   }
@@ -228,19 +230,19 @@ const SimpleSwap = ({dark}) => {
   const calcOutput = async (middleTokens, provider, val=value, inSToken=inToken, outSToken=outToken) => {
       try {
           if(middleTokens.length === 1) {
-            const poolAddressA = await getPoolAddress(provider, inSToken['address'], middleTokens[0]['address'], selected_chain);
+            const poolAddressA = await getPoolAddress(inSToken['address'], middleTokens[0]['address'], selected_chain);
             const poolDataA = await getPoolData(provider, poolAddressA, selected_chain);
-            const poolAddressB = await getPoolAddress(provider, middleTokens[0]['address'], outSToken['address'], selected_chain);
+            const poolAddressB = await getPoolAddress(middleTokens[0]['address'], outSToken['address'], selected_chain);
             const poolDataB = await getPoolData(provider, poolAddressB, selected_chain);
             const middleOutput = await calculateSwap(inSToken['address'], poolDataA, val*(1-swapFee));
             const output = await calculateSwap(middleTokens[0]['address'], poolDataB, middleOutput*(1-swapFee));
             return output;
           } else {
-            const poolAddressA = await getPoolAddress(provider, inSToken['address'], middleTokens[0]['address'], selected_chain);
+            const poolAddressA = await getPoolAddress(inSToken['address'], middleTokens[0]['address'], selected_chain);
             const poolDataA = await getPoolData(provider, poolAddressA, selected_chain);
-            const poolAddressB = await getPoolAddress(provider, middleTokens[0]['address'], middleTokens[1]['address'], selected_chain);
+            const poolAddressB = await getPoolAddress(middleTokens[0]['address'], middleTokens[1]['address'], selected_chain);
             const poolDataB = await getPoolData(provider, poolAddressB, selected_chain);
-            const poolAddressC = await getPoolAddress(provider, middleTokens[1]['address'], outSToken['address'], selected_chain);
+            const poolAddressC = await getPoolAddress(middleTokens[1]['address'], outSToken['address'], selected_chain);
             const poolDataC = await getPoolData(provider, poolAddressC, selected_chain);
             const middleOutput1 = await calculateSwap(inSToken['address'], poolDataA, val*(1-swapFee));
             const middleOutput2 = await calculateSwap(middleTokens[0]['address'], poolDataB, middleOutput1*(1-swapFee));
@@ -291,7 +293,7 @@ const SimpleSwap = ({dark}) => {
       }
 
       try {
-          const poolAddress = await getPoolAddress(provider, inSToken['address'], outSToken['address'], selected_chain);
+          const poolAddress = await getPoolAddress(inSToken['address'], outSToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress, selected_chain);
           const result = await calculateSwap(inSToken['address'], poolData, value);
           if(suitableRouter.length !== 0) {
@@ -395,7 +397,7 @@ const SimpleSwap = ({dark}) => {
       }
       getInfo();
     }
-  }, [account]);
+  }, [account, ""]);
 
   useEffect(() => {
     if(account && inToken !== outToken) {
@@ -407,17 +409,17 @@ const SimpleSwap = ({dark}) => {
           amountOut = (amountOut*1 === 0)?0:amountOut.toPrecision(6);
           setValueEth(amountOut);
           if(midToken.length == 1) {
-            const poolAddress1 = await getPoolAddress(provider, inToken['address'], midToken[0]['address'], selected_chain);
-            const poolAddress2 = await getPoolAddress(provider, midToken[0]['address'], outToken['address'], selected_chain);
+            const poolAddress1 = await getPoolAddress(inToken['address'], midToken[0]['address'], selected_chain);
+            const poolAddress2 = await getPoolAddress(midToken[0]['address'], outToken['address'], selected_chain);
             setPoolAddress([poolAddress1.toLowerCase(), poolAddress2.toLowerCase()])
           } else {
-            const poolAddress1 = await getPoolAddress(provider, inToken['address'], midToken[0]['address'], selected_chain);
-            const poolAddress2 = await getPoolAddress(provider, midToken[0]['address'], midToken[1]['address'], selected_chain);
-            const poolAddress3 = await getPoolAddress(provider, midToken[1]['address'], outToken['address'], selected_chain);
+            const poolAddress1 = await getPoolAddress(inToken['address'], midToken[0]['address'], selected_chain);
+            const poolAddress2 = await getPoolAddress(midToken[0]['address'], midToken[1]['address'], selected_chain);
+            const poolAddress3 = await getPoolAddress(midToken[1]['address'], outToken['address'], selected_chain);
             setPoolAddress([poolAddress1.toLowerCase(), poolAddress2.toLowerCase(), poolAddress3.toLowerCase()])
           }
         } else {
-          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
+          const poolAddress = await getPoolAddress(inToken['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress, selected_chain);
           let amountOut = await calculateSwap(inToken['address'], poolData, value);
           amountOut = (amountOut*1 === 0)?0:amountOut.toPrecision(6);
@@ -428,17 +430,21 @@ const SimpleSwap = ({dark}) => {
       }
 
       getInfo();
+    } else if(inToken !== outToken) {
+      const getAddress = async () => {
+        const poolAddress = await getPoolAddress(inToken['address'], outToken['address'], selected_chain);
+        setPoolAddress([poolAddress.toLowerCase()]);
+      }
+      getAddress();
     } else {
       setPoolAddress([])
     }
   }, [inToken, outToken, value]);
 
   useEffect(() => {
-    if(account) {
-      setFilterData(uniList[selected_chain]);
-      selectToken(uniList[selected_chain][0], 0);
-      selectToken(uniList[selected_chain][1], 1);
-    }
+    setFilterData(uniList[selected_chain]);
+    selectToken(uniList[selected_chain][0], 0);
+    selectToken(uniList[selected_chain][1], 1);
   }, [dispatch, selected_chain]);
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -605,7 +611,7 @@ const SimpleSwap = ({dark}) => {
                 <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                   <div className="flex flex-row w-full">
                     <div className="w-full">
-                      <Button id="address_in" variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" style={{ width:'25px' }} />} style={{padding:"8px", fontSize:"12px"}} onClick={() =>handleOpen(0)}>
+                      <Button id="address_in" variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" className="w-5 sm:w-8" />} style={{padding:"8px", fontSize:"13px"}} onClick={() =>handleOpen(0)}>
                        {inToken['symbol']}
                       </Button>
                     </div>
@@ -635,7 +641,7 @@ const SimpleSwap = ({dark}) => {
                 <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                   <div className="flex flex-row w-full">
                     <div className="w-full">
-                      <Button id="address_out" variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" style={{ width:'25px' }} />} style={{padding:"8px", fontSize:"12px"}} onClick={() =>handleOpen(0)}>
+                      <Button id="address_out" variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" className="w-5 sm:w-8" />} style={{padding:"8px", fontSize:"13px"}} onClick={() =>handleOpen(1)}>
                        {outToken['symbol']}
                       </Button>
                     </div>

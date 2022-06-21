@@ -5,6 +5,7 @@ import { useWeb3React } from "@web3-react/core";
 import Drawer from "react-modern-drawer";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -63,24 +64,41 @@ const Nav = ({ handleDark, dark }) => {
     setIsToggleOpen((prevState) => !prevState);
   };
 
+  const maybeFixMetamaskConnection = async () => {
+    // Reloads the page after n seconds if Metamask is installed but not initialized
+    const waitSeconds = 2;
+    if (typeof window !== "undefined" && typeof window.ethereum !== 'undefined' &&  !window.ethereum._state.initialized) {
+      while(!window.ethereum._state.initialized) {
+        await new Promise(resolve => setTimeout(resolve, waitSeconds * 1000)); 
+        window.location.reload();
+      }
+    }
+  }
+
   const handleWrongChain = async () => {
-    let current_chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    current_chainId = Number(current_chainId);
-    if((chainLabel === "ropsten" && current_chainId === 3) || (chainLabel === "fantom" && current_chainId === 4002)) {
-      setWrongChain(false);
-      dispatch({
-          type:SELECT_CHAIN,
-          payload: chainLabel
-      });
-    }
-    else {
-      setWrongChain(true);
-    }
+      await maybeFixMetamaskConnection();
+      let current_chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      current_chainId = Number(current_chainId);
+      // console.log(current_chainId);
+      if((chainLabel === "ropsten" && current_chainId === 3) || (chainLabel === "fantom" && current_chainId === 4002)) {
+        setWrongChain(false);
+        dispatch({
+            type:SELECT_CHAIN,
+            payload: chainLabel
+        });
+      }
+      else {
+        setWrongChain(true);
+        dispatch({
+            type:SELECT_CHAIN,
+            payload: chainLabel
+        });
+      }
   }
 
   useEffect(() => {
     handleWrongChain();
-  }, [dispatch, chainLabel, activate, deactivate, setChainLabel, active]);
+  }, [dispatch, chainLabel, activate, deactivate, setChainLabel, active, window.ethereum]);
 
   return (
     <div
@@ -155,6 +173,7 @@ const Nav = ({ handleDark, dark }) => {
               <Box className={classes.connectWallet}>
                   {(() => {
                       if (wrongChain) {
+                        if(window.ethereum._state.initialized)
                           return (
                               <Button
                                   variant="contained"
@@ -167,7 +186,17 @@ const Nav = ({ handleDark, dark }) => {
                               >
                                   Wrong Chain
                               </Button>
-                          )
+                          );
+                        else
+                          return (
+                              <Button
+                                  variant="contained"
+                                  className="btn-primary dark:text-dark-primary w-full"
+                                  style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                              >
+                                  <span className="pr-1">Connecting... </span><CircularProgress size="1rem" color="success" />
+                              </Button>
+                          );
                       } else {
                         if(account)
                           return (
@@ -282,19 +311,30 @@ const Nav = ({ handleDark, dark }) => {
                     <Box className={classes.connectWallet}>
                       {(() => {
                           if (wrongChain) {
-                              return (
-                                  <Button
-                                      variant="contained"
-                                      className="btn-primary dark:text-dark-primary w-full"
-                                      style={{borderRadius:'0px', minHeight:44, fontSize:18}}
-                                      onClick={() => {
-                                          setOpenWalletList(true);
-                                      }}
-                                     
-                                  >
-                                      Wrong Chain
-                                  </Button>
-                              )
+                              if(window.ethereum._state.initialized)
+                                return (
+                                    <Button
+                                        variant="contained"
+                                        className="btn-primary dark:text-dark-primary w-full"
+                                        style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                                        onClick={() => {
+                                            setOpenWalletList(true);
+                                        }}
+                                       
+                                    >
+                                        Wrong Chain
+                                    </Button>
+                                );
+                              else
+                                return (
+                                    <Button
+                                        variant="contained"
+                                        className="btn-primary dark:text-dark-primary w-full"
+                                        style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                                    >
+                                        <span className="pr-1">Connecting... </span><CircularProgress size="1rem" color="success" />
+                                    </Button>
+                                );
                           } else {
                             if(account)
                               return (
@@ -342,9 +382,3 @@ const Nav = ({ handleDark, dark }) => {
 };
 
 export default Nav;
-
-const links = [
-  { id: 1, text: "Liquidity", url: "/liquidity" },
-  { id: 2, text: "Swap", url: "/swap" },
-
-];

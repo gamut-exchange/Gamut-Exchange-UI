@@ -137,7 +137,7 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
                 dark
                   ? "dark transition-all duration-700 ease-in-out"
                   : "light transition-all duration-700 ease-in-out"
-              } w-full transition-all duration-700 ease-in-out`}
+              } transition-all duration-700 ease-in-out`}
             onClose={handleCloseWalletList}
             classes={{
                 paper: dark?classes.darkConnectWallet:classes.connectWallet,
@@ -215,7 +215,7 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
                 <button
                   variant="contained"
                   className="btn-primary dark:text-dark-primary w-full"
-                  style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                  style={{borderRadius:'0px', minHeight:44, fontSize:15}}
                   onClick={handleChainChange}
                 >
                   Connect to {chain.toUpperCase()}
@@ -264,7 +264,7 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
                 <button
                   variant="contained"
                   className="btn-primary dark:text-dark-primary w-full"
-                  style={{borderRadius:'0px', minHeight:44, fontSize:18}}
+                  style={{borderRadius:'0px', minHeight:44, fontSize:15}}
                   onClick={handleChainChange}
                 >
                   Connect to {chain.toUpperCase()}

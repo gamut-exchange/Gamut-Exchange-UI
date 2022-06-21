@@ -131,6 +131,11 @@ const AddLiquiditySimple = ({dark}) => {
   const selectToken = async (token, selected) => {
     handleClose();
     var bal = 0;
+    if(selected === 0) {
+      setInToken(token);
+    } else if(selected === 1) {
+      setOutToken(token);
+    }
     if(account) {
       const provider = await connector.getProvider();
       bal = await getTokenBalance(provider, token['address'], account);
@@ -140,10 +145,9 @@ const AddLiquiditySimple = ({dark}) => {
           return item['address'] !== token['address']
         });
         setFilterData(tempData);
-        setInToken(token);
 
         try {
-          const poolAddr = await getPoolAddress(provider, token['address'], outToken['address'], selected_chain);
+          const poolAddr = await getPoolAddress(token['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddr, selected_chain);
           checkApproved(token, outToken, poolAddr, value, valueEth);
           setIsExist(true);
@@ -176,7 +180,7 @@ const AddLiquiditySimple = ({dark}) => {
         setOutToken(token);
         
         try {
-          const poolAddr = await getPoolAddress(provider, token['address'], outToken['address'], selected_chain);
+          const poolAddr = await getPoolAddress(token['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddr);
           checkApproved(inToken, token, poolAddr, value, valueEth);
           setIsExist(true);
@@ -336,7 +340,7 @@ const AddLiquiditySimple = ({dark}) => {
         setInBal(inBal);
         setOutBal(outBal);
         try {
-          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
+          const poolAddress = await getPoolAddress(inToken['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress, selected_chain);
           setIsExist(true);
           const sliderInit = await sliderInitVal(poolData, inToken);
@@ -358,7 +362,7 @@ const AddLiquiditySimple = ({dark}) => {
       const getInfo = async () => {
         try {
           const provider = await connector.getProvider();
-          const poolAddress = await getPoolAddress(provider, inToken['address'], outToken['address'], selected_chain);
+          const poolAddress = await getPoolAddress(inToken['address'], outToken['address'], selected_chain);
           const poolData = await getPoolData(provider, poolAddress, selected_chain);
           setIsExist(true);
           setPoolAddress(poolAddress);
@@ -370,16 +374,18 @@ const AddLiquiditySimple = ({dark}) => {
 
       getInfo();
     } else {
-      setPoolAddress("")
+      const getAddress = async () => {
+        const poolAddress = await getPoolAddress(inToken['address'], outToken['address'], selected_chain);
+        setPoolAddress(poolAddress.toLowerCase());
+      }
+      getAddress();
     }
   }, [inToken, outToken]);
 
   useEffect(() => {
-    if(account) {
-      setFilterData(uniList[selected_chain]);
-      selectToken(uniList[selected_chain][0], 0);
-      selectToken(uniList[selected_chain][1], 1);
-    }
+    setFilterData(uniList[selected_chain]);
+    selectToken(uniList[selected_chain][0], 0);
+    selectToken(uniList[selected_chain][1], 1);
   }, [dispatch, selected_chain]);
 
   const formattedWeightsData = useMemo(() => {
@@ -413,7 +419,7 @@ const AddLiquiditySimple = ({dark}) => {
         </button>
       </div>
       <div className="flex sm:flex-row flex-col items-center">
-        {(chartOpen && account && formattedWeightsData) && (
+        {(chartOpen && formattedWeightsData) && (
           <div className="flex-1 w-full mb-4">
               {formattedWeightsData[0] && <h3 className="model-title mb-4" style={{fontSize:18}}><b>{formattedWeightsData[0]['token0']}</b> weight</h3>}
               <ResponsiveContainer width="95%" height={250}>
@@ -507,16 +513,14 @@ const AddLiquiditySimple = ({dark}) => {
               </div>
             </div>
           )}
-
           <hr className="my-4" />
-
           <div className="w-full flex flex-col gap-y-6">
             <div>
               <h3 className="input-lable mb-4">Input</h3>
               <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div className="flex flex-row w-full">
                   <div className="w-full">
-                    <Button variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" style={{ width:'25px' }} />} style={{padding:"8px", fontSize:"12px"}} onClick={() =>handleOpen(0)}>
+                    <Button variant="outlined" startIcon={<img src={inToken['logoURL']} alt="" className="w-5 sm:w-8" />} style={{padding:"8px", fontSize:"13px"}} onClick={() =>handleOpen(0)}>
                       { inToken['symbol'] }
                     </Button>
                   </div>
@@ -534,17 +538,15 @@ const AddLiquiditySimple = ({dark}) => {
                 </div>
               </div>
             </div>
-
             <div className="w-full flex justify-center items-center text-light-primary text-2xl dark:text-grey-dark">
               <BsPlus />
             </div>
-
             <div>
               <h3 className="input-lable mb-4">Output</h3>
               <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div className="flex flex-row w-full">
                   <div className="w-full">
-                    <Button variant="outlined" startIcon={<img src={outToken['logoURL']} alt=""  style={{ width:'25px' }} />} style={{padding:"8px", fontSize:"12px"}} onClick={() =>handleOpen(0)}>
+                    <Button variant="outlined" startIcon={<img src={outToken['logoURL']} alt="" className="w-5 sm:w-8" />} style={{padding:"8px", fontSize:"13px"}} onClick={() =>handleOpen(1)}>
                       { outToken['symbol'] }
                     </Button>
                   </div>
@@ -581,7 +583,7 @@ const AddLiquiditySimple = ({dark}) => {
               disabled={limitedout || !isExist}
             >
               {" "}
-              {!isExist?"No Pool Exist":(limitedout?"Not Enough Token":"Confirm")}
+              {account?(!isExist?"No Pool Exist":(limitedout?"Not Enough Token":"Confirm")):"Connect to Wallet"}
             </button>
           </div>
           <Modal
