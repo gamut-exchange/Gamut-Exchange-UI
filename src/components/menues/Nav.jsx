@@ -388,7 +388,6 @@ const Nav = ({ handleDark, dark }) => {
                                 onClick={() => {
                                   setOpenWalletList(true);
                                 }}
-                                className={isMobile ? classes.show : ""}
                               >
                                 {`${account.substring(
                                   0,
