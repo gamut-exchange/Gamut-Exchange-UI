@@ -5,7 +5,7 @@ import Faucet from "./Faucet";
 const Index = ({ handleDark, dark }) => {
   return (
     <Layout handleDark={handleDark} dark={dark}>
-      <Faucet />
+      <Faucet dark={dark} />
     </Layout>
   );
 };

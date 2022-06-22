@@ -67,25 +67,26 @@ const Nav = ({ handleDark, dark }) => {
     setIsToggleOpen((prevState) => !prevState);
   };
 
-  const maybeFixMetamaskConnection = async () => {
-    // Reloads the page after n seconds if Metamask is installed but not initialized
-    const waitSeconds = 2;
-    if (
-      typeof window !== "undefined" &&
-      typeof window.ethereum !== "undefined" &&
-      !window.ethereum._state.initialized
-    ) {
-      setNoDetected(true);
-      while (!window.ethereum._state.initialized) {
-        await new Promise((resolve) => setTimeout(resolve, waitSeconds * 1000));
-        window.location.reload();
-      }
-    }
-  };
+  // const maybeFixMetamaskConnection = async () => {
+  //   // Reloads the page after n seconds if Metamask is installed but not initialized
+  //   const waitSeconds = 4;
+  //   if (
+  //     typeof window !== "undefined" &&
+  //     typeof window.ethereum !== "undefined" &&
+  //     !window.ethereum._state.initialized
+  //   ) {
+  //     setNoDetected(true);
+  //     while (!window.ethereum._state.initialized) {
+  //       await new Promise((resolve) => setTimeout(resolve, waitSeconds * 1000));
+  //       window.location.reload();
+  //     }
+  //   }
+  // };
 
   const handleWrongChain = async () => {
     if (window.ethereum && window.ethereum.isMetaMask) {
-      await maybeFixMetamaskConnection();
+      // await maybeFixMetamaskConnection();
+      // window.ethereum.request({ method: 'eth_requestAccounts' });
       let current_chainId = await window.ethereum.request({
         method: "eth_chainId",
       });
@@ -221,7 +222,7 @@ const Nav = ({ handleDark, dark }) => {
                           className="btn-primary dark:text-dark-primary w-full"
                           style={{
                             borderRadius: "0px",
-                            minHeight: 44,
+                            height: 44,
                             fontSize: 18,
                           }}
                           onClick={() => {
@@ -238,7 +239,7 @@ const Nav = ({ handleDark, dark }) => {
                           className="btn-primary dark:text-dark-primary w-full"
                           style={{
                             borderRadius: "0px",
-                            minHeight: 44,
+                            height: 44,
                             fontSize: 18,
                           }}
                         >
@@ -254,7 +255,7 @@ const Nav = ({ handleDark, dark }) => {
                           className="btn-primary dark:text-dark-primary w-full"
                           style={{
                             borderRadius: "0px",
-                            minHeight: 44,
+                            height: 44,
                             fontSize: 18,
                           }}
                           startIcon={
@@ -283,7 +284,7 @@ const Nav = ({ handleDark, dark }) => {
                           className="btn-primary dark:text-dark-primary w-full"
                           style={{
                             borderRadius: "0px",
-                            minHeight: 44,
+                            height: 44,
                             fontSize: 18,
                           }}
                           onClick={() => {
@@ -398,7 +399,7 @@ const Nav = ({ handleDark, dark }) => {
                                 className="btn-primary dark:text-dark-primary w-full"
                                 style={{
                                   borderRadius: "0px",
-                                  minHeight: 44,
+                                  height: 44,
                                   fontSize: 18,
                                 }}
                                 onClick={() => {
@@ -415,7 +416,7 @@ const Nav = ({ handleDark, dark }) => {
                                 className="btn-primary dark:text-dark-primary w-full"
                                 style={{
                                   borderRadius: "0px",
-                                  minHeight: 44,
+                                  height: 44,
                                   fontSize: 18,
                                 }}
                               >
@@ -431,7 +432,7 @@ const Nav = ({ handleDark, dark }) => {
                                 className="btn-primary dark:text-dark-primary w-full"
                                 style={{
                                   borderRadius: "0px",
-                                  minHeight: 44,
+                                  height: 44,
                                   fontSize: 14,
                                 }}
                                 startIcon={
@@ -463,7 +464,7 @@ const Nav = ({ handleDark, dark }) => {
                                 className="btn-primary dark:text-dark-primary w-full"
                                 style={{
                                   borderRadius: "0px",
-                                  minHeight: 44,
+                                  height: 44,
                                   fontSize: 18,
                                 }}
                                 onClick={() => {

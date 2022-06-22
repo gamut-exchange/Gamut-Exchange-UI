@@ -426,7 +426,7 @@ const RemoveLiquiditySimple = ({dark}) => {
                     <Button variant="outlined" startIcon={<div style={{float:'left'}} >
                       <img src={selectedItem['logoURLs'][0]} alt="" style={{ float:'left' }}  className="w-5 sm:w-8" />
                       <img src={selectedItem['logoURLs'][1]} alt="" style={{float:'left', marginLeft:-5 }}  className="w-5 sm:w-8" />
-                      </div>} onClick={handleOpen} style={{padding:"8px", fontSize:"13px"}} className="bg-white dark:bg-black w-36 sm:w-48">
+                      </div>} onClick={handleOpen} style={{padding:"8px", fontSize:"13px"}} className="w-36 sm:w-48">
                       {selectedItem['symbols'][0]} - {selectedItem['symbols'][1]} LP
                     </Button>
                   </div>

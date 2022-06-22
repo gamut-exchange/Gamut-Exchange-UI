@@ -9,7 +9,7 @@ import tw, { styled } from "twin.macro";
 import { uniList }  from "../../config/constants";
 import { requestToken, allowedToWithdraw } from "../../config/web3";
 
-const Faucet = () => {
+const Faucet = ({dark}) => {
   const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
   const [chain, setChain] = useState(selected_chain);
@@ -101,7 +101,7 @@ const Faucet = () => {
           <div className="flex" style={{minHeight:'calc(100vh - 400px)'}}>
             <div className="w-full m-auto">
                 <div className="text-center mt-12">
-                  <Button variant="outlined" startIcon={<img src={selectedToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={handleOpen}>
+                  <Button variant="outlined" className="bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10" startIcon={<img src={selectedToken['logoURL']} alt="" />} style={{padding:'10px 15px'}} onClick={handleOpen}>
                     {selectedToken['symbol']}
                   </Button>
                 </div>
@@ -112,7 +112,7 @@ const Faucet = () => {
                   <div className="text-center">
                     <button
                       onClick={requestTToken}
-                      style={{ minHeight: 50, margin:"34px auto" }}
+                      style={{ height: 50, margin:"34px auto", paddingLeft:10, paddingRight:10 }}
                       className="btn-primary font-bold md:w-1/2 xs:w-full lg:w-1/3 self-center dark:text-black flex-1"
                     >
                       {" "}
@@ -127,8 +127,9 @@ const Faucet = () => {
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
+            className={dark?"dark":""}
           >
-            <StyledModal>
+            <StyledModal className="bg-white-bg  dark:bg-dark-primary">
               <h3 className="model-title mb-6">Select Token</h3>
               <TextField
                 autoFocus={true}
