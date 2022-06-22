@@ -12,14 +12,14 @@ export function useEagerConnect() {
 
   useEffect(() => {
     injected.isAuthorized().then((isAuthorized) => {
-        if (isAuthorized) {
-          activate(injected, undefined, true).catch(() => {
-            setTried(true);
-          });
-        } else {
+      if (isAuthorized) {
+        activate(injected, undefined, true).catch(() => {
           setTried(true);
-        }
-      });
+        });
+      } else {
+        setTried(true);
+      }
+    });
     if (connector == walletconnect) {
       walletconnect.isAuthorized().then((isAuthorized) => {
         if (isAuthorized) {
@@ -49,52 +49,52 @@ export function useInactiveListener(suppress = false) {
   const { active, error, activate, connector } = useWeb3React();
 
   useEffect(() => {
-    if (connector === injected && !active && !error && !suppress) {
-      const { ethereum } = window;
-      const handleChainChanged = (chainId) => {
-        console.log("chainChanged", chainId);
-        activate(injected);
-      };
-
-      const handleAccountsChanged = (accounts) => {
-        console.log("accountsChanged", accounts);
-        if (accounts.length > 0) {
+    const { ethereum } = window;
+    if (ethereum && ethereum.isMetaMask && ethereum.on) {
+      if (!active && !error && !suppress) {
+        const handleChainChanged = (chainId) => {
           activate(injected);
-        }
-      };
+        };
 
-      const handleNetworkChanged = (networkId) => {
-        console.log("networkChanged", networkId);
-        activate(injected);
-      };
+        const handleAccountsChanged = (accounts) => {
+          if (accounts.length > 0) {
+            activate(injected);
+          }
+        };
 
-      ethereum.on("chainChanged", handleChainChanged);
-      ethereum.on("accountsChanged", handleAccountsChanged);
-      ethereum.on("networkChanged", handleNetworkChanged);
+        const handleNetworkChanged = (networkId) => {
+          activate(injected);
+        };
 
-      return () => {
-        if (ethereum.removeListener) {
-          ethereum.removeListener("chainChanged", handleChainChanged);
-          ethereum.removeListener("accountsChanged", handleAccountsChanged);
-          ethereum.removeListener("networkChanged", handleNetworkChanged);
-        }
-      };
-    }
-    if (connector === walletconnect && !active && !error && !suppress) {
-      // Subscribe to accounts change
-      walletconnect.on("accountsChanged", (accounts) => {
-        console.log(accounts);
-      });
+        ethereum.on("chainChanged", handleChainChanged);
+        ethereum.on("accountsChanged", handleAccountsChanged);
+        ethereum.on("networkChanged", handleNetworkChanged);
 
-      // Subscribe to chainId change
-      walletconnect.on("chainChanged", (chainId) => {
-        console.log(chainId);
-      });
+        return () => {
+          if (ethereum.removeListener) {
+            ethereum.removeListener("chainChanged", handleChainChanged);
+            ethereum.removeListener("accountsChanged", handleAccountsChanged);
+            ethereum.removeListener("networkChanged", handleNetworkChanged);
+          }
+        };
+      }
+    } else {
+      if (connector === walletconnect && !active && !error && !suppress) {
+        // Subscribe to accounts change
+        walletconnect.on("accountsChanged", (accounts) => {
+          console.log(accounts);
+        });
 
-      // Subscribe to session disconnection
-      walletconnect.on("disconnect", (code, reason) => {
-        console.log(code, reason);
-      });
+        // Subscribe to chainId change
+        walletconnect.on("chainChanged", (chainId) => {
+          console.log(chainId);
+        });
+
+        // Subscribe to session disconnection
+        walletconnect.on("disconnect", (code, reason) => {
+          console.log(code, reason);
+        });
+      }
     }
 
     return () => {};

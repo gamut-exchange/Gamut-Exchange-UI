@@ -39,8 +39,17 @@ const Nav = ({ handleDark, dark }) => {
   const classes = useStyles.header();
   const isMobile = useMediaQuery("(max-width:600px)");
 
-  const { connector, chainId, account, active, activate, deactivate } =
-    useWeb3React();
+  const { injected, walletconnect } = WalletConnectors();
+  const {
+    connector,
+    chainId,
+    account,
+    active,
+    activate,
+    deactivate,
+    chainChanged,
+  } = useWeb3React();
+
   const dispatch = useDispatch();
 
   const menuOpen = Boolean(anchorEl);
@@ -66,19 +75,22 @@ const Nav = ({ handleDark, dark }) => {
   };
 
   const handleWrongChain = async () => {
-    if(account) {
-      const provider = await connector.getProvider();
+    if (account) {
+      setNoDetected(false);
+    }
+    if (!noDetected) {
+      const provider = await injected.getProvider();
       const web3 = new Web3(provider);
-        let current_chainId = await web3.eth.getChainId();
-        current_chainId = Number(current_chainId);        
-        if (
-          (chainLabel === "ropsten" && current_chainId === 3) ||
-          (chainLabel === "fantom" && current_chainId === 4002)
-        ) {
-          setWrongChain(false);
-        } else {
-          setWrongChain(true);
-        }
+      let current_chainId = await web3.eth.getChainId();
+      current_chainId = Number(current_chainId);
+      if (
+        (chainLabel === "ropsten" && current_chainId === 3) ||
+        (chainLabel === "fantom" && current_chainId === 4002)
+      ) {
+        setWrongChain(false);
+      } else {
+        setWrongChain(true);
+      }
     }
   };
 
@@ -87,15 +99,15 @@ const Nav = ({ handleDark, dark }) => {
       type: SELECT_CHAIN,
       payload: chainLabel,
     });
-  }
+  };
 
   useEffect(() => {
     handleWrongChain();
-  }, [dispatch, activate, deactivate, active]);
+  }, [dispatch, activate, deactivate, active, chainChanged, chainLabel]);
 
   useEffect(() => {
     handleChainLabel();
-  }, [chainLabel, setChainLabel]);
+  }, [chainLabel]);
 
   return (
     <div
@@ -176,38 +188,22 @@ const Nav = ({ handleDark, dark }) => {
               <Box className={classes.connectWallet}>
                 {(() => {
                   if (wrongChain) {
-                    if (noDetected)
-                      return (
-                        <Button
-                          variant="contained"
-                          className="btn-primary dark:text-dark-primary w-full"
-                          style={{
-                            borderRadius: "0px",
-                            height: 44,
-                            fontSize: 18,
-                          }}
-                          onClick={() => {
-                            setOpenWalletList(true);
-                          }}
-                        >
-                          Wrong Chain
-                        </Button>
-                      );
-                    else
-                      return (
-                        <Button
-                          variant="contained"
-                          className="btn-primary dark:text-dark-primary w-full"
-                          style={{
-                            borderRadius: "0px",
-                            height: 44,
-                            fontSize: 18,
-                          }}
-                        >
-                          <span className="pr-1">Connecting... </span>
-                          <CircularProgress size="1rem" color="success" />
-                        </Button>
-                      );
+                    return (
+                      <Button
+                        variant="contained"
+                        className="btn-primary dark:text-dark-primary w-full"
+                        style={{
+                          borderRadius: "0px",
+                          height: 44,
+                          fontSize: 18,
+                        }}
+                        onClick={() => {
+                          setOpenWalletList(true);
+                        }}
+                      >
+                        Wrong Chain
+                      </Button>
+                    );
                   } else {
                     if (account)
                       return (
@@ -353,38 +349,22 @@ const Nav = ({ handleDark, dark }) => {
                     <Box className={classes.connectWallet}>
                       {(() => {
                         if (wrongChain) {
-                          if (noDetected)
-                            return (
-                              <Button
-                                variant="contained"
-                                className="btn-primary dark:text-dark-primary w-full"
-                                style={{
-                                  borderRadius: "0px",
-                                  height: 44,
-                                  fontSize: 18,
-                                }}
-                                onClick={() => {
-                                  setOpenWalletList(true);
-                                }}
-                              >
-                                Wrong Chain
-                              </Button>
-                            );
-                          else
-                            return (
-                              <Button
-                                variant="contained"
-                                className="btn-primary dark:text-dark-primary w-full"
-                                style={{
-                                  borderRadius: "0px",
-                                  height: 44,
-                                  fontSize: 18,
-                                }}
-                              >
-                                <span className="pr-1">Connecting... </span>
-                                <CircularProgress size="1rem" color="success" />
-                              </Button>
-                            );
+                          return (
+                            <Button
+                              variant="contained"
+                              className="btn-primary dark:text-dark-primary w-full"
+                              style={{
+                                borderRadius: "0px",
+                                height: 44,
+                                fontSize: 18,
+                              }}
+                              onClick={() => {
+                                setOpenWalletList(true);
+                              }}
+                            >
+                              Wrong Chain
+                            </Button>
+                          );
                         } else {
                           if (account)
                             return (
