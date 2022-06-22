@@ -3,9 +3,9 @@ import WalletConnectors from "./connectors";
 import MetaMaskLogo from "../img/wallets/meta-mask.svg";
 import WalletConnect from "../img/wallets/wallet-connect.svg";
 
-const {injected, walletconnect1, walletconnect2} = WalletConnectors();
+const {injected, walletconnect} = WalletConnectors();
 
-const Wallets1 = [
+const Wallets = [
     {
         title: "MetaMask",
         description: "Connect to your MetaMask Wallet",
@@ -16,22 +16,7 @@ const Wallets1 = [
         title: "WalletConnect",
         description: "Connect to your WalletConnect Wallet",
         logo: WalletConnect,
-        connector: walletconnect1,
-    }
-];
-
-const Wallets2 = [
-    {
-        title: "MetaMask",
-        description: "Connect to your MetaMask Wallet",
-        logo: MetaMaskLogo,
-        connector: injected,
-    },
-    {
-        title: "WalletConnect",
-        description: "Connect to your WalletConnect Wallet",
-        logo: WalletConnect,
-        connector: walletconnect2,
+        connector: walletconnect,
     }
 ];
 
@@ -45,13 +30,7 @@ const ConnectedWallet = () => {
                     logo: MetaMaskLogo,
                 };
             }
-            case walletconnect1: {
-                return {
-                    name: "WalletConnect",
-                    logo: WalletConnect,
-                };
-            }
-            case walletconnect2: {
+            case walletconnect: {
                 return {
                     name: "WalletConnect",
                     logo: WalletConnect,
@@ -69,4 +48,4 @@ const ConnectedWallet = () => {
     }
 };
 
-export { Wallets1, Wallets2, ConnectedWallet };
+export { Wallets, ConnectedWallet };

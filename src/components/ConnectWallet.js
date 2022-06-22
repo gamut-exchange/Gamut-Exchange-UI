@@ -34,14 +34,14 @@ import ReplayIcon from '@mui/icons-material/Replay';
 
 // ** Import Assets
 import useStyles from "../assets/styles";
-import { Wallets1, Wallets2, ConnectedWallet } from "../assets/constants/wallets";
+import { Wallets, ConnectedWallet } from "../assets/constants/wallets";
 import changeChain from "../assets/constants/changeChain";
 import walletConnectors from "../assets/constants/connectors";
 import { useEagerConnect, useInactiveListener } from "../hooks";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { CHANGE_WALLET } from "../redux/constants";
 
-const {injected1, injected2, walletconnect1, walletconnect2} = walletConnectors();
+const {injected, walletconnect} = walletConnectors();
 
 const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
     const classes = useStyles.base();
@@ -52,8 +52,6 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
     const cWallet = ConnectedWallet();
 
     // const injected = (chain==="ropsten")?injected1:injected2;
-    const walletconnect = (chain==="ropsten")?walletconnect1:walletconnect2;
-    const Wallets = (chain==="ropsten")?Wallets1:Wallets2;
     const selected_chain = useSelector((state) => state.selectedChain);
     const [activatingConnector, setActivatingConnector] = React.useState();
 
@@ -67,13 +65,13 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
     const copyAddress = () => {
         alert(`Copied to clipboard.`, "info");
     };
-    const viewBlockUrl1 = (account) => {
+    const viewBlockUrl = (account) => {
         window.open(`https://ropsten.etherscan.io/address/${account}`);
     };
 
-    const viewBlockUrl2 = (account) => {
-        window.open(`https://polygonscan.com/address/${account}`);
-    };
+    // const viewBlockUrl2 = (account) => {
+    //     window.open(`https://polygonscan.com/address/${account}`);
+    // };
 
     useInactiveListener(!triedEager);
 
@@ -196,7 +194,7 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
                             </Button>
                         </CopyToClipboard>
                         <Button
-                            onClick={() => viewBlockUrl2(account)}
+                            onClick={() => viewBlockUrl(account)}
                             startIcon={<OpenInNewOutlinedIcon />}
                         >
                             <Typography variant="caption">View</Typography>
