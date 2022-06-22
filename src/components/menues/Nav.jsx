@@ -39,9 +39,7 @@ const Nav = ({ handleDark, dark }) => {
   const classes = useStyles.header();
   const isMobile = useMediaQuery("(max-width:600px)");
 
-  const { injected, walletconnect } = WalletConnectors();
-
-  const { provider, chainId, account, active, activate, deactivate } =
+  const { connector, chainId, account, active, activate, deactivate } =
     useWeb3React();
   const dispatch = useDispatch();
 
@@ -67,74 +65,37 @@ const Nav = ({ handleDark, dark }) => {
     setIsToggleOpen((prevState) => !prevState);
   };
 
-  // const maybeFixMetamaskConnection = async () => {
-  //   // Reloads the page after n seconds if Metamask is installed but not initialized
-  //   const waitSeconds = 4;
-  //   if (
-  //     typeof window !== "undefined" &&
-  //     typeof window.ethereum !== "undefined" &&
-  //     !window.ethereum._state.initialized
-  //   ) {
-  //     setNoDetected(true);
-  //     while (!window.ethereum._state.initialized) {
-  //       await new Promise((resolve) => setTimeout(resolve, waitSeconds * 1000));
-  //       window.location.reload();
-  //     }
-  //   }
-  // };
-
   const handleWrongChain = async () => {
-    if (window.ethereum && window.ethereum.isMetaMask) {
-      // await maybeFixMetamaskConnection();
-      // window.ethereum.request({ method: 'eth_requestAccounts' });
-      let current_chainId = await window.ethereum.request({
-        method: "eth_chainId",
-      });
-      current_chainId = Number(current_chainId);
-      // console.log(current_chainId);
-      if (
-        (chainLabel === "ropsten" && current_chainId === 3) ||
-        (chainLabel === "fantom" && current_chainId === 4002)
-      ) {
-        setWrongChain(false);
-        dispatch({
-          type: SELECT_CHAIN,
-          payload: chainLabel,
-        });
-      } else {
-        setWrongChain(true);
-        dispatch({
-          type: SELECT_CHAIN,
-          payload: chainLabel,
-        });
-      }
-    } else {
-      const web3 = new Web3(walletconnect);
-      let current_chainId = web3.eth.getChainId();
-      current_chainId = Number(current_chainId);
-      // console.log(current_chainId);
-      if (
-        (chainLabel === "ropsten" && current_chainId === 3) ||
-        (chainLabel === "fantom" && current_chainId === 4002)
-      ) {
-        setWrongChain(false);
-        dispatch({
-          type: SELECT_CHAIN,
-          payload: chainLabel,
-        });
-      } else {
-        setWrongChain(true);
-        dispatch({
-          type: SELECT_CHAIN,
-          payload: chainLabel,
-        });
-      }
+    if(account) {
+      const provider = await connector.getProvider();
+      const web3 = new Web3(provider);
+        let current_chainId = await web3.eth.getChainId();
+        current_chainId = Number(current_chainId);        
+        if (
+          (chainLabel === "ropsten" && current_chainId === 3) ||
+          (chainLabel === "fantom" && current_chainId === 4002)
+        ) {
+          setWrongChain(false);
+        } else {
+          setWrongChain(true);
+        }
     }
   };
 
+  const handleChainLabel = () => {
+    dispatch({
+      type: SELECT_CHAIN,
+      payload: chainLabel,
+    });
+  }
+
   useEffect(() => {
     handleWrongChain();
-  }, [dispatch, chainLabel, activate, deactivate, setChainLabel, active]);
+  }, [dispatch, activate, deactivate, active]);
+
+  useEffect(() => {
+    handleChainLabel();
+  }, [chainLabel, setChainLabel]);
 
   return (
     <div
