@@ -42,7 +42,15 @@ import { useEagerConnect, useInactiveListener } from "../hooks";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { CHANGE_WALLET } from "../redux/constants";
 
-const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
+const ConnectWallet = ({
+  isOpen,
+  setIsOpen,
+  chain,
+  wrongChain,
+  setIsNoDetected,
+  setIsWrongChain,
+  dark,
+}) => {
   const classes = useStyles.base();
   const dispatch = useDispatch();
   const triedEager = useEagerConnect();
@@ -105,9 +113,12 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
     setIsOpen(false);
   };
   const getErrorMessage = (error) => {
+    debugger;
     if (error instanceof NoEthereumProviderError) {
       return "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.";
     } else if (error instanceof UnsupportedChainIdError) {
+      setIsNoDetected(false);
+      setIsWrongChain(true);
       return "You're connected to an unsupported network.";
     } else if (
       error instanceof UserRejectedRequestErrorInjected ||
@@ -127,7 +138,6 @@ const ConnectWallet = ({ isOpen, setIsOpen, chain, wrongChain, dark }) => {
   };
 
   useEffect(() => {
-    debugger;
     const initialData = async () => {
       const logURI = (uri) => {};
       walletconnect.on(URI_AVAILABLE, logURI);

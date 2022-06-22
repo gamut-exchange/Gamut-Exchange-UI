@@ -260,6 +260,8 @@ const Nav = ({ handleDark, dark }) => {
             isOpen={openWalletList}
             setIsOpen={setOpenWalletList}
             chain={chainLabel}
+            setIsWrongChain={setWrongChain}
+            setIsNoDetected={setNoDetected}
             wrongChain={wrongChain}
             dark={dark}
           />
