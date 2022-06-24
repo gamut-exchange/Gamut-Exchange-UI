@@ -8,8 +8,6 @@ const Index = ({handleDark, dark}) => {
     <>
       <Layout handleDark={handleDark} dark={dark}>
         <Header />
-        <TryItOut />
-        <Efficient />
       </Layout>
     </>
     //
