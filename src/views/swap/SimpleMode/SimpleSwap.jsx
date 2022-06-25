@@ -101,7 +101,7 @@ const SimpleSwap = ({ dark }) => {
     if (Number(event.target.value) < inLimBal) setLimitedout(false);
     else setLimitedout(true);
     setValue(event.target.value);
-    setFee((event.target.value * swapFee).toPrecision(2));
+    setFee(event.target.value * swapFee);
     checkApproved(inToken, event.target.value);
   };
 
@@ -502,38 +502,9 @@ const SimpleSwap = ({ dark }) => {
     }
   };
 
-  useEffect(() => {
-    if (account) {
-      const getInfo = async () => {
-        const provider = await connector.getProvider();
-        let inBal = await getTokenBalance(
-          provider,
-          inToken["address"],
-          account
-        );
-        let outBal = await getTokenBalance(
-          provider,
-          outToken["address"],
-          account
-        );
-        setInBal(inBal);
-        setOutBal(outBal);
-        checkApproved(inToken, value);
-        const swapFeePercent = await getSwapFeePercent(
-          provider,
-          poolList[selected_chain][0]["address"],
-          selected_chain
-        );
-        setSwapFee(swapFeePercent * 0.01);
-      };
-      getInfo();
-    }
-  }, [account, ""]);
-
-  useEffect(() => {
+  const getStatusData = async () => {
     if (account && inToken !== outToken) {
-      const getInfo = async () => {
-        const provider = await connector.getProvider();
+      const provider = await connector.getProvider();
         const midToken = await findMiddleToken(inToken, outToken);
         if (midToken) {
           let amountOut = await calcOutput(
@@ -543,7 +514,12 @@ const SimpleSwap = ({ dark }) => {
             inToken,
             outToken
           );
-          amountOut = amountOut * 1 === 0 ? 0 : amountOut.toPrecision(6);
+          amountOut =
+            amountOut * 1 === 0
+              ? 0
+              : amountOut > 1
+              ? amountOut.toFixed(2)
+              : amountOut.toFixed(6);
           setValueEth(amountOut);
           if (midToken.length == 1) {
             const poolAddress1 = await getPoolAddress(
@@ -604,7 +580,12 @@ const SimpleSwap = ({ dark }) => {
             poolData,
             value
           );
-          amountOut = amountOut * 1 === 0 ? 0 : amountOut.toPrecision(6);
+          amountOut =
+            amountOut * 1 === 0
+              ? 0
+              : amountOut > 1
+              ? amountOut.toFixed(2)
+              : amountOut.toFixed(6);
           setValueEth(amountOut);
           const slippage = await calcSlippage(
             inToken,
@@ -614,28 +595,62 @@ const SimpleSwap = ({ dark }) => {
           );
           setPoolAddress([poolAddress.toLowerCase()]);
         }
-      };
-
-      getInfo();
     } else if (inToken !== outToken) {
-      const getAddress = async () => {
-        for (var i = 0; i < poolList[selected_chain].length; i++) {
-          if (
-            (poolList[selected_chain][i]["symbols"][0] === inToken["symbol"] &&
-              poolList[selected_chain][i]["symbols"][1] ===
-                outToken["symbol"]) ||
-            (poolList[selected_chain][i]["symbols"][1] === inToken["symbol"] &&
-              poolList[selected_chain][i]["symbols"][0] === outToken["symbol"])
-          ) {
-            setPoolAddress([poolList[selected_chain][i]["address"].toLowerCase()]);
-            break;
-          }
+      for (var i = 0; i < poolList[selected_chain].length; i++) {
+        if (
+          (poolList[selected_chain][i]["symbols"][0] === inToken["symbol"] &&
+            poolList[selected_chain][i]["symbols"][1] ===
+              outToken["symbol"]) ||
+          (poolList[selected_chain][i]["symbols"][1] === inToken["symbol"] &&
+            poolList[selected_chain][i]["symbols"][0] === outToken["symbol"])
+        ) {
+          setPoolAddress([
+            poolList[selected_chain][i]["address"].toLowerCase(),
+          ]);
+          break;
         }
-      };
-      getAddress();
+      }
     } else {
       setPoolAddress([]);
     }
+  };
+
+  useEffect(() => {
+    if (account) {
+      const getInfo = async () => {
+        const provider = await connector.getProvider();
+        let inBal = await getTokenBalance(
+          provider,
+          inToken["address"],
+          account
+        );
+        let outBal = await getTokenBalance(
+          provider,
+          outToken["address"],
+          account
+        );
+        setInBal(inBal);
+        setOutBal(outBal);
+        checkApproved(inToken, value);
+        const swapFeePercent = await getSwapFeePercent(
+          provider,
+          poolList[selected_chain][0]["address"],
+          selected_chain
+        );
+        setSwapFee(swapFeePercent * 0.01);
+      };
+      getInfo();
+    }
+    const intervalId = setInterval(() => {
+      console.log("reset");
+      getStatusData();
+    }, 30000);
+    return () => clearInterval(intervalId);
+  }, [account, ""]);
+
+  useEffect(() => {
+    debugger;
+    getStatusData();
   }, [inToken, outToken, value]);
 
   useEffect(() => {

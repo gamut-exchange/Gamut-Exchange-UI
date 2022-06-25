@@ -83,11 +83,13 @@ const AddLiquiditySimple = ({ dark }) => {
   const handleSlider = (event, newValue) => {
     setSliderValue(newValue);
     if (inToken["address"] != outToken["address"]) {
-      let valEth = (
-        (ratio * (1 - newValue / 100) * value) /
-        (newValue / 100)
-      ).toFixed(4);
-      valEth = valEth * 1 === 0 ? 0 : valEth;
+      let valEth = (ratio * (1 - newValue / 100) * value) / (newValue / 100);
+      valEth =
+        valEth * 1 === 0
+          ? 0
+          : valEth * 1 > 1
+          ? valEth.toFixed(2)
+          : valEth.toFixed(6);
       setValueEth(valEth);
     }
   };
@@ -97,20 +99,6 @@ const AddLiquiditySimple = ({ dark }) => {
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
-
-  // const handleValueEth = (event) => {
-  //   setValueEth(event.target.value);
-  //   let inLimBal = inBal.replaceAll(',', '');
-  //   let outLimBal = outBal.replaceAll(',', '');
-  //   if(Number(event.target.value) <= Number(outLimBal) && Number(value) <= Number(inLimBal))
-  //     setLimitedout(false);
-  //   else
-  //     setLimitedout(true);
-  //   if(inToken['address'] != outToken['address']) {
-  //     setSliderValue(Number((ratio*value/(Number(event.target.value)+ratio*value)*100).toFixed(2)));
-  //     checkApproved(inToken, outToken, poolAddress, value, event.target.value);
-  //   }
-  // };
 
   const handleValue = async (event) => {
     setValue(event.target.value);
@@ -123,11 +111,14 @@ const AddLiquiditySimple = ({ dark }) => {
       setLimitedout(false);
     else setLimitedout(true);
     if (inToken["address"] != outToken["address"]) {
-      let valEth = (
-        (event.target.value * ratio * (100 - sliderValue)) /
-        sliderValue
-      ).toFixed(4);
-      valEth = valEth * 1 === 0 ? 0 : valEth;
+      let valEth =
+        (event.target.value * ratio * (100 - sliderValue)) / sliderValue;
+      valEth =
+        valEth * 1 === 0
+          ? 0
+          : valEth * 1 > 1
+          ? valEth.toFixed(2)
+          : valEth.toFixed(6);
       setValueEth(valEth);
       checkApproved(inToken, outToken, poolAddress, event.target.value, valEth);
     }
@@ -163,7 +154,6 @@ const AddLiquiditySimple = ({ dark }) => {
           return item["address"] !== token["address"];
         });
         setFilterData(tempData);
-
         try {
           const poolAddr = await getPoolAddress(
             provider,
@@ -176,7 +166,7 @@ const AddLiquiditySimple = ({ dark }) => {
             poolAddr,
             selected_chain
           );
-          checkApproved(token, outToken, poolAddr, value, valueEth);
+          checkApproved(token, outToken, poolAddr, value, valueEth);          
           setIsExist(true);
           const sliderInit = await sliderInitVal(poolData, token);
           setSliderValue(sliderInit * 100);
@@ -213,8 +203,8 @@ const AddLiquiditySimple = ({ dark }) => {
         try {
           const poolAddr = await getPoolAddress(
             provider,
+            inToken["address"],
             token["address"],
-            outToken["address"],
             selected_chain
           );
           const poolData = await getPoolData(provider, poolAddr);
@@ -290,7 +280,13 @@ const AddLiquiditySimple = ({ dark }) => {
     let some = (price * input * weight_to) / weight_from;
 
     setRatio(price);
-    let valEth = ((price * input * weight_to) / weight_from).toFixed(4);
+    let valEth = (price * input * weight_to) / weight_from;
+    valEth =
+      valEth * 1 === 0
+        ? 0
+        : valEth * 1 > 1
+        ? valEth.toFixed(2)
+        : valEth.toFixed(6);
     valEth = valEth * 1 === 0 ? 0 : valEth;
     setValueEth(valEth);
   };
@@ -339,13 +335,36 @@ const AddLiquiditySimple = ({ dark }) => {
     else setLimitedout(true);
   };
 
-  const setOutLimit = () => {
-    let val1 = outBal.replaceAll(",", "");
-    let val2 = inBal.replaceAll(",", "");
-    let valEth = val1 * 1 === 0 ? 0 : val1;
-    setValueEth(valEth);
-    if (valueEth < val2) setLimitedout(false);
-    else setLimitedout(true);
+  const getCurrentPoolAddress = async () => {
+    for (var i = 0; i < poolList[selected_chain].length; i++) {
+      if (
+        (poolList[selected_chain][i]["symbols"][0] === inToken["symbol"] &&
+          poolList[selected_chain][i]["symbols"][1] === outToken["symbol"]) ||
+        (poolList[selected_chain][i]["symbols"][1] === inToken["symbol"] &&
+          poolList[selected_chain][i]["symbols"][0] === outToken["symbol"])
+      ) {
+        setPoolAddress(poolList[selected_chain][i]["address"].toLowerCase());
+        break;
+      }
+    }
+  };
+
+  const getInitialInfo = async () => {
+    try {
+      const provider = await connector.getProvider();
+      const poolAddress = await getPoolAddress(
+        provider,
+        inToken["address"],
+        outToken["address"],
+        selected_chain
+      );
+      const poolData = await getPoolData(provider, poolAddress, selected_chain);
+      setIsExist(true);
+      setPoolAddress(poolAddress);
+      await calculateRatio(inToken, poolData, value);
+    } catch (error) {
+      setIsExist(false);
+    }
   };
 
   const CustomTooltip0 = ({ active, payload, label }) => {
@@ -434,88 +453,25 @@ const AddLiquiditySimple = ({ dark }) => {
 
   useEffect(() => {
     if (account) {
-      const getInfo = async () => {
-        const provider = await connector.getProvider();
-        let inBal = await getTokenBalance(
-          provider,
-          inToken["address"],
-          account
-        );
-        let outBal = await getTokenBalance(
-          provider,
-          outToken["address"],
-          account
-        );
-        setInBal(inBal);
-        setOutBal(outBal);
-        try {
-          const poolAddress = await getPoolAddress(
-            provider,
-            inToken["address"],
-            outToken["address"],
-            selected_chain
-          );
-          const poolData = await getPoolData(
-            provider,
-            poolAddress,
-            selected_chain
-          );
-          setIsExist(true);
-          const sliderInit = await sliderInitVal(poolData, inToken);
-
-          setPoolAddress(poolAddress);
-          setSliderValue(sliderInit * 100);
-          await calculateRatio(inToken, poolData, value);
-          checkApproved(inToken, outToken, poolAddress, value, valueEth);
-        } catch (error) {
-          setIsExist(false);
-        }
-      };
-      getInfo();
+      const intervalId = setInterval(() => {
+        getInitialInfo();
+        console.log("reset");
+      }, 30000);
+      return () => clearInterval(intervalId);
+    } else {
+      const intervalId = setInterval(() => {
+        getCurrentPoolAddress();
+        console.log("reset");
+      }, 30000);
+      return () => clearInterval(intervalId);
     }
   }, [account]);
 
   useEffect(() => {
     if (account && inToken["address"] !== outToken["address"]) {
-      const getInfo = async () => {
-        try {
-          const provider = await connector.getProvider();
-          const poolAddress = await getPoolAddress(
-            provider,
-            inToken["address"],
-            outToken["address"],
-            selected_chain
-          );
-          const poolData = await getPoolData(
-            provider,
-            poolAddress,
-            selected_chain
-          );
-          setIsExist(true);
-          setPoolAddress(poolAddress);
-          await calculateRatio(inToken, poolData, value);
-        } catch (error) {
-          setIsExist(false);
-        }
-      };
-
-      getInfo();
+      getInitialInfo();
     } else {
-      const getAddress = async () => {
-        for (var i = 0; i < poolList[selected_chain].length; i++) {
-          if (
-            (poolList[selected_chain][i]["symbols"][0] === inToken["symbol"] &&
-              poolList[selected_chain][i]["symbols"][1] ===
-                outToken["symbol"]) ||
-            (poolList[selected_chain][i]["symbols"][1] === inToken["symbol"] &&
-              poolList[selected_chain][i]["symbols"][0] === outToken["symbol"])
-          ) {
-            setPoolAddress(poolList[selected_chain][i]["address"].toLowerCase());
-            break;
-          }
-        }
-      };
-      getAddress();
+      getCurrentPoolAddress();
     }
   }, [inToken, outToken]);
 
@@ -715,7 +671,6 @@ const AddLiquiditySimple = ({ dark }) => {
               <BsPlus />
             </div>
             <div>
-              <h3 className="input-lable mb-4">Output</h3>
               <div className="flex flex-wrap flex-col justify-between sm:items-center p-2 sm:p-4 rounded-sm bg-grey-dark bg-opacity-30 dark:bg-off-white dark:bg-opacity-10">
                 <div className="flex flex-row w-full">
                   <div className="w-full">
