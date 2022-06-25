@@ -15,11 +15,11 @@ const Header = () => {
     <div className="py-24 bg-white-bg dark:bg-dark-primary dark:bg-opacity-95">
       <div className="main-container">
         <div className="flex flex-col justify-center items-center">
-          <div className="mx-auto " style={{ maxWidth: 688 }}>
-            <h1 className="header-title text-center">
-              Compounding Yield Optimizer
+          <div>
+            <h1 className="text-light-primary mb-4 font-bold text-[50px] sm:text-[60px] md:text-[100px] lg:text-[120px] lg:leading-[155px] text-center">
+              GAMUT EXCHANGE
             </h1>
-            <p className="text-grey-dark text-center text-22 md:text-32">
+            <p className="text-grey-dark text-center text-2xl sm:text-3xl md:text-[50px]">
               Allowing users to reap more crypto
             </p>
           </div>
@@ -31,7 +31,7 @@ const Header = () => {
             >
               Launch App
             </Link>
-            <a
+            <a href="https://docs.gamut.exchange/" target="_blank"
               className="btn-primary dark:text-dark-primary w-full"
               style={{ maxWidth: 182, minHeight: 49, marginLeft:10, cursor:"pointer" }}
               to="https://docs.gamut.exchange/"
@@ -41,7 +41,7 @@ const Header = () => {
           </div>
           <div className="flex w-full flex-wrap gap-y-7 md:flex-row flex-col gap-x-7 max-w-xl px-2">
             <div className="flex-1">
-              <p className="text-center text-base mb-2 text-grey-dark">
+              <p className="text-center text-base mb-2 text-grey-dark text-2xl">
                 Socials
               </p>
               <ul className="flex justify-center w-full gap-x-9">
@@ -49,7 +49,7 @@ const Header = () => {
                   const { id, icon, url } = item;
                   return (
                     <li key={id}>
-                      <a href={url} className="w-7 h-7">
+                      <a href={url} target="_blank" className="w-7 h-7">
                         <img className="w-full h-full" src={icon} alt="icon" />
                       </a>
                     </li>
@@ -57,24 +57,7 @@ const Header = () => {
                 })}
               </ul>
             </div>
-            <div className="flex-1">
-              {" "}
-              <p className="text-center capitalize text-base mb-2 text-grey-dark">
-                supporting
-              </p>
-              <ul className="flex justify-center w-full gap-x-9">
-                {support.map((item) => {
-                  const { id, icon, url } = item;
-                  return (
-                    <li key={id}>
-                      <a href={url} className="w-7">
-                        <img className="w-full" src={icon} alt="icon" />
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            
           </div>
           <div className="mt-16 flex flex-wrap gap-y-4 justify-center gap-x-11 w-full">
             {ValueCards.map((card) => {
@@ -100,10 +83,9 @@ const Header = () => {
 export default Header;
 
 const social = [
-  { id: 1, icon: twitter, url: "https://twitter.com/DeGamut" },
-  { id: 2, icon: discord, url: "https://discord.gg/5vHPEFSe7Y" },
-  { id: 3, icon: telegram, url: "https://t.me/+sAS0I9338zdlNTRk" },
-  { id: 4, icon: git, url: "https://github.com/gamut-exchange" },
+  { id: 1, icon: twitter, url: "https://twitter.com/GamutExchange" },
+  { id: 2, icon: discord, url: "https://discord.gg/GhyNp3xM8F" },
+  { id: 3, icon: telegram, url: "https://t.me/GamutExchange" },
 ];
 const support = [
   { id: 1, icon: icon1, url: "https://www.avax.network/" },
@@ -113,7 +95,7 @@ const support = [
 ];
 
 const ValueCards = [
-  { id: 1, title: "TOTAL VALUE LOCKED", value: "319,021" },
-  { id: 2, title: "24 HOUR VOLUME", value: "100,301" },
-  { id: 3, title: "GAMUT MCAP", value: "100,319,199" },
+  { id: 1, title: "TOTAL VALUE LOCKED", value: "3,819,021" },
+  { id: 2, title: "24 HOUR VOLUME", value: "600,301" },
+  { id: 3, title: "GAMUT MCAP", value: "1,700,199" },
 ];
