@@ -43,7 +43,7 @@ import "./SimpleSwap.css";
 const SimpleSwap = ({ dark }) => {
   const selected_chain = useSelector((state) => state.selectedChain);
   const { account, connector } = useWeb3React();
-  const [value, setValue] = useState(0);
+  const [inValue, setInValue] = useState(0);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState(0);
   const [query, setQuery] = useState("");
@@ -100,7 +100,7 @@ const SimpleSwap = ({ dark }) => {
     let outLimBal = outBal.toString().replaceAll(",", "");
     if (Number(event.target.value) < inLimBal) setLimitedout(false);
     else setLimitedout(true);
-    setValue(event.target.value);
+    setInValue(event.target.value*1);
     setFee(event.target.value * swapFee);
     checkApproved(inToken, event.target.value);
   };
@@ -208,12 +208,12 @@ const SimpleSwap = ({ dark }) => {
           return item["address"] !== token["address"];
         });
         setFilterData(tempData);
-        checkApproved(token, value);
+        checkApproved(token, inValue);
 
         let inLimBal = bal.toString().replaceAll(",", "");
         let outLimBal = outBal.toString().replaceAll(",", "");
         if (
-          Number(value) <= Number(inLimBal) &&
+          Number(inValue) <= Number(inLimBal) &&
           Number(valueEth) <= Number(outLimBal)
         )
           setLimitedout(false);
@@ -238,7 +238,7 @@ const SimpleSwap = ({ dark }) => {
   const calcOutput = async (
     middleTokens,
     provider,
-    val = value,
+    val = inValue,
     inSToken = inToken,
     outSToken = outToken
   ) => {
@@ -347,7 +347,7 @@ const SimpleSwap = ({ dark }) => {
       const calculatedOutput = await calcOutput(
         [availableLists[i]],
         provider,
-        value,
+        inValue,
         inSToken,
         outSToken
       );
@@ -369,7 +369,7 @@ const SimpleSwap = ({ dark }) => {
       const calculatedOutput = await calcOutput(
         allPairs[i],
         provider,
-        value,
+        inValue,
         inSToken,
         outSToken
       );
@@ -394,7 +394,7 @@ const SimpleSwap = ({ dark }) => {
         selected_chain
       );
       const poolData = await getPoolData(provider, poolAddress, selected_chain);
-      const result = await calculateSwap(inSToken["address"], poolData, value);
+      const result = await calculateSwap(inSToken["address"], poolData, inValue);
       if (suitableRouter.length !== 0) {
         if (Number(result) > Number(suitableRouter[1])) {
           setMiddleToken(null);
@@ -439,7 +439,7 @@ const SimpleSwap = ({ dark }) => {
           inToken["address"],
           outToken["address"],
           middleToken,
-          value * 1,
+          inValue * 1,
           account,
           selected_chain
         );
@@ -448,7 +448,7 @@ const SimpleSwap = ({ dark }) => {
           provider,
           inToken["address"],
           outToken["address"],
-          value * 1,
+          inValue * 1,
           account,
           limit,
           selected_chain
@@ -463,17 +463,17 @@ const SimpleSwap = ({ dark }) => {
         account,
         provider,
         inToken["address"],
-        value * 1.01,
+        inValue * 1.01,
         selected_chain
       );
-      setApproval(approvedToken > value);
+      setApproval(approvedToken > inValue);
     }
   };
 
   const setInLimit = () => {
     if (inBal) {
       let val = inBal.toString().replaceAll(",", "");
-      setValue(Number(val));
+      setInValue(Number(val));
       setLimitedout(false);
     }
   };
@@ -502,7 +502,7 @@ const SimpleSwap = ({ dark }) => {
     }
   };
 
-  const getStatusData = async () => {
+  const getStatusData = async (value) => {
     if (account && inToken !== outToken) {
       const provider = await connector.getProvider();
         const midToken = await findMiddleToken(inToken, outToken);
@@ -580,12 +580,8 @@ const SimpleSwap = ({ dark }) => {
             poolData,
             value
           );
-          amountOut =
-            amountOut * 1 === 0
-              ? 0
-              : amountOut > 1
-              ? amountOut.toFixed(2)
-              : amountOut.toFixed(6);
+
+          amountOut = (amountOut * 1 === 0) ? 0 : (amountOut > 1 ? amountOut.toFixed(2) : amountOut.toFixed(6));
           setValueEth(amountOut);
           const slippage = await calcSlippage(
             inToken,
@@ -631,7 +627,7 @@ const SimpleSwap = ({ dark }) => {
         );
         setInBal(inBal);
         setOutBal(outBal);
-        checkApproved(inToken, value);
+        checkApproved(inToken, inValue);
         const swapFeePercent = await getSwapFeePercent(
           provider,
           poolList[selected_chain][0]["address"],
@@ -641,17 +637,15 @@ const SimpleSwap = ({ dark }) => {
       };
       getInfo();
     }
-    const intervalId = setInterval(() => {
-      console.log("reset");
-      getStatusData();
-    }, 30000);
-    return () => clearInterval(intervalId);
   }, [account, ""]);
 
   useEffect(() => {
-    debugger;
-    getStatusData();
-  }, [inToken, outToken, value]);
+    getStatusData(inValue);
+    const intervalId = setInterval(() => {
+      getStatusData(inValue);
+    }, 40000);
+    return () => clearInterval(intervalId);
+  }, [inToken, outToken, inValue]);
 
   useEffect(() => {
     setFilterData(uniList[selected_chain]);
@@ -986,10 +980,9 @@ const SimpleSwap = ({ dark }) => {
                     </div>
                     <input
                       type="number"
-                      value={value}
+                      value={inValue}
                       min={0}
                       onChange={handleValue}
-                      onKeyUp={handleValue}
                       className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
                     ></input>
                   </div>

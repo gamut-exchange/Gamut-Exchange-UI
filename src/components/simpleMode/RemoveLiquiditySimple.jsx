@@ -305,10 +305,10 @@ const RemoveLiquiditySimple = ({ dark }) => {
       getInfo();
       const intervalId = setInterval(() => {
         getStatusData(selectedItem);
-      }, 30000);
+      }, 40000);
       return () => clearInterval(intervalId);
     }
-  }, [account]);
+  }, [account, value]);
 
   useEffect(() => {
     setFilterData(poolList[[selected_chain]]);

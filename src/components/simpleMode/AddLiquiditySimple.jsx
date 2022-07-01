@@ -455,17 +455,15 @@ const AddLiquiditySimple = ({ dark }) => {
     if (account) {
       const intervalId = setInterval(() => {
         getInitialInfo();
-        console.log("reset");
-      }, 30000);
+      }, 40000);
       return () => clearInterval(intervalId);
     } else {
       const intervalId = setInterval(() => {
         getCurrentPoolAddress();
-        console.log("reset");
-      }, 30000);
+      }, 40000);
       return () => clearInterval(intervalId);
     }
-  }, [account]);
+  }, [account, value, inToken, outToken]);
 
   useEffect(() => {
     if (account && inToken["address"] !== outToken["address"]) {
