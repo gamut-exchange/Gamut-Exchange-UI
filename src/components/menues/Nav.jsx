@@ -180,9 +180,9 @@ const Nav = ({ handleDark, dark }) => {
               <MenuItem key="ropsten" onClick={() => handleChain("ropsten")}>
                 Ropsten
               </MenuItem>
-              <MenuItem key="fantom" onClick={() => handleChain("fantom")}>
+              {/*<MenuItem key="fantom" onClick={() => handleChain("fantom")}>
                 Fantom
-              </MenuItem>
+              </MenuItem>*/}
             </Menu>
             <Box className={classes.actionGroup}>
               <Box className={classes.connectWallet}>
