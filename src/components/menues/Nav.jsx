@@ -339,13 +339,13 @@ const Nav = ({ handleDark, dark }) => {
                     >
                       Ropsten
                     </MenuItem>
-                    <MenuItem
+                    {/* <MenuItem
                       key="fantom"
                       onClick={() => handleChain("fantom")}
                       selected={selected_chain === "fantom"}
                     >
                       Fantom
-                    </MenuItem>
+                    </MenuItem> */}
                   </Menu>
                   <Box className={classes.actionGroup}>
                     <Box className={classes.connectWallet}>
