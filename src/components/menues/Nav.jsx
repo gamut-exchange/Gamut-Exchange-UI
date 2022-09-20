@@ -238,6 +238,7 @@ const Nav = ({ handleDark, dark }) => {
                       return (
                         <Button
                           variant="contained"
+                          id="connect_wallet_btn"
                           className="btn-primary dark:text-dark-primary w-full"
                           style={{
                             borderRadius: "0px",
@@ -396,6 +397,7 @@ const Nav = ({ handleDark, dark }) => {
                             return (
                               <Button
                                 variant="contained"
+                                id="connect_wallet_btn"
                                 className="btn-primary dark:text-dark-primary w-full"
                                 style={{
                                   borderRadius: "0px",

@@ -65,16 +65,6 @@ const SimpleSwap = ({ dark }) => {
 
   const dispatch = useDispatch();
 
-  const chartData = [
-    { name: "0", x: 0.5, y: 0.5 },
-    { name: "1", x: 0.4, y: 0.6 },
-    { name: "2", x: 0.45, y: 0.55 },
-    { name: "3", x: 0.52, y: 0.48 },
-    { name: "4", x: 0.44, y: 0.56 },
-    { name: "5", x: 0.37, y: 0.63 },
-    { name: "6", x: 0.64, y: 0.36 },
-  ];
-
   const pricesData = useTokenPricesData(poolAddress);
   const StyledModal = tw.div`
     flex
@@ -88,6 +78,10 @@ const SimpleSwap = ({ dark }) => {
     transform -translate-x-1/2 -translate-y-1/2
     sm:w-1/3 w-11/12
   `;
+
+  const clickConWallet = () => {
+    document.getElementById("connect_wallet_btn").click();
+  }
 
   const handleOpen = (val) => {
     setSelected(val);
@@ -1061,35 +1055,48 @@ const SimpleSwap = ({ dark }) => {
               </p>
             </div>
 
-            <div className="mt-20 flex">
-              {!approval && (
+            {account &&
+              <div className="mt-20 flex">
+                {!approval && (
+                  <button
+                    onClick={approveTk}
+                    style={{ minHeight: 57 }}
+                    className={
+                      approval
+                        ? "btn-primary font-bold w-full dark:text-black flex-1"
+                        : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                    }
+                  >
+                    {" "}
+                    Approval{" "}
+                  </button>
+                )}
                 <button
-                  onClick={approveTk}
+                  onClick={executeSwap}
                   style={{ minHeight: 57 }}
                   className={
                     approval
                       ? "btn-primary font-bold w-full dark:text-black flex-1"
-                      : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                      : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
                   }
+                  disabled={limitedout}
                 >
                   {" "}
-                  Approval{" "}
+                  {limitedout ? "Not Enough Token" : "Confirm"}
                 </button>
-              )}
-              <button
-                onClick={executeSwap}
-                style={{ minHeight: 57 }}
-                className={
-                  approval
-                    ? "btn-primary font-bold w-full dark:text-black flex-1"
-                    : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
-                }
-                disabled={limitedout}
-              >
-                {" "}
-                {limitedout ? "Not Enough Token" : "Confirm"}
-              </button>
-            </div>
+              </div>
+            }
+            {!account &&
+              <div className="mt-20 flex">
+                <button
+                  onClick={clickConWallet}
+                  style={{ minHeight: 57 }}
+                  className="btn-primary font-bold w-full dark:text-black flex-1"
+                >
+                  {"Connect To Wallet"}
+                </button>
+              </div>
+            }
             <Modal
               open={open}
               onClose={handleClose}

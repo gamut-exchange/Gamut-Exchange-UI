@@ -111,6 +111,10 @@ const RemoveLiquiditySimple = ({ dark }) => {
     sm:w-1/3 w-11/12
   `;
 
+  const clickConWallet = () => {
+    document.getElementById("connect_wallet_btn").click();
+  }
+
   const handleOpen = () => {
     setQuery("");
     setOpen(true);
@@ -628,18 +632,27 @@ const RemoveLiquiditySimple = ({ dark }) => {
             </div>
           </div>
           <div className="">
+          {account &&
             <button
               onClick={executeRemovePool}
               style={{ minHeight: 57 }}
               className="btn-primary rounded-sm font-bold w-full dark:text-black"
               disabled={limitedout}
             >
-              {account
-                ? limitedout
+              {limitedout
                   ? "Not Enough Token"
-                  : "Confirm"
-                : "Connect To Wallet"}
+                  : "Confirm"}
             </button>
+          }
+          {!account &&
+            <button
+              onClick={clickConWallet}
+              style={{ minHeight: 57 }}
+              className="btn-primary rounded-sm font-bold w-full dark:text-black"
+            >
+              {"Connect To Wallet"}
+            </button>
+          }
           </div>
           <Modal
             open={open}

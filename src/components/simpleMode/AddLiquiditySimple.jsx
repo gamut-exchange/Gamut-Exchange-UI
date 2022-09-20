@@ -306,6 +306,10 @@ const AddLiquiditySimple = ({ dark }) => {
     }
   };
 
+  const clickConWallet = () => {
+    document.getElementById("connect_wallet_btn").click();
+  }
+
   const approveTK = async () => {
     if (account) {
       const provider = await connector.getProvider();
@@ -717,25 +721,36 @@ const AddLiquiditySimple = ({ dark }) => {
                 Approval{" "}
               </button>
             )}
-            <button
-              onClick={executeAddPool}
-              style={{ minHeight: 57 }}
-              className={
-                approval
-                  ? "btn-primary font-bold w-full dark:text-black flex-1"
-                  : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
-              }
-              disabled={limitedout || !isExist}
-            >
-              {" "}
-              {account
-                ? !isExist
-                  ? "No Pool Exist"
-                  : limitedout
-                  ? "Not Enough Token"
-                  : "Confirm"
-                : "Connect to Wallet"}
-            </button>
+            {account &&
+              <button
+                onClick={executeAddPool}
+                style={{ minHeight: 57 }}
+                className={
+                  approval
+                    ? "btn-primary font-bold w-full dark:text-black flex-1"
+                    : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                }
+                disabled={limitedout || !isExist}
+              >
+                {" "}
+                {account
+                  ? !isExist
+                    ? "No Pool Exist"
+                    : limitedout
+                    ? "Not Enough Token"
+                    : "Confirm"
+                  : "Connect to Wallet"}
+              </button>
+            }
+            {!account &&
+              <button
+                onClick={clickConWallet}
+                style={{ minHeight: 57 }}
+                className="btn-primary font-bold w-full dark:text-black flex-1"
+              >
+                {"Connect to Wallet"}
+              </button>
+            }
           </div>
           <Modal
             open={open}
