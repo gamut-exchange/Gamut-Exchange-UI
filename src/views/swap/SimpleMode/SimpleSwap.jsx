@@ -1111,7 +1111,7 @@ const SimpleSwap = ({ dark }) => {
                             {inToken["value"]}{" "}
                           </button>
                           <button
-                            onClick={() => approveTk(9999999)}
+                            onClick={() => approveTk(9999999999)}
                             style={{ minHeight: 57 }}
                             className={
                               approval
