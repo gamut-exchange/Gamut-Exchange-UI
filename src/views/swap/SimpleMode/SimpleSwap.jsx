@@ -64,7 +64,7 @@ const SimpleSwap = ({ dark }) => {
   const [middleToken, setMiddleToken] = useState(null);
   const [middleTokenSymbol, setMiddleTokenSymbol] = useState("");
 
-  console.log("approved val", approvedVal);
+  console.log("balance", inBal);
 
   const dispatch = useDispatch();
 
@@ -1068,7 +1068,7 @@ const SimpleSwap = ({ dark }) => {
               </p>
             </div>
             {account && (
-              <div className="mt-20">
+              <div className="mt-10">
                 {limitedout ? (
                   <button
                     style={{ minHeight: 57 }}
@@ -1124,7 +1124,7 @@ const SimpleSwap = ({ dark }) => {
                             Infinite Unlock{" "}
                           </button>
                         </div>
-                        <div className="text-red-700 flex items-center">
+                        <div className="text-red-700 flex items-center pt-1.5">
                           <div>
                             <svg
                               class="fill-current h-6 w-6 mr-4"
