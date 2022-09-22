@@ -57,11 +57,14 @@ const SimpleSwap = ({ dark }) => {
   const [fee, setFee] = useState(0);
   const [chartOpen, setChartOpen] = useState(false);
   const [approval, setApproval] = useState(false);
+  const [approvedVal, setApprovedVal] = useState(0);
   const [filterData, setFilterData] = useState(uniList[selected_chain]);
   const [limitedout, setLimitedout] = useState(false);
   const [swapFee, setSwapFee] = useState(0);
   const [middleToken, setMiddleToken] = useState(null);
   const [middleTokenSymbol, setMiddleTokenSymbol] = useState("");
+
+  console.log("approved val", approvedVal);
 
   const dispatch = useDispatch();
 
@@ -92,8 +95,8 @@ const SimpleSwap = ({ dark }) => {
   const handleValue = async (event) => {
     let inLimBal = inBal.toString().replaceAll(",", "");
     let outLimBal = outBal.toString().replaceAll(",", "");
-    if (Number(event.target.value) < inLimBal) setLimitedout(false);
-    else setLimitedout(true);
+    if (Number(event.target.value) > Number(inLimBal)) setLimitedout(true);
+    else setLimitedout(false);
     setInValue(event.target.value * 1);
     setFee(event.target.value * swapFee);
     checkApproved(inToken, event.target.value);
@@ -121,6 +124,7 @@ const SimpleSwap = ({ dark }) => {
       selected_chain
     );
     setApproval(approval * 1 > val * 1);
+    setApprovedVal(Number(approval));
   };
 
   const calculateSwap = async (inToken, poolData, input) => {
@@ -454,16 +458,17 @@ const SimpleSwap = ({ dark }) => {
     }
   };
 
-  const approveTk = async () => {
+  const approveTk = async (amount) => {
     if (account) {
       const provider = await connector.getProvider();
       const approvedToken = await approveToken(
         account,
         provider,
         inToken["address"],
-        inValue * 1.01,
+        amount * 1.01,
         selected_chain
       );
+      console.log("approved mt", approvedToken);
       setApproval(approvedToken > inValue);
     }
   };
@@ -1063,7 +1068,7 @@ const SimpleSwap = ({ dark }) => {
               </p>
             </div>
             {account && (
-              <div className="mt-20 flex">
+              <div className="mt-20">
                 {limitedout ? (
                   <button
                     style={{ minHeight: 57 }}
@@ -1072,46 +1077,97 @@ const SimpleSwap = ({ dark }) => {
                     Insufficient Balance
                   </button>
                 ) : (
-                  <></>
-                )}
-                {!approval && (
                   <>
-                    {limitedout ? (
+                    {approval ? (
                       <button
+                        onClick={executeSwap}
                         style={{ minHeight: 57 }}
-                        className="btn-disabled font-bold w-full dark:text-black flex-1"
+                        className={
+                          approval
+                            ? "btn-primary font-bold w-full dark:text-black flex-1"
+                            : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                        }
+                        disabled={limitedout}
                       >
-                        Insufficient Balance
+                        {" "}
+                        {"Swap Now"}
                       </button>
                     ) : (
                       <>
-                        <button
-                          onClick={approveTk}
-                          style={{ minHeight: 57 }}
-                          className={
-                            approval
-                              ? "btn-primary font-bold w-full dark:text-black flex-1"
-                              : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
-                          }
-                        >
-                          {" "}
-                          Approval{" "}
-                        </button>
-                        <button
-                          onClick={executeSwap}
-                          style={{ minHeight: 57 }}
-                          className={
-                            approval
-                              ? "btn-primary font-bold w-full dark:text-black flex-1"
-                              : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
-                          }
-                          disabled={limitedout}
-                        >
-                          {" "}
-                          {limitedout ? "Not Enough Token" : "Confirm"}
-                        </button>
+                        <div className="flex">
+                          <button
+                            onClick={() =>
+                              approveTk(Number(inValue - approval))
+                            }
+                            style={{ minHeight: 57 }}
+                            className={
+                              approval
+                                ? "btn-primary font-bold w-full dark:text-black flex-1"
+                                : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                            }
+                          >
+                            {" "}
+                            Unlock {Math.ceil(inValue - approvedVal)}{" "}
+                            {inToken["value"]}{" "}
+                          </button>
+                          <button
+                            onClick={() => approveTk(9999999)}
+                            style={{ minHeight: 57 }}
+                            className={
+                              approval
+                                ? "btn-primary font-bold w-full dark:text-black flex-1"
+                                : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                            }
+                            disabled={limitedout}
+                          >
+                            {" "}
+                            Infinite Unlock{" "}
+                          </button>
+                        </div>
+                        <div className="text-red-700 flex items-center">
+                          <div>
+                            <svg
+                              class="fill-current h-6 w-6 mr-4"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z" />
+                            </svg>
+                          </div>
+                            <p className="text-small">
+                              To proceed swapping, please unlock{" "}
+                              {inToken["value"].toUpperCase()} first.
+                            </p>
+                        </div>
                       </>
                     )}
+                    {/* {!approval && (
+                      <button
+                        onClick={approveTk}
+                        style={{ minHeight: 57 }}
+                        className={
+                          approval
+                            ? "btn-primary font-bold w-full dark:text-black flex-1"
+                            : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                        }
+                      >
+                        {" "}
+                        Approval{" "}
+                      </button>
+                    )}
+                    <button
+                      onClick={executeSwap}
+                      style={{ minHeight: 57 }}
+                      className={
+                        approval
+                          ? "btn-primary font-bold w-full dark:text-black flex-1"
+                          : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                      }
+                      disabled={limitedout}
+                    >
+                      {" "}
+                      {limitedout ? "Not Enough Token" : "Confirm"}
+                    </button> */}
                   </>
                 )}
               </div>
