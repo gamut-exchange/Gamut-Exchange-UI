@@ -1058,32 +1058,42 @@ const SimpleSwap = ({ dark }) => {
             {account &&
               <div className="mt-20 flex">
                 {!approval && (
-                  <button
-                    onClick={approveTk}
+                  <>
+                  {limitedout? (
+                    <button style={{minHeight: 57}} className="btn-disabled font-bold w-full dark:text-black flex-1">
+                      Insufficient Balance
+                    </button>
+                  ) : 
+                  <>
+                    <button
+                      onClick={approveTk}
+                      style={{ minHeight: 57 }}
+                      className={
+                        approval
+                          ? "btn-primary font-bold w-full dark:text-black flex-1"
+                          : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                      }
+                    >
+                      {" "}
+                      Approval{" "}
+                    </button>
+                    <button
+                    onClick={executeSwap}
                     style={{ minHeight: 57 }}
                     className={
                       approval
                         ? "btn-primary font-bold w-full dark:text-black flex-1"
-                        : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                        : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
                     }
+                    disabled={limitedout}
                   >
                     {" "}
-                    Approval{" "}
+                    {limitedout ? "Not Enough Token" : "Confirm"}
                   </button>
-                )}
-                <button
-                  onClick={executeSwap}
-                  style={{ minHeight: 57 }}
-                  className={
-                    approval
-                      ? "btn-primary font-bold w-full dark:text-black flex-1"
-                      : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                  </>
                   }
-                  disabled={limitedout}
-                >
-                  {" "}
-                  {limitedout ? "Not Enough Token" : "Confirm"}
-                </button>
+                </>                
+              )}
               </div>
             }
             {!account &&
