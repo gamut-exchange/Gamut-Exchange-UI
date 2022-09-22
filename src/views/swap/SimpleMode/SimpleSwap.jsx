@@ -81,7 +81,7 @@ const SimpleSwap = ({ dark }) => {
 
   const clickConWallet = () => {
     document.getElementById("connect_wallet_btn").click();
-  }
+  };
 
   const handleOpen = (val) => {
     setSelected(val);
@@ -94,7 +94,7 @@ const SimpleSwap = ({ dark }) => {
     let outLimBal = outBal.toString().replaceAll(",", "");
     if (Number(event.target.value) < inLimBal) setLimitedout(false);
     else setLimitedout(true);
-    setInValue(event.target.value*1);
+    setInValue(event.target.value * 1);
     setFee(event.target.value * swapFee);
     checkApproved(inToken, event.target.value);
   };
@@ -388,7 +388,11 @@ const SimpleSwap = ({ dark }) => {
         selected_chain
       );
       const poolData = await getPoolData(provider, poolAddress, selected_chain);
-      const result = await calculateSwap(inSToken["address"], poolData, inValue);
+      const result = await calculateSwap(
+        inSToken["address"],
+        poolData,
+        inValue
+      );
       if (suitableRouter.length !== 0) {
         if (Number(result) > Number(suitableRouter[1])) {
           setMiddleToken(null);
@@ -499,98 +503,102 @@ const SimpleSwap = ({ dark }) => {
   const getStatusData = async (value) => {
     if (account && inToken !== outToken) {
       const provider = await connector.getProvider();
-        const midToken = await findMiddleToken(inToken, outToken);
-        if (midToken) {
-          let amountOut = await calcOutput(
-            midToken,
-            provider,
-            value,
-            inToken,
-            outToken
-          );
-          amountOut =
-            amountOut * 1 === 0
-              ? 0
-              : amountOut > 1
-              ? amountOut.toFixed(2)
-              : amountOut.toFixed(6);
-          setValueEth(amountOut);
-          if (midToken.length == 1) {
-            const poolAddress1 = await getPoolAddress(
-              provider,
-              inToken["address"],
-              midToken[0]["address"],
-              selected_chain
-            );
-            const poolAddress2 = await getPoolAddress(
-              provider,
-              midToken[0]["address"],
-              outToken["address"],
-              selected_chain
-            );
-            setPoolAddress([
-              poolAddress1.toLowerCase(),
-              poolAddress2.toLowerCase(),
-            ]);
-          } else {
-            const poolAddress1 = await getPoolAddress(
-              provider,
-              inToken["address"],
-              midToken[0]["address"],
-              selected_chain
-            );
-            const poolAddress2 = await getPoolAddress(
-              provider,
-              midToken[0]["address"],
-              midToken[1]["address"],
-              selected_chain
-            );
-            const poolAddress3 = await getPoolAddress(
-              provider,
-              midToken[1]["address"],
-              outToken["address"],
-              selected_chain
-            );
-            setPoolAddress([
-              poolAddress1.toLowerCase(),
-              poolAddress2.toLowerCase(),
-              poolAddress3.toLowerCase(),
-            ]);
-          }
-        } else {
-          const poolAddress = await getPoolAddress(
+      const midToken = await findMiddleToken(inToken, outToken);
+      if (midToken) {
+        let amountOut = await calcOutput(
+          midToken,
+          provider,
+          value,
+          inToken,
+          outToken
+        );
+        amountOut =
+          amountOut * 1 === 0
+            ? 0
+            : amountOut > 1
+            ? amountOut.toFixed(2)
+            : amountOut.toFixed(6);
+        setValueEth(amountOut);
+        if (midToken.length == 1) {
+          const poolAddress1 = await getPoolAddress(
             provider,
             inToken["address"],
+            midToken[0]["address"],
+            selected_chain
+          );
+          const poolAddress2 = await getPoolAddress(
+            provider,
+            midToken[0]["address"],
             outToken["address"],
             selected_chain
           );
-          const poolData = await getPoolData(
+          setPoolAddress([
+            poolAddress1.toLowerCase(),
+            poolAddress2.toLowerCase(),
+          ]);
+        } else {
+          const poolAddress1 = await getPoolAddress(
             provider,
-            poolAddress,
+            inToken["address"],
+            midToken[0]["address"],
             selected_chain
           );
-          let amountOut = await calculateSwap(
-            inToken["address"],
-            poolData,
-            value
+          const poolAddress2 = await getPoolAddress(
+            provider,
+            midToken[0]["address"],
+            midToken[1]["address"],
+            selected_chain
           );
-
-          amountOut = (amountOut * 1 === 0) ? 0 : (amountOut > 1 ? amountOut.toFixed(2) : amountOut.toFixed(6));
-          setValueEth(amountOut);
-          const slippage = await calcSlippage(
-            inToken,
-            poolData,
-            value,
-            amountOut
+          const poolAddress3 = await getPoolAddress(
+            provider,
+            midToken[1]["address"],
+            outToken["address"],
+            selected_chain
           );
-          setPoolAddress([poolAddress.toLowerCase()]);
+          setPoolAddress([
+            poolAddress1.toLowerCase(),
+            poolAddress2.toLowerCase(),
+            poolAddress3.toLowerCase(),
+          ]);
         }
+      } else {
+        const poolAddress = await getPoolAddress(
+          provider,
+          inToken["address"],
+          outToken["address"],
+          selected_chain
+        );
+        const poolData = await getPoolData(
+          provider,
+          poolAddress,
+          selected_chain
+        );
+        let amountOut = await calculateSwap(
+          inToken["address"],
+          poolData,
+          value
+        );
+
+        amountOut =
+          amountOut * 1 === 0
+            ? 0
+            : amountOut > 1
+            ? amountOut.toFixed(2)
+            : amountOut.toFixed(6);
+        setValueEth(amountOut);
+        const slippage = await calcSlippage(
+          inToken,
+          poolData,
+          value,
+          amountOut
+        );
+        setPoolAddress([poolAddress.toLowerCase()]);
+      }
     } else if (inToken !== outToken) {
       for (var i = 0; i < poolList[selected_chain].length; i++) {
         if (
           (poolList[selected_chain][i]["symbols"][0] === inToken["symbol"] &&
-            poolList[selected_chain][i]["symbols"][1] ===
-              outToken["symbol"]) ||
+            poolList[selected_chain][i]["symbols"][1] === outToken["symbol"]) ||
           (poolList[selected_chain][i]["symbols"][1] === inToken["symbol"] &&
             poolList[selected_chain][i]["symbols"][0] === outToken["symbol"])
         ) {
@@ -1054,49 +1062,61 @@ const SimpleSwap = ({ dark }) => {
                 Fee: {fee} {inToken.symbol}
               </p>
             </div>
-
-            {account &&
+            {account && (
               <div className="mt-20 flex">
+                {limitedout ? (
+                  <button
+                    style={{ minHeight: 57 }}
+                    className="btn-disabled font-bold w-full dark:text-black flex-1"
+                  >
+                    Insufficient Balance
+                  </button>
+                ) : (
+                  <></>
+                )}
                 {!approval && (
                   <>
-                  {limitedout? (
-                    <button style={{minHeight: 57}} className="btn-disabled font-bold w-full dark:text-black flex-1">
-                      Insufficient Balance
-                    </button>
-                  ) : 
-                  <>
-                    <button
-                      onClick={approveTk}
-                      style={{ minHeight: 57 }}
-                      className={
-                        approval
-                          ? "btn-primary font-bold w-full dark:text-black flex-1"
-                          : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
-                      }
-                    >
-                      {" "}
-                      Approval{" "}
-                    </button>
-                    <button
-                    onClick={executeSwap}
-                    style={{ minHeight: 57 }}
-                    className={
-                      approval
-                        ? "btn-primary font-bold w-full dark:text-black flex-1"
-                        : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
-                    }
-                    disabled={limitedout}
-                  >
-                    {" "}
-                    {limitedout ? "Not Enough Token" : "Confirm"}
-                  </button>
+                    {limitedout ? (
+                      <button
+                        style={{ minHeight: 57 }}
+                        className="btn-disabled font-bold w-full dark:text-black flex-1"
+                      >
+                        Insufficient Balance
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={approveTk}
+                          style={{ minHeight: 57 }}
+                          className={
+                            approval
+                              ? "btn-primary font-bold w-full dark:text-black flex-1"
+                              : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                          }
+                        >
+                          {" "}
+                          Approval{" "}
+                        </button>
+                        <button
+                          onClick={executeSwap}
+                          style={{ minHeight: 57 }}
+                          className={
+                            approval
+                              ? "btn-primary font-bold w-full dark:text-black flex-1"
+                              : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                          }
+                          disabled={limitedout}
+                        >
+                          {" "}
+                          {limitedout ? "Not Enough Token" : "Confirm"}
+                        </button>
+                      </>
+                    )}
                   </>
-                  }
-                </>                
-              )}
+                )}
               </div>
-            }
-            {!account &&
+            )}
+            {!account && (
               <div className="mt-20 flex">
                 <button
                   onClick={clickConWallet}
@@ -1106,7 +1126,7 @@ const SimpleSwap = ({ dark }) => {
                   {"Connect To Wallet"}
                 </button>
               </div>
-            }
+            )}
             <Modal
               open={open}
               onClose={handleClose}
