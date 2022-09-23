@@ -108,12 +108,7 @@ const AddLiquiditySimple = ({ dark }) => {
     setValue(event.target.value);
     let inLimBal = inBal.replaceAll(",", "");
     let outLimBal = outBal.replaceAll(",", "");
-    if (
-      Number(event.target.value) <= Number(inLimBal) &&
-      Number(valueEth) <= Number(outLimBal)
-    )
-      setLimitedout(false);
-    else setLimitedout(true);
+
     if (inToken["address"] != outToken["address"]) {
       let valEth =
         (event.target.value * ratio * (100 - sliderValue)) / sliderValue;
@@ -125,6 +120,13 @@ const AddLiquiditySimple = ({ dark }) => {
           : valEth.toFixed(6);
       setValueEth(valEth);
       checkApproved(inToken, outToken, poolAddress, event.target.value, valEth);
+
+      if (
+        Number(event.target.value) <= Number(inLimBal) &&
+        Number(valEth) <= Number(outLimBal)
+      )
+        setLimitedout(false);
+      else setLimitedout(true);
     }
   };
 
@@ -350,41 +352,6 @@ const AddLiquiditySimple = ({ dark }) => {
     }
   };
 
-  
-
-  // const approveTK = async () => {
-  //   if (account) {
-  //     const provider = await connector.getProvider();
-  //     if (!approval1) {
-  //       const approved1 = await approveToken(
-  //         account,
-  //         provider,
-  //         inToken["address"],
-  //         value * 1.1,
-  //         selected_chain
-  //       );
-  //       setApproval1(approved1 * 1 > value * 1);
-  //       setApprovedVal1(approved1);        
-  //       setApproval(approved1 > value * 1 && approval2);
-  //     } else {
-  //       const approved2 = await approveToken(
-  //         account,
-  //         provider,
-  //         outToken["address"],
-  //         valueEth * 1.1,
-  //         selected_chain
-  //       );
-  //       setApproval2(approved2 * 1 > value * 1);
-  //       setApprovedVal2(approved2);
-  //       setApproval(approval1 && approved2 > valueEth * 1);
-  //     }
-  //     // setApproval1(approved1 * 1 > value * 1);
-  //     // setApproval2(approved1 * 1 > value * 1);
-  //     // setApprovedVal1(approved1);
-  //     // setApprovedVal2(approved2);
-  //     // setApproval(approved1 > value * 1 && approved2 > valueEth * 1);
-  //   }
-  // };
 
   const setInLimit = () => {
     let val1 = inBal ? inBal.replaceAll(",", "") : 0;
@@ -555,8 +522,6 @@ const AddLiquiditySimple = ({ dark }) => {
     }
   }, [weightData]);
 
-  console.log("input value", value, valueEth)
-  console.log("approved value", approvedVal1, approvedVal2)
 
   return (
     <div className="d-flex flex-col">
@@ -766,7 +731,6 @@ const AddLiquiditySimple = ({ dark }) => {
             </div>
           </div>
 
-          {/* <div className="mt-20 flex"> */}
           <div>
             {account && (
               <>
@@ -800,10 +764,10 @@ const AddLiquiditySimple = ({ dark }) => {
                           {" "}
                           Unlock{" "}
                           {!approval1
-                            ? Number(value - approvedVal1)
+                            ? Number(value - approvedVal1).toFixed(4)
                                 .toString()
                                 .concat("", inToken["value"].toUpperCase())
-                            : Number(valueEth - approvedVal2)
+                            : Number(valueEth - approvedVal2).toFixed(4)
                                 .toString()
                                 .concat("", outToken["value"].toUpperCase())}{" "}
                         </button>
@@ -831,123 +795,9 @@ const AddLiquiditySimple = ({ dark }) => {
                     {limitedout ? "Insufficient Blanance" : "Invalid Pair"}
                   </button>
                 )}
-                {/* {!isExist && (
-                  <button
-                    className={
-                      approval
-                        ? "btn-primary font-bold w-full dark:text-black flex-1"
-                        : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
-                    }
-                    disabled={true}
-                  >
-                    {" "}
-                    {"Invalid Pair"}
-                  </button>
-                )} */}
-                {/* {isExist && (
-                  <>
-                    {limitedout ? (
-                      <button
-                        style={{ minHeight: 57 }}
-                        className="btn-disabled font-bold w-full dark:text-black flex-1"
-                      >
-                        Insufficient Balance
-                      </button>
-                    ) : (
-                      <>
-                        {approval ? (
-                          <>
-                            {account && (
-                              <button
-                                onClick={executeAddPool}
-                                style={{ minHeight: 57 }}
-                                className={
-                                  approval
-                                    ? "btn-primary font-bold w-full dark:text-black flex-1"
-                                    : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
-                                }
-                                disabled={limitedout || !isExist}
-                              >
-                                {" "}
-                                {"Add Liquidity"}
-                              </button>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            {!approved1 ? (
-                              <>
-                                <div className="flex">
-                                  <button
-                                    onClick={approveTK}
-                                    style={{ minHeight: 57 }}
-                                    className={
-                                      approval
-                                        ? "btn-primary font-bold w-full dark:text-black flex-1"
-                                        : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
-                                    }
-                                  >
-                                    {" "}
-                                    Unlock{" "}
-                                  </button>
-                                  <button
-                                    onClick={approveTK}
-                                    style={{ minHeight: 57 }}
-                                    className={
-                                      approval
-                                        ? "btn-primary font-bold w-full dark:text-black flex-1"
-                                        : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
-                                    }
-                                  >
-                                    {" "}
-                                    Infinite Unlock{" "}
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              <></>
-                            )}
-                          </>
-                        )}
-                      </>
-                    )}
-                    {!approval && isExist && (
-                      <button
-                        onClick={approveTK}
-                        style={{ minHeight: 57 }}
-                        className={
-                          "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
-                        }
-                      >
-                        {" "}
-                        Approval{" "}
-                      </button>
-                    )}
-                  </>
-                )} */}
               </>
             )}
-            {/* {account && (
-              <button
-                onClick={executeAddPool}
-                style={{ minHeight: 57 }}
-                className={
-                  approval
-                    ? "btn-primary font-bold w-full dark:text-black flex-1"
-                    : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
-                }
-                disabled={limitedout || !isExist}
-              >
-                {" "}
-                {account
-                  ? !isExist
-                    ? "No Pool Exist"
-                    : limitedout
-                    ? "Not Enough Token"
-                    : "Confirm"
-                  : "Connect to Wallet"}
-              </button>
-            )} */}
+
             {!account && (
               <button
                 onClick={clickConWallet}

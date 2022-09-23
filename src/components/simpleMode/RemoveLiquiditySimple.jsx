@@ -65,6 +65,8 @@ const RemoveLiquiditySimple = ({ dark }) => {
   const dispatch = useDispatch();
   const weightData = useWeightsData(selectedItem["address"].toLowerCase());
 
+  console.log("pool balance", poolBalanceA, poolBalanceB, totalLPTokens)
+
   const calculateSwap = (inToken, poolData, input) => {
     let ammount = input;
     let balance_from;
