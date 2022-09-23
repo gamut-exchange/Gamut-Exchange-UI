@@ -62,6 +62,10 @@ const AddLiquiditySimple = ({ dark }) => {
   const [approval, setApproval] = useState(false);
   const [filterData, setFilterData] = useState(uniList[selected_chain]);
   const [limitedout, setLimitedout] = useState(false);
+  const [approval1, setApproval1] = useState(false);
+  const [approval2, setApproval2] = useState(false);
+  const [approvedVal1, setApprovedVal1] = useState(0);
+  const [approvedVal2, setApprovedVal2] = useState(0);
 
   const dispatch = useDispatch();
 
@@ -166,7 +170,7 @@ const AddLiquiditySimple = ({ dark }) => {
             poolAddr,
             selected_chain
           );
-          checkApproved(token, outToken, poolAddr, value, valueEth);          
+          checkApproved(token, outToken, poolAddr, value, valueEth);
           setIsExist(true);
           const sliderInit = await sliderInitVal(poolData, token);
           setSliderValue(sliderInit * 100);
@@ -257,6 +261,10 @@ const AddLiquiditySimple = ({ dark }) => {
       token2["address"],
       selected_chain
     );
+    setApproval1(approved1 * 1 > val1 * 1);
+    setApproval2(approved2 * 1 > val1 * 1);
+    setApprovedVal1(approved1);
+    setApprovedVal2(approved2);
     setApproval(approved1 * 1 > val1 * 1 && approved2 * 1 > val2 * 1);
   };
 
@@ -308,28 +316,75 @@ const AddLiquiditySimple = ({ dark }) => {
 
   const clickConWallet = () => {
     document.getElementById("connect_wallet_btn").click();
-  }
+  };
 
-  const approveTK = async () => {
+  const approveTK1 = async (toVal) => {
     if (account) {
       const provider = await connector.getProvider();
-      const approved1 = await approveToken(
-        account,
-        provider,
-        inToken["address"],
-        value * 1.1,
-        selected_chain
-      );
+        const approved1 = await approveToken(
+          account,
+          provider,
+          inToken["address"],
+          toVal * 1.1,
+          selected_chain
+        );
+        setApproval1(approved1 * 1 > value * 1);
+        setApprovedVal1(approved1);        
+        setApproval(approved1 > value * 1 && approval2);
+    }
+  };
+
+  const approveTK2 = async (toVal) => {
+    if (account) {
+      const provider = await connector.getProvider();
       const approved2 = await approveToken(
         account,
         provider,
         outToken["address"],
-        valueEth * 1.1,
+        toVal * 1.1,
         selected_chain
       );
-      setApproval(approved1 > value * 1 && approved2 > valueEth * 1);
+      setApproval2(approved2 * 1 > valueEth * 1);
+      setApprovedVal2(approved2);
+      setApproval(approval1 && approved2 > valueEth * 1);
     }
   };
+
+  
+
+  // const approveTK = async () => {
+  //   if (account) {
+  //     const provider = await connector.getProvider();
+  //     if (!approval1) {
+  //       const approved1 = await approveToken(
+  //         account,
+  //         provider,
+  //         inToken["address"],
+  //         value * 1.1,
+  //         selected_chain
+  //       );
+  //       setApproval1(approved1 * 1 > value * 1);
+  //       setApprovedVal1(approved1);        
+  //       setApproval(approved1 > value * 1 && approval2);
+  //     } else {
+  //       const approved2 = await approveToken(
+  //         account,
+  //         provider,
+  //         outToken["address"],
+  //         valueEth * 1.1,
+  //         selected_chain
+  //       );
+  //       setApproval2(approved2 * 1 > value * 1);
+  //       setApprovedVal2(approved2);
+  //       setApproval(approval1 && approved2 > valueEth * 1);
+  //     }
+  //     // setApproval1(approved1 * 1 > value * 1);
+  //     // setApproval2(approved1 * 1 > value * 1);
+  //     // setApprovedVal1(approved1);
+  //     // setApprovedVal2(approved2);
+  //     // setApproval(approved1 > value * 1 && approved2 > valueEth * 1);
+  //   }
+  // };
 
   const setInLimit = () => {
     let val1 = inBal ? inBal.replaceAll(",", "") : 0;
@@ -499,6 +554,9 @@ const AddLiquiditySimple = ({ dark }) => {
       return [];
     }
   }, [weightData]);
+
+  console.log("input value", value, valueEth)
+  console.log("approved value", approvedVal1, approvedVal2)
 
   return (
     <div className="d-flex flex-col">
@@ -708,20 +766,168 @@ const AddLiquiditySimple = ({ dark }) => {
             </div>
           </div>
 
-          <div className="mt-20 flex">
-            {!approval && isExist && (
-              <button
-                onClick={approveTK}
-                style={{ minHeight: 57 }}
-                className={
-                  "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
-                }
-              >
-                {" "}
-                Approval{" "}
-              </button>
+          {/* <div className="mt-20 flex"> */}
+          <div>
+            {account && (
+              <>
+                {isExist && !limitedout ? (
+                  <>
+                    {approval ? (
+                      <button
+                        onClick={executeAddPool}
+                        style={{ minHeight: 57 }}
+                        className={
+                          approval
+                            ? "btn-primary font-bold w-full dark:text-black flex-1 mt-20"
+                            : "btn-primary font-bold w-full dark:text-black flex-1 ml-2 mt-20"
+                        }
+                        disabled={limitedout || !isExist}
+                      >
+                        {" "}
+                        {"Add Liquidity"}
+                      </button>
+                    ) : (
+                      <div className="mt-20 flex">
+                        <button
+                          onClick={() => {!approval1 ? approveTK1(Number(value - approvedVal1)) : approveTK2(Number(valueEth - approvedVal2))}}
+                          style={{ minHeight: 57 }}
+                          className={
+                            approval
+                              ? "btn-primary font-bold w-full dark:text-black flex-1"
+                              : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                          }
+                        >
+                          {" "}
+                          Unlock{" "}
+                          {!approval1
+                            ? Number(value - approvedVal1)
+                                .toString()
+                                .concat("", inToken["value"].toUpperCase())
+                            : Number(valueEth - approvedVal2)
+                                .toString()
+                                .concat("", outToken["value"].toUpperCase())}{" "}
+                        </button>
+                        <button
+                          onClick={() => {!approval1 ? approveTK1(99999) : approveTK2(99999)}}
+                          style={{ minHeight: 57 }}
+                          className={
+                            approval
+                              ? "btn-primary font-bold w-full dark:text-black flex-1"
+                              : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                          }
+                        >
+                          {" "}
+                          Infinite Unlock{" "}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <button
+                    className="btn-disabled font-bold w-full dark:text-black mt-20 flex-1"
+                    style={{ minHeight: 57 }}
+                  >
+                    {""}
+                    {limitedout ? "Insufficient Blanance" : "Invalid Pair"}
+                  </button>
+                )}
+                {/* {!isExist && (
+                  <button
+                    className={
+                      approval
+                        ? "btn-primary font-bold w-full dark:text-black flex-1"
+                        : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                    }
+                    disabled={true}
+                  >
+                    {" "}
+                    {"Invalid Pair"}
+                  </button>
+                )} */}
+                {/* {isExist && (
+                  <>
+                    {limitedout ? (
+                      <button
+                        style={{ minHeight: 57 }}
+                        className="btn-disabled font-bold w-full dark:text-black flex-1"
+                      >
+                        Insufficient Balance
+                      </button>
+                    ) : (
+                      <>
+                        {approval ? (
+                          <>
+                            {account && (
+                              <button
+                                onClick={executeAddPool}
+                                style={{ minHeight: 57 }}
+                                className={
+                                  approval
+                                    ? "btn-primary font-bold w-full dark:text-black flex-1"
+                                    : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                                }
+                                disabled={limitedout || !isExist}
+                              >
+                                {" "}
+                                {"Add Liquidity"}
+                              </button>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            {!approved1 ? (
+                              <>
+                                <div className="flex">
+                                  <button
+                                    onClick={approveTK}
+                                    style={{ minHeight: 57 }}
+                                    className={
+                                      approval
+                                        ? "btn-primary font-bold w-full dark:text-black flex-1"
+                                        : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                                    }
+                                  >
+                                    {" "}
+                                    Unlock{" "}
+                                  </button>
+                                  <button
+                                    onClick={approveTK}
+                                    style={{ minHeight: 57 }}
+                                    className={
+                                      approval
+                                        ? "btn-primary font-bold w-full dark:text-black flex-1"
+                                        : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                                    }
+                                  >
+                                    {" "}
+                                    Infinite Unlock{" "}
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <></>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
+                    {!approval && isExist && (
+                      <button
+                        onClick={approveTK}
+                        style={{ minHeight: 57 }}
+                        className={
+                          "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                        }
+                      >
+                        {" "}
+                        Approval{" "}
+                      </button>
+                    )}
+                  </>
+                )} */}
+              </>
             )}
-            {account &&
+            {/* {account && (
               <button
                 onClick={executeAddPool}
                 style={{ minHeight: 57 }}
@@ -741,8 +947,8 @@ const AddLiquiditySimple = ({ dark }) => {
                     : "Confirm"
                   : "Connect to Wallet"}
               </button>
-            }
-            {!account &&
+            )} */}
+            {!account && (
               <button
                 onClick={clickConWallet}
                 style={{ minHeight: 57 }}
@@ -750,7 +956,7 @@ const AddLiquiditySimple = ({ dark }) => {
               >
                 {"Connect to Wallet"}
               </button>
-            }
+            )}
           </div>
           <Modal
             open={open}

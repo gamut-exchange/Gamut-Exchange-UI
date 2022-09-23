@@ -64,8 +64,6 @@ const SimpleSwap = ({ dark }) => {
   const [middleToken, setMiddleToken] = useState(null);
   const [middleTokenSymbol, setMiddleTokenSymbol] = useState("");
 
-  console.log("balance", inBal);
-
   const dispatch = useDispatch();
 
   const pricesData = useTokenPricesData(poolAddress);
