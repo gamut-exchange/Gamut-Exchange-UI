@@ -264,7 +264,7 @@ const AddLiquiditySimple = ({ dark }) => {
       selected_chain
     );
     setApproval1(approved1 * 1 > val1 * 1);
-    setApproval2(approved2 * 1 > val1 * 1);
+    setApproval2(approved2 * 1 > val2 * 1);
     setApprovedVal1(approved1);
     setApprovedVal2(approved2);
     setApproval(approved1 * 1 > val1 * 1 && approved2 * 1 > val2 * 1);

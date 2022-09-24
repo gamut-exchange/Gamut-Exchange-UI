@@ -15,6 +15,8 @@ import { AiOutlineLineChart } from "react-icons/ai";
 import TextField from "@mui/material/TextField";
 import { useWeightsData } from "../../config/chartData";
 import {
+  poolApproval,
+  approvePool,
   getPoolData,
   getPoolBalance,
   removePool,
@@ -61,13 +63,13 @@ const RemoveLiquiditySimple = ({ dark }) => {
   const [poolAddresse, setPoolAddresse] = useState();
   const [poolDat, setPoolDat] = useState();
   const [limitedout, setLimitedout] = useState(false);
-
+  
   const dispatch = useDispatch();
   const weightData = useWeightsData(selectedItem["address"].toLowerCase());
 
   // console.log("pool balance", poolBalanceA, poolBalanceB, totalLPTokens)
 
-  const calculateSwap = (inToken, poolData, input) => {
+  const calculateSwap = (inToken, poolData, input) => {  //for calculating the remove liquidty output due to internal swaps
     let ammount = input;
     let balance_from;
     let balance_to;
@@ -117,30 +119,30 @@ const RemoveLiquiditySimple = ({ dark }) => {
     document.getElementById("connect_wallet_btn").click();
   }
 
-  const handleOpen = () => {
+  const handleOpen = () => {  //opens list of pools
     setQuery("");
     setOpen(true);
   };
-  const handleClose = () => setOpen(false);
+  const handleClose = () => setOpen(false); //closes list of pools
 
-  const handleValue = async (event) => {
+  const handleValue = async (event) => { //handels user number input
     const val = Number(event.target.value);
     setValue(val);
     let inLimBal = poolAmount.replace(",", "");
     if (Number(event.target.value) <= Number(inLimBal)) setLimitedout(false);
     else setLimitedout(true);
-    let lpPercentage = Number(((val / poolAmount) * 100).toFixed(2));
+    let lpPercentage = Number(((val / poolAmount) * 100).toFixed(8));
     setLpPercentage(lpPercentage);
     await calculateOutput(totalLPTokens, val, selectedItem);
   };
 
-  const handleScale = async (event, newValue) => {
+  const handleScale = async (event, newValue) => { //handels weight adjustment
     setScale(newValue);
     setWeightA(newValue / 100);
     await calculateOutput(totalLPTokens, value, selectedItem);
   };
 
-  const handleSlider = async (event, newValue) => {
+  const handleSlider = async (event, newValue) => { //handels percentage change
     setLpPercentage(newValue);
     const val = (poolAmount * (newValue / 100)).toPrecision(6);
     setValue(val);
@@ -298,7 +300,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
         );
         amount = Number(amount).toPrecision(6);
         setTotalLPTokens(amount2);
-        setPoolAmount(amount);
+        //setPoolAmount(amount);
         // setValue(((amount * lpPercentage) / 100).toFixed(2));
         setPoolBalanceA(poolData.balances[0]);
         setPoolBalanceB(poolData.balances[1]);
@@ -590,7 +592,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
                     value={value}
                     min={0}
                     onChange={handleValue}
-                    disabled={true}
+                    disabled={false}
                     className="text-right input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
                   />
                 </div>
