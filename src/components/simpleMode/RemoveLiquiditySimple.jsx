@@ -65,7 +65,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
   const dispatch = useDispatch();
   const weightData = useWeightsData(selectedItem["address"].toLowerCase());
 
-  console.log("pool balance", poolBalanceA, poolBalanceB, totalLPTokens)
+  // console.log("pool balance", poolBalanceA, poolBalanceB, totalLPTokens)
 
   const calculateSwap = (inToken, poolData, input) => {
     let ammount = input;
@@ -250,12 +250,13 @@ const RemoveLiquiditySimple = ({ dark }) => {
       outB = standardOutB + extraB;
     }
 
-    const vaueA = outA.toLocaleString("fullwide", { useGrouping: false });
-    const vaueB = outB.toLocaleString("fullwide", { useGrouping: false });
+    const vaueA = Math.floor(outA).toLocaleString("fullwide", { useGrouping: false });
+    const vaueB = Math.floor(outB).toLocaleString("fullwide", { useGrouping: false });
     const amount1 = fromWeiVal(provider, vaueA);
     const amount2 = fromWeiVal(provider, vaueB);
     setOutTokenA(Number(amount1));
     setOutTokenB(Number(amount2));
+
   };
 
   const setInLimit = () => {
@@ -298,7 +299,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
         amount = Number(amount).toPrecision(6);
         setTotalLPTokens(amount2);
         setPoolAmount(amount);
-        setValue(((amount * lpPercentage) / 100).toFixed(2));
+        // setValue(((amount * lpPercentage) / 100).toFixed(2));
         setPoolBalanceA(poolData.balances[0]);
         setPoolBalanceB(poolData.balances[1]);
         await calculateOutput(
@@ -589,6 +590,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
                     value={value}
                     min={0}
                     onChange={handleValue}
+                    disabled={true}
                     className="text-right input-value max-w-[300px] sm:max-w-none w-full text-right bg-transparent focus:outline-none"
                   />
                 </div>
@@ -638,7 +640,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
             <button
               onClick={executeRemovePool}
               style={{ minHeight: 57 }}
-              className="btn-primary rounded-sm font-bold w-full dark:text-black"
+              className={limitedout ? "btn-primary rounded-sm font-bold w-full dark:text-black disabled" : "btn-primary rounded-sm font-bold w-full dark:text-black"}
               disabled={limitedout}
             >
               {limitedout
