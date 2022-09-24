@@ -171,6 +171,8 @@ const RemoveLiquiditySimple = ({ dark }) => {
         selectedItem["address"],
         selected_chain
       );
+      console.log("selected", selectedItem)
+      console.log("pool data", poolData)
       const weightA = fromWeiVal(provider, poolData["weights"][0]);
       setWeightA(weightA);
       setScale((weightA * 100).toPrecision(6));
@@ -195,10 +197,14 @@ const RemoveLiquiditySimple = ({ dark }) => {
     }
   }
 
+  useEffect(() => {
+    getStatusData();
+  }, [selectedItem])
+
   const selectToken = async (item) => {
     handleClose();
+    console.log("choose item", item)
     setSelectedItem(item);
-    getStatusData();
   };
 
   const executeRemovePool = async () => {
@@ -227,9 +233,12 @@ const RemoveLiquiditySimple = ({ dark }) => {
       selectedItem["address"],
       selected_chain
     );
+    console.log("pool data2", poolData);
     let removeingPercentage = inValue / (Number(totalLkTk) + 0.0000000001);
     let standardOutA = removeingPercentage * poolData.balances[0];
     let standardOutB = removeingPercentage * poolData.balances[1];
+
+    // console.log("pool data", poolData, weightA)
 
     let reqWeightA = (1 - weightA) * 10 ** 18;
     let reqWeightB = weightA * 10 ** 18;
@@ -289,12 +298,12 @@ const RemoveLiquiditySimple = ({ dark }) => {
         let amount = await getPoolBalance(
           account,
           provider,
-          poolList[selected_chain][0]["address"],
+          selectedItem["address"],
           selected_chain
         );
         let amount2 = await getPoolSupply(
           provider,
-          poolList[selected_chain][0]["address"],
+          selectedItem["address"],
           selected_chain
         );
         amount = Number(amount).toPrecision(6);
