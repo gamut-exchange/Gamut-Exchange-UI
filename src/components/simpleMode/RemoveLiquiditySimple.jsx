@@ -59,7 +59,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
   const [outTokenA, setOutTokenA] = useState(0);
   const [outTokenB, setOutTokenB] = useState(0);
   const [poolAddresse, setPoolAddresse] = useState();
-  const [poolDat, setPoolDat] = useState();
+  const [poolData, setPoolData] = useState();
   const [limitedout, setLimitedout] = useState(false);
 
   const dispatch = useDispatch();
@@ -131,20 +131,20 @@ const RemoveLiquiditySimple = ({ dark }) => {
     else setLimitedout(true);
     let lpPercentage = Number(((val / poolAmount) * 100).toFixed(2));
     setLpPercentage(lpPercentage);
-    await calculateOutput(totalLPTokens, val, selectedItem);
+    await calculateOutput(totalLPTokens, val);
   };
 
   const handleScale = async (event, newValue) => {
     setScale(newValue);
     setWeightA(newValue / 100);
-    await calculateOutput(totalLPTokens, value, selectedItem);
+    await calculateOutput(totalLPTokens, value);
   };
 
   const handleSlider = async (event, newValue) => {
     setLpPercentage(newValue);
     const val = (poolAmount * (newValue / 100)).toPrecision(6);
     setValue(val);
-    await calculateOutput(totalLPTokens, val, selectedItem);
+    await calculateOutput(totalLPTokens, val);
   };
 
   const filterLP = (e) => {
@@ -163,12 +163,12 @@ const RemoveLiquiditySimple = ({ dark }) => {
     }
   };
 
-  const getStatusData = async (item) => {
+  const getStatusData = async () => {
     if (account) {
       const provider = await connector.getProvider();
       const poolData = await getPoolData(
         provider,
-        item["address"],
+        selectedItem["address"],
         selected_chain
       );
       const weightA = fromWeiVal(provider, poolData["weights"][0]);
@@ -179,7 +179,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
       let amount = await getPoolBalance(
         account,
         provider,
-        item["address"],
+        selectedItem["address"],
         selected_chain
       );
       amount = Number(amount).toPrecision(6);
@@ -187,18 +187,18 @@ const RemoveLiquiditySimple = ({ dark }) => {
       setValue(((amount * lpPercentage) / 100).toFixed(2));
       let totalLPAmount = await getPoolSupply(
         provider,
-        item["address"],
+        selectedItem["address"],
         selected_chain
       );
       setTotalLPTokens(totalLPAmount);
-      await calculateOutput(totalLPAmount, (amount * lpPercentage) / 100, item);
+      await calculateOutput(totalLPAmount, (amount * lpPercentage) / 100);
     }
   }
 
   const selectToken = async (item) => {
     handleClose();
     setSelectedItem(item);
-    getStatusData(item);
+    getStatusData();
   };
 
   const executeRemovePool = async () => {
@@ -220,11 +220,11 @@ const RemoveLiquiditySimple = ({ dark }) => {
     }
   };
 
-  const calculateOutput = async (totalLkTk, inValue, item) => {
+  const calculateOutput = async (totalLkTk, inValue) => {
     const provider = await connector.getProvider();
     const poolData = await getPoolData(
       provider,
-      item["address"],
+      selectedItem["address"],
       selected_chain
     );
     let removeingPercentage = inValue / (Number(totalLkTk) + 0.0000000001);
@@ -265,26 +265,27 @@ const RemoveLiquiditySimple = ({ dark }) => {
     setLpPercentage(100);
   };
 
+
   useEffect(() => {
     if (account) {
       const getInfo = async () => {
         const provider = await connector.getProvider();
-        const poolData = await getPoolData(
+        const pData = await getPoolData(
           provider,
-          poolList[selected_chain][0]["address"],
+          selectedItem["address"],
           selected_chain
         );
-        const weightA = fromWeiVal(provider, poolData["weights"][1]);
-        setPoolDat(poolData);
+        const weightA = fromWeiVal(provider, pData["weights"][1]);
+        setPoolData(pData);
         setWeightA(weightA);
         setScale((weightA * 100).toPrecision(6));
         setPrice(
-          poolData.balances[0] /
-            poolData.weights[0] /
-            (poolData.balances[1] / poolData.weights[1])
+          pData.balances[0] /
+            pData.weights[0] /
+            (pData.balances[1] / pData.weights[1])
         );
-        setTokenAAddr(poolData["tokens"][0]);
-        setTokenBAddr(poolData["tokens"][1]);
+        setTokenAAddr(pData["tokens"][0]);
+        setTokenBAddr(pData["tokens"][1]);
         let amount = await getPoolBalance(
           account,
           provider,
@@ -300,18 +301,17 @@ const RemoveLiquiditySimple = ({ dark }) => {
         setTotalLPTokens(amount2);
         setPoolAmount(amount);
         // setValue(((amount * lpPercentage) / 100).toFixed(2));
-        setPoolBalanceA(poolData.balances[0]);
-        setPoolBalanceB(poolData.balances[1]);
+        setPoolBalanceA(pData.balances[0]);
+        setPoolBalanceB(pData.balances[1]);
         await calculateOutput(
           amount2,
-          (amount * lpPercentage) / 100,
-          poolList[selected_chain][0]
+          (amount * lpPercentage) / 100
         );
       };
 
       getInfo();
       const intervalId = setInterval(() => {
-        getStatusData(selectedItem);
+        getStatusData();
       }, 40000);
       return () => clearInterval(intervalId);
     }
