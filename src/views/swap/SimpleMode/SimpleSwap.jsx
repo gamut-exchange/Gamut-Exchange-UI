@@ -64,8 +64,6 @@ const SimpleSwap = ({ dark }) => {
   const [middleToken, setMiddleToken] = useState(null);
   const [middleTokenSymbol, setMiddleTokenSymbol] = useState("");
 
-  console.log("approved val", approvedVal);
-
   const dispatch = useDispatch();
 
   const pricesData = useTokenPricesData(poolAddress);
@@ -1068,7 +1066,7 @@ const SimpleSwap = ({ dark }) => {
               </p>
             </div>
             {account && (
-              <div className="mt-20">
+              <div className="mt-10">
                 {limitedout ? (
                   <button
                     style={{ minHeight: 57 }}
@@ -1124,7 +1122,7 @@ const SimpleSwap = ({ dark }) => {
                             Infinite Unlock{" "}
                           </button>
                         </div>
-                        <div className="text-red-700 flex items-center">
+                        <div className="text-red-700 flex items-center pt-1.5">
                           <div>
                             <svg
                               class="fill-current h-6 w-6 mr-4"
@@ -1141,33 +1139,6 @@ const SimpleSwap = ({ dark }) => {
                         </div>
                       </>
                     )}
-                    {/* {!approval && (
-                      <button
-                        onClick={approveTk}
-                        style={{ minHeight: 57 }}
-                        className={
-                          approval
-                            ? "btn-primary font-bold w-full dark:text-black flex-1"
-                            : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
-                        }
-                      >
-                        {" "}
-                        Approval{" "}
-                      </button>
-                    )}
-                    <button
-                      onClick={executeSwap}
-                      style={{ minHeight: 57 }}
-                      className={
-                        approval
-                          ? "btn-primary font-bold w-full dark:text-black flex-1"
-                          : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
-                      }
-                      disabled={limitedout}
-                    >
-                      {" "}
-                      {limitedout ? "Not Enough Token" : "Confirm"}
-                    </button> */}
                   </>
                 )}
               </div>
