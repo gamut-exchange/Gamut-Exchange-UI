@@ -22,6 +22,9 @@
 .btn-primary {
   @apply bg-light-primary text-lg text-white capitalize flex justify-center items-center dark:bg-grey-dark;
 }
+.btn-disabled {
+  @apply bg-light-primary text-lg text-white capitalize flex justify-center items-center dark:bg-grey-dark cursor-not-allowed opacity-50;
+}
 .header-title {
   @apply text-light-primary text-center font-bold md:text-70 text-30 dark:text-grey-dark;
 }

@@ -57,6 +57,7 @@ const SimpleSwap = ({ dark }) => {
   const [fee, setFee] = useState(0);
   const [chartOpen, setChartOpen] = useState(false);
   const [approval, setApproval] = useState(false);
+  const [approvedVal, setApprovedVal] = useState(0);
   const [filterData, setFilterData] = useState(uniList[selected_chain]);
   const [limitedout, setLimitedout] = useState(false);
   const [swapFee, setSwapFee] = useState(0);
@@ -81,7 +82,7 @@ const SimpleSwap = ({ dark }) => {
 
   const clickConWallet = () => {
     document.getElementById("connect_wallet_btn").click();
-  }
+  };
 
   const handleOpen = (val) => {
     setSelected(val);
@@ -92,9 +93,9 @@ const SimpleSwap = ({ dark }) => {
   const handleValue = async (event) => {
     let inLimBal = inBal.toString().replaceAll(",", "");
     let outLimBal = outBal.toString().replaceAll(",", "");
-    if (Number(event.target.value) < inLimBal) setLimitedout(false);
-    else setLimitedout(true);
-    setInValue(event.target.value*1);
+    if (Number(event.target.value) > Number(inLimBal)) setLimitedout(true);
+    else setLimitedout(false);
+    setInValue(event.target.value * 1);
     setFee(event.target.value * swapFee);
     checkApproved(inToken, event.target.value);
   };
@@ -121,6 +122,7 @@ const SimpleSwap = ({ dark }) => {
       selected_chain
     );
     setApproval(approval * 1 > val * 1);
+    setApprovedVal(Number(approval));
   };
 
   const calculateSwap = async (inToken, poolData, input) => {
@@ -388,7 +390,11 @@ const SimpleSwap = ({ dark }) => {
         selected_chain
       );
       const poolData = await getPoolData(provider, poolAddress, selected_chain);
-      const result = await calculateSwap(inSToken["address"], poolData, inValue);
+      const result = await calculateSwap(
+        inSToken["address"],
+        poolData,
+        inValue
+      );
       if (suitableRouter.length !== 0) {
         if (Number(result) > Number(suitableRouter[1])) {
           setMiddleToken(null);
@@ -450,16 +456,17 @@ const SimpleSwap = ({ dark }) => {
     }
   };
 
-  const approveTk = async () => {
+  const approveTk = async (amount) => {
     if (account) {
       const provider = await connector.getProvider();
       const approvedToken = await approveToken(
         account,
         provider,
         inToken["address"],
-        inValue * 1.01,
+        amount * 1.01,
         selected_chain
       );
+      console.log("approved mt", approvedToken);
       setApproval(approvedToken > inValue);
     }
   };
@@ -499,98 +506,102 @@ const SimpleSwap = ({ dark }) => {
   const getStatusData = async (value) => {
     if (account && inToken !== outToken) {
       const provider = await connector.getProvider();
-        const midToken = await findMiddleToken(inToken, outToken);
-        if (midToken) {
-          let amountOut = await calcOutput(
-            midToken,
-            provider,
-            value,
-            inToken,
-            outToken
-          );
-          amountOut =
-            amountOut * 1 === 0
-              ? 0
-              : amountOut > 1
-              ? amountOut.toFixed(2)
-              : amountOut.toFixed(6);
-          setValueEth(amountOut);
-          if (midToken.length == 1) {
-            const poolAddress1 = await getPoolAddress(
-              provider,
-              inToken["address"],
-              midToken[0]["address"],
-              selected_chain
-            );
-            const poolAddress2 = await getPoolAddress(
-              provider,
-              midToken[0]["address"],
-              outToken["address"],
-              selected_chain
-            );
-            setPoolAddress([
-              poolAddress1.toLowerCase(),
-              poolAddress2.toLowerCase(),
-            ]);
-          } else {
-            const poolAddress1 = await getPoolAddress(
-              provider,
-              inToken["address"],
-              midToken[0]["address"],
-              selected_chain
-            );
-            const poolAddress2 = await getPoolAddress(
-              provider,
-              midToken[0]["address"],
-              midToken[1]["address"],
-              selected_chain
-            );
-            const poolAddress3 = await getPoolAddress(
-              provider,
-              midToken[1]["address"],
-              outToken["address"],
-              selected_chain
-            );
-            setPoolAddress([
-              poolAddress1.toLowerCase(),
-              poolAddress2.toLowerCase(),
-              poolAddress3.toLowerCase(),
-            ]);
-          }
-        } else {
-          const poolAddress = await getPoolAddress(
+      const midToken = await findMiddleToken(inToken, outToken);
+      if (midToken) {
+        let amountOut = await calcOutput(
+          midToken,
+          provider,
+          value,
+          inToken,
+          outToken
+        );
+        amountOut =
+          amountOut * 1 === 0
+            ? 0
+            : amountOut > 1
+            ? amountOut.toFixed(2)
+            : amountOut.toFixed(6);
+        setValueEth(amountOut);
+        if (midToken.length == 1) {
+          const poolAddress1 = await getPoolAddress(
             provider,
             inToken["address"],
+            midToken[0]["address"],
+            selected_chain
+          );
+          const poolAddress2 = await getPoolAddress(
+            provider,
+            midToken[0]["address"],
             outToken["address"],
             selected_chain
           );
-          const poolData = await getPoolData(
+          setPoolAddress([
+            poolAddress1.toLowerCase(),
+            poolAddress2.toLowerCase(),
+          ]);
+        } else {
+          const poolAddress1 = await getPoolAddress(
             provider,
-            poolAddress,
+            inToken["address"],
+            midToken[0]["address"],
             selected_chain
           );
-          let amountOut = await calculateSwap(
-            inToken["address"],
-            poolData,
-            value
+          const poolAddress2 = await getPoolAddress(
+            provider,
+            midToken[0]["address"],
+            midToken[1]["address"],
+            selected_chain
           );
-
-          amountOut = (amountOut * 1 === 0) ? 0 : (amountOut > 1 ? amountOut.toFixed(2) : amountOut.toFixed(6));
-          setValueEth(amountOut);
-          const slippage = await calcSlippage(
-            inToken,
-            poolData,
-            value,
-            amountOut
+          const poolAddress3 = await getPoolAddress(
+            provider,
+            midToken[1]["address"],
+            outToken["address"],
+            selected_chain
           );
-          setPoolAddress([poolAddress.toLowerCase()]);
+          setPoolAddress([
+            poolAddress1.toLowerCase(),
+            poolAddress2.toLowerCase(),
+            poolAddress3.toLowerCase(),
+          ]);
         }
+      } else {
+        const poolAddress = await getPoolAddress(
+          provider,
+          inToken["address"],
+          outToken["address"],
+          selected_chain
+        );
+        const poolData = await getPoolData(
+          provider,
+          poolAddress,
+          selected_chain
+        );
+        let amountOut = await calculateSwap(
+          inToken["address"],
+          poolData,
+          value
+        );
+
+        amountOut =
+          amountOut * 1 === 0
+            ? 0
+            : amountOut > 1
+            ? amountOut.toFixed(2)
+            : amountOut.toFixed(6);
+        setValueEth(amountOut);
+        const slippage = await calcSlippage(
+          inToken,
+          poolData,
+          value,
+          amountOut
+        );
+        setPoolAddress([poolAddress.toLowerCase()]);
+      }
     } else if (inToken !== outToken) {
       for (var i = 0; i < poolList[selected_chain].length; i++) {
         if (
           (poolList[selected_chain][i]["symbols"][0] === inToken["symbol"] &&
-            poolList[selected_chain][i]["symbols"][1] ===
-              outToken["symbol"]) ||
+            poolList[selected_chain][i]["symbols"][1] === outToken["symbol"]) ||
           (poolList[selected_chain][i]["symbols"][1] === inToken["symbol"] &&
             poolList[selected_chain][i]["symbols"][0] === outToken["symbol"])
         ) {
@@ -1054,39 +1065,85 @@ const SimpleSwap = ({ dark }) => {
                 Fee: {fee} {inToken.symbol}
               </p>
             </div>
-
-            {account &&
-              <div className="mt-20 flex">
-                {!approval && (
+            {account && (
+              <div className="mt-10">
+                {limitedout ? (
                   <button
-                    onClick={approveTk}
                     style={{ minHeight: 57 }}
-                    className={
-                      approval
-                        ? "btn-primary font-bold w-full dark:text-black flex-1"
-                        : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
-                    }
+                    className="btn-disabled font-bold w-full dark:text-black flex-1"
                   >
-                    {" "}
-                    Approval{" "}
+                    Insufficient Balance
                   </button>
+                ) : (
+                  <>
+                    {approval ? (
+                      <button
+                        onClick={executeSwap}
+                        style={{ minHeight: 57 }}
+                        className={
+                          approval
+                            ? "btn-primary font-bold w-full dark:text-black flex-1"
+                            : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                        }
+                        disabled={limitedout}
+                      >
+                        {" "}
+                        {"Swap Now"}
+                      </button>
+                    ) : (
+                      <>
+                        <div className="flex">
+                          <button
+                            onClick={() =>
+                              approveTk(Number(inValue - approval))
+                            }
+                            style={{ minHeight: 57 }}
+                            className={
+                              approval
+                                ? "btn-primary font-bold w-full dark:text-black flex-1"
+                                : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                            }
+                          >
+                            {" "}
+                            Unlock {Math.ceil(inValue - approvedVal)}{" "}
+                            {inToken["value"]}{" "}
+                          </button>
+                          <button
+                            onClick={() => approveTk(9999999999)}
+                            style={{ minHeight: 57 }}
+                            className={
+                              approval
+                                ? "btn-primary font-bold w-full dark:text-black flex-1"
+                                : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                            }
+                            disabled={limitedout}
+                          >
+                            {" "}
+                            Infinite Unlock{" "}
+                          </button>
+                        </div>
+                        <div className="text-red-700 flex items-center pt-1.5">
+                          <div>
+                            <svg
+                              class="fill-current h-6 w-6 mr-4"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z" />
+                            </svg>
+                          </div>
+                            <p className="text-small">
+                              To proceed swapping, please unlock{" "}
+                              {inToken["value"].toUpperCase()} first.
+                            </p>
+                        </div>
+                      </>
+                    )}
+                  </>
                 )}
-                <button
-                  onClick={executeSwap}
-                  style={{ minHeight: 57 }}
-                  className={
-                    approval
-                      ? "btn-primary font-bold w-full dark:text-black flex-1"
-                      : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
-                  }
-                  disabled={limitedout}
-                >
-                  {" "}
-                  {limitedout ? "Not Enough Token" : "Confirm"}
-                </button>
               </div>
-            }
-            {!account &&
+            )}
+            {!account && (
               <div className="mt-20 flex">
                 <button
                   onClick={clickConWallet}
@@ -1096,7 +1153,7 @@ const SimpleSwap = ({ dark }) => {
                   {"Connect To Wallet"}
                 </button>
               </div>
-            }
+            )}
             <Modal
               open={open}
               onClose={handleClose}

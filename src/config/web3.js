@@ -245,7 +245,7 @@ export const joinPool = async (
 
   if (poolAddr) {
     const poolData = await getPoolData(provider, poolAddr, chain);
-    debugger;
+    // debugger;
     let tokenA = "";
     let tokenB = "";
     let amountA = 0;
@@ -266,7 +266,7 @@ export const joinPool = async (
     const inMaxAmount = web3.utils.toWei((amountA * 1.2).toString());
     const outAmount = web3.utils.toWei(amountB.toString());
     const outMaxAmount = web3.utils.toWei((amountB * 1.2).toString());
-    debugger;
+    // debugger;
     const initUserData = ethers.utils.defaultAbiCoder.encode(
       ["uint256", "uint256[]", "uint256"],
       [
