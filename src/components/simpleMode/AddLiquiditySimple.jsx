@@ -734,7 +734,7 @@ const AddLiquiditySimple = ({ dark }) => {
           <div>
             {account && (
               <>
-                {isExist && !limitedout ? (
+                {isExist && !limitedout && Number(value)!=0 ? (
                   <>
                     {approval ? (
                       <button
@@ -792,7 +792,7 @@ const AddLiquiditySimple = ({ dark }) => {
                     style={{ minHeight: 57 }}
                   >
                     {""}
-                    {limitedout ? "Insufficient Blanance" : "Invalid Pair"}
+                    {(limitedout || Number(value)==0) ? "Insufficient Blanance" : "Invalid Pair"}
                   </button>
                 )}
               </>

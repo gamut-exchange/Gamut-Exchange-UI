@@ -1067,7 +1067,7 @@ const SimpleSwap = ({ dark }) => {
             </div>
             {account && (
               <div className="mt-10">
-                {limitedout ? (
+                {limitedout || Number(inValue)==0 ? (
                   <button
                     style={{ minHeight: 57 }}
                     className="btn-disabled font-bold w-full dark:text-black flex-1"
