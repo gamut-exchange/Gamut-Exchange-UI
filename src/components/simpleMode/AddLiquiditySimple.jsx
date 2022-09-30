@@ -66,6 +66,8 @@ const AddLiquiditySimple = ({ dark }) => {
   const [approval2, setApproval2] = useState(false);
   const [approvedVal1, setApprovedVal1] = useState(0);
   const [approvedVal2, setApprovedVal2] = useState(0);
+  const [unlocking, setUnlocking] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -304,6 +306,7 @@ const AddLiquiditySimple = ({ dark }) => {
   const executeAddPool = async () => {
     if (inToken["address"] != outToken["address"]) {
       const provider = await connector.getProvider();
+      setAdding(true);
       await joinPool(
         account,
         provider,
@@ -313,6 +316,7 @@ const AddLiquiditySimple = ({ dark }) => {
         valueEth,
         selected_chain
       );
+      setAdding(false);
     }
   };
 
@@ -323,6 +327,7 @@ const AddLiquiditySimple = ({ dark }) => {
   const approveTK1 = async (toVal) => {
     if (account) {
       const provider = await connector.getProvider();
+        setUnlocking(true);
         const approved1 = await approveToken(
           account,
           provider,
@@ -330,6 +335,7 @@ const AddLiquiditySimple = ({ dark }) => {
           toVal * 1.1,
           selected_chain
         );
+        setUnlocking(false);
         setApproval1(approved1 * 1 > value * 1);
         setApprovedVal1(approved1);        
         setApproval(approved1 > value * 1 && approval2);
@@ -339,6 +345,7 @@ const AddLiquiditySimple = ({ dark }) => {
   const approveTK2 = async (toVal) => {
     if (account) {
       const provider = await connector.getProvider();
+      setUnlocking(true);
       const approved2 = await approveToken(
         account,
         provider,
@@ -346,6 +353,7 @@ const AddLiquiditySimple = ({ dark }) => {
         toVal * 1.1,
         selected_chain
       );
+      setUnlocking(false);
       setApproval2(approved2 * 1 > valueEth * 1);
       setApprovedVal2(approved2);
       setApproval(approval1 && approved2 > valueEth * 1);
@@ -741,14 +749,15 @@ const AddLiquiditySimple = ({ dark }) => {
                         onClick={executeAddPool}
                         style={{ minHeight: 57 }}
                         className={
-                          approval
+                          adding?"btn-disabled font-bold w-full dark:text-black flex-1 mt-20":(
+                            approval
                             ? "btn-primary font-bold w-full dark:text-black flex-1 mt-20"
                             : "btn-primary font-bold w-full dark:text-black flex-1 ml-2 mt-20"
+                            )
                         }
-                        disabled={limitedout || !isExist}
+                        disabled={limitedout || !isExist || adding}
                       >
-                        {" "}
-                        {"Add Liquidity"}
+                        {adding?"Adding Liquidity":"Add Liquidity"}
                       </button>
                     ) : (
                       <div className="mt-20 flex">
@@ -756,32 +765,28 @@ const AddLiquiditySimple = ({ dark }) => {
                           onClick={() => {!approval1 ? approveTK1(Number(value - approvedVal1)) : approveTK2(Number(valueEth - approvedVal2))}}
                           style={{ minHeight: 57 }}
                           className={
-                            approval
-                              ? "btn-primary font-bold w-full dark:text-black flex-1"
-                              : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                            unlocking?"btn-disabled font-bold w-full dark:text-black flex-1 mr-2":
+                            (approval ? "btn-primary font-bold w-full dark:text-black flex-1" : "btn-primary font-bold w-full dark:text-black flex-1 mr-2")
                           }
+                          disabled={unlocking}
                         >
-                          {" "}
-                          Unlock{" "}
-                          {!approval1
-                            ? Number(value - approvedVal1).toFixed(4)
+                        {unlocking?"Unlocking...":(!approval1?"Unlock "+Number(value - approvedVal1).toFixed(4)
                                 .toString()
                                 .concat("", inToken["value"].toUpperCase())
-                            : Number(valueEth - approvedVal2).toFixed(4)
+                            : "Unlock "+Number(valueEth - approvedVal2).toFixed(4)
                                 .toString()
-                                .concat("", outToken["value"].toUpperCase())}{" "}
+                                .concat("", outToken["value"].toUpperCase()))}
                         </button>
                         <button
                           onClick={() => {!approval1 ? approveTK1(99999) : approveTK2(99999)}}
                           style={{ minHeight: 57 }}
                           className={
-                            approval
-                              ? "btn-primary font-bold w-full dark:text-black flex-1"
-                              : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                            unlocking?"btn-disabled font-bold w-full dark:text-black flex-1 mr-2":
+                            (approval ? "btn-primary font-bold w-full dark:text-black flex-1" : "btn-primary font-bold w-full dark:text-black flex-1 mr-2")
                           }
+                          disabled={unlocking}
                         >
-                          {" "}
-                          Infinite Unlock{" "}
+                          {unlocking?"Unlocking...":"Infinite Unlock"}
                         </button>
                       </div>
                     )}

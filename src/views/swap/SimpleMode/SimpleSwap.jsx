@@ -63,6 +63,8 @@ const SimpleSwap = ({ dark }) => {
   const [swapFee, setSwapFee] = useState(0);
   const [middleToken, setMiddleToken] = useState(null);
   const [middleTokenSymbol, setMiddleTokenSymbol] = useState("");
+  const [unlocking, setUnlocking] = useState(false);
+  const [swapping, setSwapping] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -91,10 +93,6 @@ const SimpleSwap = ({ dark }) => {
   const handleClose = () => setOpen(false);
 
   const handleValue = async (event) => {
-    let inLimBal = inBal.toString().replaceAll(",", "");
-    let outLimBal = outBal.toString().replaceAll(",", "");
-    if (Number(event.target.value) > Number(inLimBal)) setLimitedout(true);
-    else setLimitedout(false);
     setInValue(event.target.value * 1);
     setFee(event.target.value * swapFee);
     checkApproved(inToken, event.target.value);
@@ -433,6 +431,7 @@ const SimpleSwap = ({ dark }) => {
     if (account && inToken["address"] !== outToken["address"]) {
       const provider = await connector.getProvider();
       const limit = valueEth * 0.99;
+      setSwapping(true);
       if (middleToken)
         await batchSwapTokens(
           provider,
@@ -444,7 +443,7 @@ const SimpleSwap = ({ dark }) => {
           selected_chain
         );
       else
-        swapTokens(
+        await swapTokens(
           provider,
           inToken["address"],
           outToken["address"],
@@ -453,12 +452,14 @@ const SimpleSwap = ({ dark }) => {
           limit,
           selected_chain
         );
+      setSwapping(false);
     }
   };
 
   const approveTk = async (amount) => {
     if (account) {
       const provider = await connector.getProvider();
+      setUnlocking(true);
       const approvedToken = await approveToken(
         account,
         provider,
@@ -466,7 +467,7 @@ const SimpleSwap = ({ dark }) => {
         amount * 1.01,
         selected_chain
       );
-      console.log("approved mt", approvedToken);
+      setUnlocking(false);
       setApproval(approvedToken > inValue);
     }
   };
@@ -505,6 +506,8 @@ const SimpleSwap = ({ dark }) => {
 
   const getStatusData = async (value) => {
     if (account && inToken !== outToken) {
+      let inLimBal = inBal.toString().replaceAll(",", "");
+      let outLimBal = outBal.toString().replaceAll(",", "");
       const provider = await connector.getProvider();
       const midToken = await findMiddleToken(inToken, outToken);
       if (midToken) {
@@ -522,6 +525,8 @@ const SimpleSwap = ({ dark }) => {
             ? amountOut.toFixed(2)
             : amountOut.toFixed(6);
         setValueEth(amountOut);
+    if (Number(value) > Number(inLimBal) || Number(amountOut) > Number(outLimBal)) setLimitedout(true);
+    else setLimitedout(false);
         if (midToken.length == 1) {
           const poolAddress1 = await getPoolAddress(
             provider,
@@ -589,6 +594,8 @@ const SimpleSwap = ({ dark }) => {
             ? amountOut.toFixed(2)
             : amountOut.toFixed(6);
         setValueEth(amountOut);
+        if (Number(value) > Number(inLimBal) || Number(amountOut) > Number(outLimBal)) setLimitedout(true);
+        else setLimitedout(false);
         const slippage = await calcSlippage(
           inToken,
           poolData,
@@ -1081,14 +1088,13 @@ const SimpleSwap = ({ dark }) => {
                         onClick={executeSwap}
                         style={{ minHeight: 57 }}
                         className={
-                          approval
-                            ? "btn-primary font-bold w-full dark:text-black flex-1"
-                            : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                          swapping
+                            ? "btn-disabled font-bold w-full dark:text-black flex-1"
+                            : "btn-primary font-bold w-full dark:text-black flex-1"
                         }
-                        disabled={limitedout}
+                        disabled={swapping}
                       >
-                        {" "}
-                        {"Swap Now"}
+                        {swapping?"Swap in progress":"Swap Now"}
                       </button>
                     ) : (
                       <>
@@ -1101,12 +1107,11 @@ const SimpleSwap = ({ dark }) => {
                             className={
                               approval
                                 ? "btn-primary font-bold w-full dark:text-black flex-1"
-                                : "btn-primary font-bold w-full dark:text-black flex-1 mr-2"
+                                : ((limitedout || unlocking)?"btn-disabled font-bold w-full dark:text-black flex-1 mr-2":"btn-primary font-bold w-full dark:text-black flex-1 mr-2")
                             }
+                            disabled={limitedout || unlocking}
                           >
-                            {" "}
-                            Unlock {Math.ceil(inValue - approvedVal)}{" "}
-                            {inToken["value"]}{" "}
+                            {unlocking?"Unlocking...":"Unlock "+Math.ceil(inValue - approvedVal)+" "+inToken["value"]}
                           </button>
                           <button
                             onClick={() => approveTk(9999999999)}
@@ -1114,12 +1119,11 @@ const SimpleSwap = ({ dark }) => {
                             className={
                               approval
                                 ? "btn-primary font-bold w-full dark:text-black flex-1"
-                                : "btn-primary font-bold w-full dark:text-black flex-1 ml-2"
+                                : ((limitedout || unlocking)?"btn-disabled font-bold w-full dark:text-black flex-1 mr-2":"btn-primary font-bold w-full dark:text-black flex-1 mr-2")
                             }
-                            disabled={limitedout}
+                            disabled={limitedout || unlocking}
                           >
-                            {" "}
-                            Infinite Unlock{" "}
+                            {unlocking?"Unlocking...":"Infinite Unlock"}
                           </button>
                         </div>
                         <div className="text-red-700 flex items-center pt-1.5">

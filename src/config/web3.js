@@ -79,11 +79,16 @@ export const approveToken = async (
   const tokenAbi = erc20ABI[0];
   let web3 = new Web3(provider);
   let token_contract = new web3.eth.Contract(tokenAbi, tokenAddr);
-  await token_contract.methods["increaseAllowance"](
-    c_address,
-    web3.utils.toWei(value.toString())
-  ).send({ from: account });
+  try {
+    await token_contract.methods["increaseAllowance"](
+      c_address,
+      web3.utils.toWei(value.toString())
+    ).send({ from: account });
+  } catch(e) {
+    console.log(e.message);
+  }
   const result = await tokenApproval(account, provider, tokenAddr, chain);
+  debugger;
   return result;
 };
 
@@ -148,12 +153,16 @@ export const swapTokens = async (
   let deadline = new Date().getTime() + 900000;
 
   let contract = new web3.eth.Contract(abi, c_address);
-  let result = await contract.methods["swap"](
-    [inTokenAddr, outTokenAddr, wei_amount],
-    [account, account],
-    wei_limit,
-    deadline
-  ).send({ from: account });
+  try {
+    await contract.methods["swap"](
+      [inTokenAddr, outTokenAddr, wei_amount],
+      [account, account],
+      wei_limit,
+      deadline
+    ).send({ from: account });
+  } catch(e) {
+    console.log(e.message);
+  }
 };
 
 export const batchSwapTokens = async (
@@ -214,13 +223,17 @@ export const batchSwapTokens = async (
 
   if (middleTokens) {
     const contract = new web3.eth.Contract(abi, cAddress);
-    await contract.methods["batchSwap"](
-      swaps,
-      assets,
-      funds,
-      limits,
-      deadline
-    ).send({ from: account });
+    try {
+      await contract.methods["batchSwap"](
+        swaps,
+        assets,
+        funds,
+        limits,
+        deadline
+      ).send({ from: account });
+    } catch(e) {
+      console.log(e.message);
+    }
   }
 };
 
@@ -284,11 +297,15 @@ export const joinPool = async (
     // let token2_contract = new web3.eth.Contract(tokenAbi, token2Addr);
     // await token2_contract.methods['increaseAllowance'](c_address, outAmount).send({from: account});
     let contract = new web3.eth.Contract(abi, c_address);
-    let result = await contract.methods["joinPool"](account, [
-      [tokenA, tokenB],
-      [inMaxAmount, outMaxAmount],
-      initUserData,
-    ]).send({ from: account });
+    try {
+      let result = await contract.methods["joinPool"](account, [
+        [tokenA, tokenB],
+        [inMaxAmount, outMaxAmount],
+        initUserData,
+      ]).send({ from: account });
+    } catch(e) {
+      console.log(e.message);
+    }
   }
 };
 
@@ -347,11 +364,15 @@ export const removePool = async (
   );
 
   let contract = new web3.eth.Contract(abi, c_address);
-  let result = await contract.methods["exitPool"](account, [
-    [token1Addr, token2Addr],
-    [web3.utils.toWei("0.001"), web3.utils.toWei("0.001")],
-    initUserData,
-  ]).send({ from: account });
+  try {
+    let result = await contract.methods["exitPool"](account, [
+      [token1Addr, token2Addr],
+      [web3.utils.toWei("0.001"), web3.utils.toWei("0.001")],
+      initUserData,
+    ]).send({ from: account });
+  } catch(e) {
+    console.log(e.message);
+  }
 };
 
 export const requestToken = async (account, provider, token, chain) => {

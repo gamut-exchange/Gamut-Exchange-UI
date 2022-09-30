@@ -61,6 +61,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
   const [poolAddresse, setPoolAddresse] = useState();
   const [poolData, setPoolData] = useState();
   const [limitedout, setLimitedout] = useState(false);
+  const [removing, setRemoving] = useState(false);
 
   const dispatch = useDispatch();
   const weightData = useWeightsData(selectedItem["address"].toLowerCase());
@@ -213,6 +214,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
       let amount1 = value * weightA;
       let amount2 = value * (1 - weightA);
       let ratio = (1 - scale / 100).toFixed(8);
+      setRemoving(true);
       await removePool(
         account,
         provider,
@@ -223,6 +225,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
         tokenBAddr,
         selected_chain
       );
+      setRemoving(false);
     }
   };
 
@@ -649,12 +652,12 @@ const RemoveLiquiditySimple = ({ dark }) => {
             <button
               onClick={executeRemovePool}
               style={{ minHeight: 57 }}
-              className={limitedout ? "btn-primary rounded-sm font-bold w-full dark:text-black disabled" : "btn-primary rounded-sm font-bold w-full dark:text-black"}
-              disabled={limitedout}
+              className={Number(value) == 0 || removing ? "btn-disabled rounded-sm font-bold w-full dark:text-black" : "btn-primary rounded-sm font-bold w-full dark:text-black"}
+              disabled={Number(value) == 0 || removing}
             >
-              {limitedout
-                  ? "Not Enough Token"
-                  : "Confirm"}
+              {Number(value) == 0
+                  ? "Insufficient Blanance"
+                  :(removing?"Removing Liquidity":"Confirm")}
             </button>
           }
           {!account &&
