@@ -7,7 +7,8 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import tw, { styled } from "twin.macro";
 import { uniList }  from "../../config/constants";
-import { requestToken, allowedToWithdraw } from "../../config/web3";
+import { contractAddresses } from "../../config/constants";
+import { requestToken, allowedToWithdraw } from "gamut-sdk";
 
 const Faucet = ({dark}) => {
   const selected_chain = useSelector((state) => state.selectedChain);
@@ -59,14 +60,14 @@ const Faucet = ({dark}) => {
     });
     setFilterData(filterData);
     const provider = await connector.getProvider();
-    const fau_allowed = await allowedToWithdraw(account, provider, item['symbol'].toLowerCase(), chain);
+    const fau_allowed = await allowedToWithdraw(account, provider, contractAddresses[selected_chain][selectedToken['symbol'].toLowerCase()]);
     setAllowed(fau_allowed);
   }
 
   const requestTToken = async () => {
     const provider = await connector.getProvider();
-    await requestToken(account, provider, selectedToken['symbol'].toLowerCase(), chain);
-    const fau_allowed = await allowedToWithdraw(account, provider, selectedToken['symbol'].toLowerCase(), chain);
+    await requestToken(account, provider, contractAddresses[selected_chain][selectedToken['symbol'].toLowerCase()]);
+    const fau_allowed = await allowedToWithdraw(account, provider, contractAddresses[selected_chain][selectedToken['symbol'].toLowerCase()]);
     setAllowed(fau_allowed);
   }
 
@@ -74,7 +75,7 @@ const Faucet = ({dark}) => {
     if(account) {
         const getInfo = async () => {
         const provider = await connector.getProvider();
-        const fau_allowed = await allowedToWithdraw(account, provider, selectedToken['symbol'].toLowerCase(), chain);
+        const fau_allowed = await allowedToWithdraw(account, provider, contractAddresses[selected_chain][selectedToken['symbol'].toLowerCase()]);
         setAllowed(fau_allowed);
       }
       getInfo();

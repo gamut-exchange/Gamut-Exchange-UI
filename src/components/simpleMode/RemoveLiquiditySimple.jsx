@@ -20,8 +20,9 @@ import {
   removePool,
   fromWeiVal,
   getPoolSupply,
-} from "../../config/web3";
+} from "gamut-sdk";
 import { poolList } from "../../config/constants";
+import { contractAddresses } from "../../config/constants";
 import {
   LineChart,
   Line,
@@ -169,8 +170,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
       const provider = await connector.getProvider();
       const poolData = await getPoolData(
         provider,
-        selectedItem["address"],
-        selected_chain
+        selectedItem["address"]
       );
       console.log("selected", selectedItem)
       console.log("pool data", poolData)
@@ -182,16 +182,14 @@ const RemoveLiquiditySimple = ({ dark }) => {
       let amount = await getPoolBalance(
         account,
         provider,
-        selectedItem["address"],
-        selected_chain
+        selectedItem["address"]
       );
       amount = Number(amount).toPrecision(6);
       setPoolAmount(amount);
       setValue(((amount * lpPercentage) / 100).toFixed(2));
       let totalLPAmount = await getPoolSupply(
         provider,
-        selectedItem["address"],
-        selected_chain
+        selectedItem["address"]
       );
       setTotalLPTokens(totalLPAmount);
       await calculateOutput(totalLPAmount, (amount * lpPercentage) / 100);
@@ -223,7 +221,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
         ratio,
         tokenAAddr,
         tokenBAddr,
-        selected_chain
+        contractAddresses[selected_chain]["router"]
       );
       setRemoving(false);
     }
@@ -233,8 +231,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
     const provider = await connector.getProvider();
     const poolData = await getPoolData(
       provider,
-      selectedItem["address"],
-      selected_chain
+      selectedItem["address"]
     );
     console.log("pool data2", poolData);
     let removeingPercentage = inValue / (Number(totalLkTk) + 0.0000000001);
@@ -284,8 +281,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
         const provider = await connector.getProvider();
         const pData = await getPoolData(
           provider,
-          selectedItem["address"],
-          selected_chain
+          selectedItem["address"]
         );
         const weightA = fromWeiVal(provider, pData["weights"][1]);
         setPoolData(pData);
@@ -301,13 +297,11 @@ const RemoveLiquiditySimple = ({ dark }) => {
         let amount = await getPoolBalance(
           account,
           provider,
-          selectedItem["address"],
-          selected_chain
+          selectedItem["address"]
         );
         let amount2 = await getPoolSupply(
           provider,
-          selectedItem["address"],
-          selected_chain
+          selectedItem["address"]
         );
         amount = Number(amount).toPrecision(6);
         setTotalLPTokens(amount2);

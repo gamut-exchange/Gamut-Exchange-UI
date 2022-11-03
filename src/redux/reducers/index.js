@@ -24,7 +24,7 @@ export function walletAddress(state = '', action) {
     // return state;
 }
 
-export function selectedChain(state = 'ropsten', action) {
+export function selectedChain(state = 'goerli', action) {
     switch (action.type) {
         case SELECT_CHAIN:
             return action.payload

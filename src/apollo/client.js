@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client'
 
-export const ropstenClient = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/enjoylife420/ropsten-project',
+export const goerliClient = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/enjoydream420/gamut-ropsten',
   cache: new InMemoryCache({
     typePolicies: {
       Token: {

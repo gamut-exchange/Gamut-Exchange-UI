@@ -84,7 +84,7 @@ const Nav = ({ handleDark, dark }) => {
       let current_chainId = await web3.eth.getChainId();
       current_chainId = Number(current_chainId);
       if (
-        (chainLabel === "ropsten" && current_chainId === 3) ||
+        (chainLabel === "goerli" && current_chainId === 5) ||
         (chainLabel === "fantom" && current_chainId === 4002)
       ) {
         setWrongChain(false);
@@ -177,12 +177,9 @@ const Nav = ({ handleDark, dark }) => {
                 paper: dark ? classes.darkMenuWrapper : classes.menuWrapper,
               }}
             >
-              <MenuItem key="ropsten" onClick={() => handleChain("ropsten")}>
-                Ropsten
+              <MenuItem key="goerli" onClick={() => handleChain("goerli")}>
+                Goerli
               </MenuItem>
-              {/*<MenuItem key="fantom" onClick={() => handleChain("fantom")}>
-                Fantom
-              </MenuItem>*/}
             </Menu>
             <Box className={classes.actionGroup}>
               <Box className={classes.connectWallet}>
@@ -334,11 +331,11 @@ const Nav = ({ handleDark, dark }) => {
                     }}
                   >
                     <MenuItem
-                      key="ropsten"
-                      onClick={() => handleChain("ropsten")}
-                      selected={selected_chain === "ropsten"}
+                      key="goerli"
+                      onClick={() => handleChain("goerli")}
+                      selected={selected_chain === "goerli"}
                     >
-                      Ropsten
+                      Goerli
                     </MenuItem> 
                   </Menu>
                   <Box className={classes.actionGroup}>

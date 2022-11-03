@@ -1,11 +1,10 @@
 export const contractAddresses = {
-	'ropsten':{
-		'router': '0x6Acc995a8306dF36CACD60817Dd3d4F22bCfF8A6',
-		'hedgeFactory': '0xD8248ACF1241DBd18E2b44b96BE0fFe42307C06c',
-		'btc': '0xFBDBbA81C1A6E1f60d353f31EBeE63Fb03C5F54F',
-		'eth': '0x7a177D74A20b72dA96a242bEbEB9f82584Bd0856',
-		'usdc': '0x2E1AEDe0C1988542328B7a4BEc49Ee1dCef56B02',
-		'dai': '0x09cA4635e760982F07E831dc3E1cb791EFaFfA97'
+	'goerli':{
+		'router': '0x297B6caC6AAe8A4eEE69319681359bBab19df555',
+		'hedgeFactory': '0xbbd5D17B9aC782709724e16B3ABafB69a4913B09',
+		'btc': '0xb0De0355020065b9C05f336B8a267B3CeF69262E',
+		'usdc': '0x3346B2A939aA13e76Ce8Aa05ECCAe92E0D4F6580',
+		'dai': '0x817F61606B7f073854c51ec93beF408708A5b4E4'
 	},
 	'fantom':{
 		'router': '0xbbd5D17B9aC782709724e16B3ABafB69a4913B09',
@@ -18,11 +17,10 @@ export const contractAddresses = {
 }
 
 export const uniList = {
-	'ropsten': [
-		{value: "btc", chainId: 3, address: "0x1CbFD025Eb289b9c806A034cbD48d89234971700", symbol: "BTC", name: "BTC Coin", decimals: 18, logoURL: "./icons/btc.svg", tags: ["stablecoin"]},
-		{value: "eth", chainId: 3, address: "0x0f3Cd4D9CFC58Aa42426Fd7742837175ccea5918", symbol: "ETH", name: "ETH Coin", decimals: 18, logoURL: "./icons/eth.svg", tags: ["stablecoin"]},
-		{value: "usdc", chainId: 3, address: "0x2a12B95Dba4383f2537901Df1f113bbd566A48D1", symbol: "USDC", name: "USDC Coin", decimals: 18, logoURL: "./icons/usdc.svg", tags: ["stablecoin"]},
-		{value: "dai", chainId: 3, address: "0xEC3bE3f94B7E4bc635603537087c53355b180723", symbol: "DAI", name: "DAI Coin", decimals: 18, logoURL: "./icons/dai.svg", tags: ["stablecoin"]},
+	'goerli': [
+		{value: "btc", chainId: 5, address: "0xb0De0355020065b9C05f336B8a267B3CeF69262E", symbol: "BTC", name: "BTC Coin", decimals: 18, logoURL: "./icons/btc.svg", tags: ["stablecoin"]},
+		{value: "usdc", chainId: 5, address: "0x3346B2A939aA13e76Ce8Aa05ECCAe92E0D4F6580", symbol: "USDT", name: "USDT Coin", decimals: 18, logoURL: "./icons/usdc.svg", tags: ["stablecoin"]},
+		{value: "dai", chainId: 5, address: "0x817F61606B7f073854c51ec93beF408708A5b4E4", symbol: "DAI", name: "DAI Coin", decimals: 18, logoURL: "./icons/dai.svg", tags: ["stablecoin"]},
 	],
 	'fantom': [
 	  	{value: "btc", chainId: 4002, address: "0xE1F60643ED560a55b6aF90551c69Ec877DD105D9", symbol: "BTC", name: "BTC Coin", decimals: 18, logoURL: "./icons/btc.svg", tags: ["stablecoin"]},
@@ -33,11 +31,9 @@ export const uniList = {
 }
 
 export const poolList = {
-	'ropsten': [
-		{value: "other", address:"0xF4D4bcc094FA895A3E0588fFa2c72f5EC0Ea8396", symbols:["BTC", "ETH"], logoURLs:["./icons/btc.svg", "./icons/eth.svg"]},
-		{value: "other", address:"0x1719C44ca5bed9590c7D21e5144121eBF762196e", symbols:["ETH", "USDC"], logoURLs:["./icons/eth.svg", "./icons/usdc.svg"]},
-		{value: "other", address:"0x5AD90b7A1951015b7B56475b4F5A774bA13e46D8", symbols:["BTC", "USDC"], logoURLs:["./icons/btc.svg", "./icons/usdc.svg"]},
-		{value: "other", address:"0x6238E7433AbEB9cf8fde2A64B36701E73743dF6C", symbols:["DAI", "USDC"], logoURLs:["./icons/dai.svg", "./icons/usdc.svg"]}
+	'goerli': [
+		{value: "other", address:"0x362b81498cf2eEDEAeE54E7B0215eecA8440B974", symbols:["BTC", "DAI"], logoURLs:["./icons/btc.svg", "./icons/dai.svg"]},
+		{value: "other", address:"0x88C61Ba7Ed87228d74fB52Bf081c9918675b664D", symbols:["DAI", "USDT"], logoURLs:["./icons/dai.svg", "./icons/usdc.svg"]}
 	],
 	'fantom': [
 		{value: "btc-eth", address:"0x4D72553001fE88371aEc189455E1Ed18849b8bA2", symbols:["ETH", "BTC"], logoURLs:["./icons/eth.svg", "./icons/btc.svg"]},

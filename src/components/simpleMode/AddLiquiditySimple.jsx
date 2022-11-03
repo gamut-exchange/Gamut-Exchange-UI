@@ -22,11 +22,10 @@ import {
   joinPool,
   tokenApproval,
   approveToken,
-  poolApproval,
-  approvePool,
-} from "../../config/web3";
+} from "gamut-sdk";
 import { uniList } from "../../config/constants";
 import { poolList } from "../../config/constants";
+import { contractAddresses } from "../../config/constants";
 import {
   LineChart,
   Line,
@@ -167,18 +166,18 @@ const AddLiquiditySimple = ({ dark }) => {
             provider,
             token["address"],
             outToken["address"],
-            selected_chain
+            contractAddresses[selected_chain]["hedgeFactory"]
           );
           const poolData = await getPoolData(
             provider,
-            poolAddr,
-            selected_chain
+            poolAddr
           );
           checkApproved(token, outToken, poolAddr, value, valueEth);
           setIsExist(true);
           const sliderInit = await sliderInitVal(poolData, token);
           setSliderValue(sliderInit * 100);
         } catch (error) {
+          console.log(error.message);
           setIsExist(false);
         }
 
@@ -213,7 +212,7 @@ const AddLiquiditySimple = ({ dark }) => {
             provider,
             inToken["address"],
             token["address"],
-            selected_chain
+            contractAddresses[selected_chain]["hedgeFactory"]
           );
           const poolData = await getPoolData(provider, poolAddr);
           checkApproved(inToken, token, poolAddr, value, valueEth);
@@ -221,6 +220,7 @@ const AddLiquiditySimple = ({ dark }) => {
           const sliderInit = await sliderInitVal(poolData, inToken);
           setSliderValue(sliderInit * 100);
         } catch (error) {
+          console.log(error.message);
           setIsExist(false);
         }
       }
@@ -257,19 +257,19 @@ const AddLiquiditySimple = ({ dark }) => {
       account,
       provider,
       token1["address"],
-      selected_chain
+      contractAddresses[selected_chain]["router"]
     );
     const approved2 = await tokenApproval(
       account,
       provider,
       token2["address"],
-      selected_chain
+      contractAddresses[selected_chain]["router"]
     );
-    setApproval1(approved1 * 1 > val1 * 1);
-    setApproval2(approved2 * 1 > val1 * 1);
+    setApproval1(approved1 * 1 >= val1 * 1);
+    setApproval2(approved2 * 1 >= val1 * 1);
     setApprovedVal1(approved1);
     setApprovedVal2(approved2);
-    setApproval(approved1 * 1 > val1 * 1 && approved2 * 1 > val2 * 1);
+    setApproval(approved1 * 1 >= val1 * 1 && approved2 * 1 >= val2 * 1);
   };
 
   const calculateRatio = async (inToken, poolData, input) => {
@@ -314,7 +314,8 @@ const AddLiquiditySimple = ({ dark }) => {
         outToken["address"],
         value,
         valueEth,
-        selected_chain
+        contractAddresses[selected_chain]["router"],
+        contractAddresses[selected_chain]["hedgeFactory"]
       );
       setAdding(false);
     }
@@ -333,7 +334,7 @@ const AddLiquiditySimple = ({ dark }) => {
           provider,
           inToken["address"],
           toVal * 1.1,
-          selected_chain
+          contractAddresses[selected_chain]["router"]
         );
         setUnlocking(false);
         setApproval1(approved1 * 1 > value * 1);
@@ -351,7 +352,7 @@ const AddLiquiditySimple = ({ dark }) => {
         provider,
         outToken["address"],
         toVal * 1.1,
-        selected_chain
+        contractAddresses[selected_chain]["router"]
       );
       setUnlocking(false);
       setApproval2(approved2 * 1 > valueEth * 1);
@@ -390,9 +391,9 @@ const AddLiquiditySimple = ({ dark }) => {
         provider,
         inToken["address"],
         outToken["address"],
-        selected_chain
+        contractAddresses[selected_chain]["hedgeFactory"]
       );
-      const poolData = await getPoolData(provider, poolAddress, selected_chain);
+      const poolData = await getPoolData(provider, poolAddress);
       setIsExist(true);
       setPoolAddress(poolAddress);
       await calculateRatio(inToken, poolData, value);
@@ -797,7 +798,7 @@ const AddLiquiditySimple = ({ dark }) => {
                     style={{ minHeight: 57 }}
                   >
                     {""}
-                    {(limitedout || Number(value)==0) ? "Insufficient Blanance" : "Invalid Pair"}
+                    {!isExist ? "Invalid Pair" : "Insufficient Blanance"}
                   </button>
                 )}
               </>

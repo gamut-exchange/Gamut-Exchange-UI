@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@apollo/client'
 import gql from 'graphql-tag'
 import {
-  ropstenClient,
+  goerliClient,
 } from '../apollo/client'
 
 export const POOL_WEIGHTS = gql`
@@ -51,7 +51,7 @@ export const POOL_PRICES = (poolString) => {
  */
 export function useWeightsData(address) {
   const { loading, error, data } = useQuery(POOL_WEIGHTS, {
-    client: ropstenClient,
+    client: goerliClient,
     variables: {
       address: address,
     },
@@ -83,7 +83,7 @@ export function useTokenPricesData(addresses) {
   })
   poolString += ']'
   const { loading, error, data } = useQuery(POOL_PRICES(poolString), {
-    client: ropstenClient,
+    client: goerliClient,
     variables: {},
     fetchPolicy: 'cache-first',
   })

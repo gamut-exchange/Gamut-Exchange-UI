@@ -21,9 +21,10 @@ import {
   tokenApproval,
   approveToken,
   getSwapFeePercent,
-} from "../../../config/web3";
+} from "gamut-sdk";
 import { uniList } from "../../../config/constants";
 import { poolList } from "../../../config/constants";
+import { contractAddresses } from "../../../config/constants";
 import {
   LineChart,
   Line,
@@ -117,9 +118,10 @@ const SimpleSwap = ({ dark }) => {
       account,
       provider,
       token["address"],
-      selected_chain
+      contractAddresses[selected_chain]["router"]
     );
-    setApproval(approval * 1 > val * 1);
+    debugger;
+    setApproval(approval * 1 >= val * 1);
     setApprovedVal(Number(approval));
   };
 
@@ -242,23 +244,21 @@ const SimpleSwap = ({ dark }) => {
           provider,
           inSToken["address"],
           middleTokens[0]["address"],
-          selected_chain
+          contractAddresses[selected_chain]["hedgeFactory"]
         );
         const poolDataA = await getPoolData(
           provider,
-          poolAddressA,
-          selected_chain
+          poolAddressA
         );
         const poolAddressB = await getPoolAddress(
           provider,
           middleTokens[0]["address"],
           outSToken["address"],
-          selected_chain
+          contractAddresses[selected_chain]["hedgeFactory"]
         );
         const poolDataB = await getPoolData(
           provider,
-          poolAddressB,
-          selected_chain
+          poolAddressB
         );
         const middleOutput = await calculateSwap(
           inSToken["address"],
@@ -276,34 +276,31 @@ const SimpleSwap = ({ dark }) => {
           provider,
           inSToken["address"],
           middleTokens[0]["address"],
-          selected_chain
+          contractAddresses[selected_chain]["hedgeFactory"]
         );
         const poolDataA = await getPoolData(
           provider,
-          poolAddressA,
-          selected_chain
+          poolAddressA
         );
         const poolAddressB = await getPoolAddress(
           provider,
           middleTokens[0]["address"],
           middleTokens[1]["address"],
-          selected_chain
+          contractAddresses[selected_chain]["hedgeFactory"]
         );
         const poolDataB = await getPoolData(
           provider,
-          poolAddressB,
-          selected_chain
+          poolAddressB
         );
         const poolAddressC = await getPoolAddress(
           provider,
           middleTokens[1]["address"],
           outSToken["address"],
-          selected_chain
+          contractAddresses[selected_chain]['pool']
         );
         const poolDataC = await getPoolData(
           provider,
-          poolAddressC,
-          selected_chain
+          poolAddressC
         );
         const middleOutput1 = await calculateSwap(
           inSToken["address"],
@@ -385,9 +382,9 @@ const SimpleSwap = ({ dark }) => {
         provider,
         inSToken["address"],
         outSToken["address"],
-        selected_chain
+        contractAddresses[selected_chain]["hedgeFactory"]
       );
-      const poolData = await getPoolData(provider, poolAddress, selected_chain);
+      const poolData = await getPoolData(provider, poolAddress);
       const result = await calculateSwap(
         inSToken["address"],
         poolData,
@@ -440,7 +437,7 @@ const SimpleSwap = ({ dark }) => {
           middleToken,
           inValue * 1,
           account,
-          selected_chain
+          contractAddresses[selected_chain]["router"]
         );
       else
         await swapTokens(
@@ -450,7 +447,7 @@ const SimpleSwap = ({ dark }) => {
           inValue * 1,
           account,
           limit,
-          selected_chain
+          contractAddresses[selected_chain]["router"]
         );
       setSwapping(false);
     }
@@ -465,10 +462,10 @@ const SimpleSwap = ({ dark }) => {
         provider,
         inToken["address"],
         amount * 1.01,
-        selected_chain
+        contractAddresses[selected_chain]["router"]
       );
       setUnlocking(false);
-      setApproval(approvedToken > inValue);
+      setApproval(approvedToken >= inValue);
     }
   };
 
@@ -532,13 +529,13 @@ const SimpleSwap = ({ dark }) => {
             provider,
             inToken["address"],
             midToken[0]["address"],
-            selected_chain
+            contractAddresses[selected_chain]["hedgeFactory"]
           );
           const poolAddress2 = await getPoolAddress(
             provider,
             midToken[0]["address"],
             outToken["address"],
-            selected_chain
+            contractAddresses[selected_chain]["hedgeFactory"]
           );
           setPoolAddress([
             poolAddress1.toLowerCase(),
@@ -549,19 +546,19 @@ const SimpleSwap = ({ dark }) => {
             provider,
             inToken["address"],
             midToken[0]["address"],
-            selected_chain
+            contractAddresses[selected_chain]["hedgeFactory"]
           );
           const poolAddress2 = await getPoolAddress(
             provider,
             midToken[0]["address"],
             midToken[1]["address"],
-            selected_chain
+            contractAddresses[selected_chain]["hedgeFactory"]
           );
           const poolAddress3 = await getPoolAddress(
             provider,
             midToken[1]["address"],
             outToken["address"],
-            selected_chain
+            contractAddresses[selected_chain]["hedgeFactory"]
           );
           setPoolAddress([
             poolAddress1.toLowerCase(),
@@ -574,12 +571,11 @@ const SimpleSwap = ({ dark }) => {
           provider,
           inToken["address"],
           outToken["address"],
-          selected_chain
+          contractAddresses[selected_chain]["hedgeFactory"]
         );
         const poolData = await getPoolData(
           provider,
-          poolAddress,
-          selected_chain
+          poolAddress
         );
         let amountOut = await calculateSwap(
           inToken["address"],
@@ -643,7 +639,7 @@ const SimpleSwap = ({ dark }) => {
         const swapFeePercent = await getSwapFeePercent(
           provider,
           poolList[selected_chain][0]["address"],
-          selected_chain
+          contractAddresses[selected_chain]["pool"]
         );
         setSwapFee(swapFeePercent * 0.01);
       };

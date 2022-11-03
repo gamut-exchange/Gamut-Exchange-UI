@@ -1,10 +1,10 @@
 import WalletConnectors from "../../assets/constants/connectors";
 
-const chainId1 = 3;
+const chainId1 = 5;
 const chainId2 = 4002;
-const RPC_URL1 = "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
+const RPC_URL1 = "https://goerli.infura.io/v3/";
 const RPC_URL2 = "https://rpc.testnet.fantom.network/";
-const viewBlockUrl1 = "https://ropsten.etherscan.io";
+const viewBlockUrl1 = "https://goerli.etherscan.io/";
 const viewBlockUrl2 = "https://testnet.ftmscan.com/";
 
 export const changeChain = async (chain) => {
@@ -12,7 +12,7 @@ export const changeChain = async (chain) => {
   const provider = await injected.getProvider();
   if (provider) {
     try {
-      if(chain === "ropsten") {
+      if(chain === "goerli") {
         await provider.request({
         method: "wallet_switchEthereumChain",
           params: [{ chainId: `0x${chainId1.toString(16)}` }],

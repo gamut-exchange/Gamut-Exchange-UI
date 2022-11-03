@@ -68,7 +68,6 @@ const ConnectWallet = ({
 
   const { injected, walletconnect } = walletConnectors();
 
-  // const injected = (chain==="ropsten")?injected1:injected2;
   const selected_chain = useSelector((state) => state.selectedChain);
   const [activatingConnector, setActivatingConnector] = React.useState();
 
@@ -83,7 +82,7 @@ const ConnectWallet = ({
     alert(`Copied to clipboard.`, "info");
   };
   const viewBlockUrl = (account) => {
-    window.open(`https://ropsten.etherscan.io/address/${account}`);
+    window.open(`https://goerli.etherscan.io/address/${account}`);
   };
 
   // const viewBlockUrl2 = (account) => {
