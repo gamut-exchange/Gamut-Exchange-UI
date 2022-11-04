@@ -70,6 +70,7 @@ const AddLiquiditySimple = ({ dark }) => {
 
   const dispatch = useDispatch();
 
+  debugger;
   const weightData = useWeightsData(poolAddress.toLowerCase());
 
   const StyledModal = tw.div`

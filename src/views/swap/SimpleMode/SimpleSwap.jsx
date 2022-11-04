@@ -68,7 +68,6 @@ const SimpleSwap = ({ dark }) => {
   const [swapping, setSwapping] = useState(false);
 
   const dispatch = useDispatch();
-
   const pricesData = useTokenPricesData(poolAddress);
   const StyledModal = tw.div`
     flex
@@ -508,22 +507,24 @@ const SimpleSwap = ({ dark }) => {
       const provider = await connector.getProvider();
       const midToken = await findMiddleToken(inToken, outToken);
       if (midToken) {
-        let amountOut = await calcOutput(
-          midToken,
-          provider,
-          value,
-          inToken,
-          outToken
-        );
-        amountOut =
-          amountOut * 1 === 0
-            ? 0
-            : amountOut > 1
-            ? amountOut.toFixed(2)
-            : amountOut.toFixed(6);
-        setValueEth(amountOut);
-    if (Number(value) > Number(inLimBal) || Number(amountOut) > Number(outLimBal)) setLimitedout(true);
-    else setLimitedout(false);
+        if(value*1 != 0) {
+          let amountOut = await calcOutput(
+            midToken,
+            provider,
+            value,
+            inToken,
+            outToken
+          );
+          amountOut =
+            amountOut * 1 === 0
+              ? 0
+              : amountOut > 1
+              ? amountOut.toFixed(2)
+              : amountOut.toFixed(6);
+          setValueEth(amountOut);
+          if (Number(value) > Number(inLimBal) || Number(amountOut) > Number(outLimBal)) setLimitedout(true);
+          else setLimitedout(false);
+        }
         if (midToken.length == 1) {
           const poolAddress1 = await getPoolAddress(
             provider,
@@ -567,6 +568,7 @@ const SimpleSwap = ({ dark }) => {
           ]);
         }
       } else {
+
         const poolAddress = await getPoolAddress(
           provider,
           inToken["address"],
@@ -577,27 +579,32 @@ const SimpleSwap = ({ dark }) => {
           provider,
           poolAddress
         );
-        let amountOut = await calculateSwap(
-          inToken["address"],
-          poolData,
-          value
-        );
 
-        amountOut =
-          amountOut * 1 === 0
-            ? 0
-            : amountOut > 1
-            ? amountOut.toFixed(2)
-            : amountOut.toFixed(6);
-        setValueEth(amountOut);
-        if (Number(value) > Number(inLimBal) || Number(amountOut) > Number(outLimBal)) setLimitedout(true);
-        else setLimitedout(false);
-        const slippage = await calcSlippage(
-          inToken,
-          poolData,
-          value,
-          amountOut
-        );
+        if(value*1 != 0) {
+          let amountOut = await calculateSwap(
+            inToken["address"],
+            poolData,
+            value
+          );
+
+          amountOut =
+            amountOut * 1 === 0
+              ? 0
+              : amountOut > 1
+              ? amountOut.toFixed(2)
+              : amountOut.toFixed(6);
+          setValueEth(amountOut);
+          if (Number(value) > Number(inLimBal) || Number(amountOut) > Number(outLimBal)) setLimitedout(true);
+          else setLimitedout(false);
+
+          const slippage = await calcSlippage(
+            inToken,
+            poolData,
+            value,
+            amountOut
+          );
+        }
+
         setPoolAddress([poolAddress.toLowerCase()]);
       }
     } else if (inToken !== outToken) {
@@ -648,14 +655,10 @@ const SimpleSwap = ({ dark }) => {
   }, [account, ""]);
 
   useEffect(() => {
-    if(inValue*1 != 0) {
-      getStatusData(inValue);
-    }
+    getStatusData(inValue);
     const intervalId = setInterval(() => {
-      if(inValue*1 != 0) {
-        getStatusData(inValue);
-      }
-    }, 40000);
+      getStatusData(inValue);
+    }, 120000);
     return () => clearInterval(intervalId);
   }, [inToken, outToken, inValue]);
 

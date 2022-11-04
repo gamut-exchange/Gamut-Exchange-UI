@@ -19,8 +19,8 @@ export const contractAddresses = {
 export const uniList = {
 	'goerli': [
 		{value: "btc", chainId: 5, address: "0xb0De0355020065b9C05f336B8a267B3CeF69262E", symbol: "BTC", name: "BTC Coin", decimals: 18, logoURL: "./icons/btc.svg", tags: ["stablecoin"]},
-		{value: "usdc", chainId: 5, address: "0x3346B2A939aA13e76Ce8Aa05ECCAe92E0D4F6580", symbol: "USDT", name: "USDT Coin", decimals: 18, logoURL: "./icons/usdc.svg", tags: ["stablecoin"]},
 		{value: "dai", chainId: 5, address: "0x817F61606B7f073854c51ec93beF408708A5b4E4", symbol: "DAI", name: "DAI Coin", decimals: 18, logoURL: "./icons/dai.svg", tags: ["stablecoin"]},
+		{value: "usdc", chainId: 5, address: "0x3346B2A939aA13e76Ce8Aa05ECCAe92E0D4F6580", symbol: "USDT", name: "USDT Coin", decimals: 18, logoURL: "./icons/usdc.svg", tags: ["stablecoin"]},
 	],
 	'fantom': [
 	  	{value: "btc", chainId: 4002, address: "0xE1F60643ED560a55b6aF90551c69Ec877DD105D9", symbol: "BTC", name: "BTC Coin", decimals: 18, logoURL: "./icons/btc.svg", tags: ["stablecoin"]},

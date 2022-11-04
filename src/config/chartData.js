@@ -94,7 +94,6 @@ export function useTokenPricesData(addresses) {
       return undefined
     }
   }, [data])
-  debugger;
   return {
     loading: loading,
     error: Boolean(error),
