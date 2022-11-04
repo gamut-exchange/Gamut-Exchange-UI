@@ -120,7 +120,7 @@ const SimpleSwap = ({ dark }) => {
       token["address"],
       contractAddresses[selected_chain]["router"]
     );
-    debugger;
+    
     setApproval(approval * 1 >= val * 1);
     setApprovedVal(Number(approval));
   };
@@ -648,9 +648,13 @@ const SimpleSwap = ({ dark }) => {
   }, [account, ""]);
 
   useEffect(() => {
-    getStatusData(inValue);
-    const intervalId = setInterval(() => {
+    if(inValue*1 != 0) {
       getStatusData(inValue);
+    }
+    const intervalId = setInterval(() => {
+      if(inValue*1 != 0) {
+        getStatusData(inValue);
+      }
     }, 40000);
     return () => clearInterval(intervalId);
   }, [inToken, outToken, inValue]);
@@ -1033,6 +1037,7 @@ const SimpleSwap = ({ dark }) => {
                     <input
                       type="number"
                       value={valueEth}
+                      readOnly={true}
                       className="input-value text-lg text-right w-full bg-transparent focus:outline-none"
                     ></input>
                   </div>

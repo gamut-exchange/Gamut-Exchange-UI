@@ -172,8 +172,6 @@ const RemoveLiquiditySimple = ({ dark }) => {
         provider,
         selectedItem["address"]
       );
-      console.log("selected", selectedItem)
-      console.log("pool data", poolData)
       const weightA = fromWeiVal(provider, poolData["weights"][0]);
       setWeightA(weightA);
       setScale((weightA * 100).toPrecision(6));
@@ -202,7 +200,6 @@ const RemoveLiquiditySimple = ({ dark }) => {
 
   const selectToken = async (item) => {
     handleClose();
-    console.log("choose item", item)
     setSelectedItem(item);
   };
 
@@ -233,7 +230,7 @@ const RemoveLiquiditySimple = ({ dark }) => {
       provider,
       selectedItem["address"]
     );
-    console.log("pool data2", poolData);
+    
     let removeingPercentage = inValue / (Number(totalLkTk) + 0.0000000001);
     let standardOutA = removeingPercentage * poolData.balances[0];
     let standardOutB = removeingPercentage * poolData.balances[1];

@@ -112,7 +112,6 @@ const ConnectWallet = ({
     setIsOpen(false);
   };
   const getErrorMessage = (error) => {
-    // debugger;
     if (error instanceof NoEthereumProviderError) {
       return "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.";
     } else if (error instanceof UnsupportedChainIdError) {
