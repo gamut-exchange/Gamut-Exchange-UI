@@ -21,6 +21,9 @@ import {
   tokenApproval,
   approveToken,
   getSwapFeePercent,
+  calculateSwap,
+  calcOutput,
+  getMiddleToken
 } from "gamut-sdk";
 import { uniList } from "../../../config/constants";
 import { poolList } from "../../../config/constants";
@@ -124,38 +127,6 @@ const SimpleSwap = ({ dark }) => {
     setApprovedVal(Number(approval));
   };
 
-  const calculateSwap = async (inToken, poolData, input) => {
-    let ammount = input * 10 ** 18;
-    let balance_from;
-    let balance_to;
-    let weight_from;
-    let weight_to;
-
-    if (inToken.toLowerCase() == poolData.tokens[0].toLowerCase()) {
-      balance_from = poolData.balances[0];
-      balance_to = poolData.balances[1];
-      weight_from = poolData.weights[0];
-      weight_to = poolData.weights[1];
-    } else {
-      balance_from = poolData.balances[1];
-      balance_to = poolData.balances[0];
-      weight_from = poolData.weights[1];
-      weight_to = poolData.weights[0];
-    }
-
-    let bIn = ammount / 10 ** 18;
-    let pbA = balance_to / 10 ** 18;
-    let pbB = balance_from / 10 ** 18;
-    let wA = weight_to / 10 ** 18;
-    let wB = weight_from / 10 ** 18;
-
-    let exp =
-      (wB - (wB * (1 - pbB / (pbB + bIn))) / (1 + pbB / (pbB + bIn))) /
-      (wA + (wB * (1 - pbB / (pbB + bIn))) / (1 + pbB / (pbB + bIn)));
-    let bOut = pbA * (1 - (pbB / (pbB + bIn)) ** exp);
-    return bOut;
-  };
-
   const calcSlippage = async (inToken, poolData, input, output) => {
     let balance_from;
     let balance_to;
@@ -230,189 +201,12 @@ const SimpleSwap = ({ dark }) => {
     await selectToken(tempToken, 0);
   };
 
-  const calcOutput = async (
-    middleTokens,
-    provider,
-    val = inValue,
-    inSToken = inToken,
-    outSToken = outToken
-  ) => {
-    try {
-      if (middleTokens.length === 1) {
-        const poolAddressA = await getPoolAddress(
-          provider,
-          inSToken["address"],
-          middleTokens[0]["address"],
-          contractAddresses[selected_chain]["hedgeFactory"]
-        );
-        const poolDataA = await getPoolData(
-          provider,
-          poolAddressA
-        );
-        const poolAddressB = await getPoolAddress(
-          provider,
-          middleTokens[0]["address"],
-          outSToken["address"],
-          contractAddresses[selected_chain]["hedgeFactory"]
-        );
-        const poolDataB = await getPoolData(
-          provider,
-          poolAddressB
-        );
-        const middleOutput = await calculateSwap(
-          inSToken["address"],
-          poolDataA,
-          val * (1 - swapFee)
-        );
-        const output = await calculateSwap(
-          middleTokens[0]["address"],
-          poolDataB,
-          middleOutput * (1 - swapFee)
-        );
-        return output;
-      } else {
-        const poolAddressA = await getPoolAddress(
-          provider,
-          inSToken["address"],
-          middleTokens[0]["address"],
-          contractAddresses[selected_chain]["hedgeFactory"]
-        );
-        const poolDataA = await getPoolData(
-          provider,
-          poolAddressA
-        );
-        const poolAddressB = await getPoolAddress(
-          provider,
-          middleTokens[0]["address"],
-          middleTokens[1]["address"],
-          contractAddresses[selected_chain]["hedgeFactory"]
-        );
-        const poolDataB = await getPoolData(
-          provider,
-          poolAddressB
-        );
-        const poolAddressC = await getPoolAddress(
-          provider,
-          middleTokens[1]["address"],
-          outSToken["address"],
-          contractAddresses[selected_chain]['pool']
-        );
-        const poolDataC = await getPoolData(
-          provider,
-          poolAddressC
-        );
-        const middleOutput1 = await calculateSwap(
-          inSToken["address"],
-          poolDataA,
-          val * (1 - swapFee)
-        );
-        const middleOutput2 = await calculateSwap(
-          middleTokens[0]["address"],
-          poolDataB,
-          middleOutput1 * (1 - swapFee)
-        );
-        const output = await calculateSwap(
-          middleTokens[1]["address"],
-          poolDataC,
-          middleOutput2 * (1 - swapFee)
-        );
-        return output;
-      }
-    } catch (error) {
-      return -1;
-    }
-  };
-
-  const findMiddleToken = async (inSToken, outSToken) => {
-    const availableLists = uniList[selected_chain].filter((item) => {
-      return (
-        item["address"] !== inSToken["address"] &&
-        item["address"] !== outSToken["address"]
-      );
-    });
-
-    let suitableRouter = [];
+  const findMiddleToken = async () => {
     const provider = await connector.getProvider();
-    for (let i = 0; i < availableLists.length; i++) {
-      const calculatedOutput = await calcOutput(
-        [availableLists[i]],
-        provider,
-        inValue,
-        inSToken,
-        outSToken
-      );
-      if (suitableRouter.length === 0) {
-        if (Number(calculatedOutput) > 0) {
-          suitableRouter[0] = [availableLists[i]];
-          suitableRouter[1] = calculatedOutput;
-        }
-      } else {
-        if (Number(calculatedOutput) > Number(suitableRouter[1])) {
-          suitableRouter[0] = [availableLists[i]];
-          suitableRouter[1] = calculatedOutput;
-        }
-      }
-    }
-
-    const allPairs = pairs(availableLists);
-    for (let i = 0; i < allPairs.length; i++) {
-      const calculatedOutput = await calcOutput(
-        allPairs[i],
-        provider,
-        inValue,
-        inSToken,
-        outSToken
-      );
-      if (suitableRouter.length === 0) {
-        if (Number(calculatedOutput) > 0) {
-          suitableRouter[0] = allPairs[i];
-          suitableRouter[1] = calculatedOutput;
-        }
-      } else {
-        if (Number(calculatedOutput) > Number(suitableRouter[1])) {
-          suitableRouter[0] = allPairs[i];
-          suitableRouter[1] = calculatedOutput;
-        }
-      }
-    }
-
-    try {
-      const poolAddress = await getPoolAddress(
-        provider,
-        inSToken["address"],
-        outSToken["address"],
-        contractAddresses[selected_chain]["hedgeFactory"]
-      );
-      const poolData = await getPoolData(provider, poolAddress);
-      const result = await calculateSwap(
-        inSToken["address"],
-        poolData,
-        inValue
-      );
-      if (suitableRouter.length !== 0) {
-        if (Number(result) > Number(suitableRouter[1])) {
-          setMiddleToken(null);
-          getMiddleTokenSymbol(null);
-          return null;
-        } else {
-          setMiddleToken(suitableRouter[0]);
-          getMiddleTokenSymbol(suitableRouter[0]);
-          return suitableRouter[0];
-        }
-      } else {
-        setMiddleToken(null);
-        getMiddleTokenSymbol(null);
-        return null;
-      }
-    } catch (error) {
-      if (suitableRouter.length !== 0) {
-        setMiddleToken(suitableRouter[0]);
-        getMiddleTokenSymbol(suitableRouter[0]);
-        return suitableRouter[0];
-      } else {
-        return null;
-      }
-    }
+    var suitableRouter = await getMiddleToken(inValue, inToken, outToken, uniList, provider, contractAddresses, selected_chain, swapFee);
+    setMiddleToken(suitableRouter);
+    getMiddleTokenSymbol(suitableRouter);
+    return suitableRouter;
   };
 
   const pairs = (arr) => {
@@ -425,6 +219,7 @@ const SimpleSwap = ({ dark }) => {
 
   const executeSwap = async () => {
     if (account && inToken["address"] !== outToken["address"]) {
+      debugger;
       const provider = await connector.getProvider();
       const limit = valueEth * 0.99;
       setSwapping(true);
@@ -505,7 +300,7 @@ const SimpleSwap = ({ dark }) => {
       let inLimBal = inBal.toString().replaceAll(",", "");
       let outLimBal = outBal.toString().replaceAll(",", "");
       const provider = await connector.getProvider();
-      const midToken = await findMiddleToken(inToken, outToken);
+      const midToken = await findMiddleToken();
       if (midToken) {
         if(value*1 != 0) {
           let amountOut = await calcOutput(
@@ -513,7 +308,10 @@ const SimpleSwap = ({ dark }) => {
             provider,
             value,
             inToken,
-            outToken
+            outToken,
+            contractAddresses,
+            selected_chain,
+            swapFee
           );
           amountOut =
             amountOut * 1 === 0
@@ -1133,7 +931,7 @@ const SimpleSwap = ({ dark }) => {
                         <div className="text-red-700 flex items-center pt-1.5">
                           <div>
                             <svg
-                              class="fill-current h-6 w-6 mr-4"
+                              className="fill-current h-6 w-6 mr-4"
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 20 20"
                             >

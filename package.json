@@ -25,7 +25,7 @@
     "apollo-client": "2.6.10",
     "apollo-link-http": "1.5.17",
     "ethers": "^5.6.2",
-    "gamut-sdk": "^1.0.1",
+    "gamut-sdk": "^1.0.2",
     "graphql": "15.5.0",
     "graphql-tag": "2.11.0",
     "notistack": "2.0.2",
