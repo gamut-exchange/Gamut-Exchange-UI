@@ -203,7 +203,7 @@ const SimpleSwap = ({ dark }) => {
 
   const findMiddleToken = async () => {
     const provider = await connector.getProvider();
-    var suitableRouter = await getMiddleToken(inValue, inToken, outToken, uniList, provider, contractAddresses, selected_chain, swapFee);
+    var suitableRouter = await getMiddleToken(inValue, inToken, outToken, uniList[selected_chain], provider, contractAddresses[selected_chain]["hedgeFactory"], swapFee);
     setMiddleToken(suitableRouter);
     getMiddleTokenSymbol(suitableRouter);
     return suitableRouter;
@@ -219,7 +219,6 @@ const SimpleSwap = ({ dark }) => {
 
   const executeSwap = async () => {
     if (account && inToken["address"] !== outToken["address"]) {
-      debugger;
       const provider = await connector.getProvider();
       const limit = valueEth * 0.99;
       setSwapping(true);
@@ -309,8 +308,7 @@ const SimpleSwap = ({ dark }) => {
             value,
             inToken,
             outToken,
-            contractAddresses,
-            selected_chain,
+            contractAddresses[selected_chain]["hedgeFactory"],
             swapFee
           );
           amountOut =
@@ -443,8 +441,7 @@ const SimpleSwap = ({ dark }) => {
         checkApproved(inToken, inValue);
         const swapFeePercent = await getSwapFeePercent(
           provider,
-          poolList[selected_chain][0]["address"],
-          contractAddresses[selected_chain]["pool"]
+          poolList[selected_chain][0]["address"]
         );
         setSwapFee(swapFeePercent * 0.01);
       };
